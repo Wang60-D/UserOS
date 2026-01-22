@@ -8,7 +8,8 @@
     "android:emulator": "expo start --android",
     "ios": "expo run:ios",
     "ios:simulator": "expo start --ios --simulator",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "sync": "bash scripts/sync_with_log.sh"
   },
   "dependencies": {
     "@react-navigation/native": "^7.1.27",

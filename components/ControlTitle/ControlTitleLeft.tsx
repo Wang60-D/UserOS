@@ -123,22 +123,22 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   titleText: {
-    fontSize: 20,
-    color: '#000000',
+    fontSize: TOKENS.fontSize.large,
+    color: TOKENS.colors.textPrimary,
     fontWeight: '500',
   },
   divider: {
     width: 1,
     height: 12,
-    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    backgroundColor: TOKENS.colors.divider,
   },
   subTitleText: {
-    fontSize: 20,
-    color: 'rgba(0, 0, 0, 0.5)',
+    fontSize: TOKENS.fontSize.large,
+    color: TOKENS.colors.subtitleText,
     fontWeight: '400',
   },
   rightPill: {
-    backgroundColor: 'rgba(0, 0, 0, 0.06)',
+    backgroundColor: TOKENS.colors.rightPillBg,
     paddingHorizontal: 12,
     paddingVertical: 5.5,
     borderRadius: 999,
@@ -146,8 +146,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   rightText: {
-    fontSize: 13,
-    color: 'rgba(0, 0, 0, 0.8)',
+    fontSize: TOKENS.fontSize.small,
+    color: TOKENS.colors.rightText,
     fontWeight: '400',
   },
   switchHit: {
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 999,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: TOKENS.colors.switchThumb,
   },
 });
 

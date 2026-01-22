@@ -2,12 +2,18 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../components/ControlTitle/ControlTitleLeft';
+import ControlTitleCenter from '../components/ControlTitle/ControlTitleCenter';
 import { TOKENS } from '../tokens';
 // 卡片参数
 const CARD_BORDER_WIDTH = 2; // 描边宽度
 const ITEM_HEIGHT =
   TOKENS.sizes.controlTitleHeight + TOKENS.spacing.cardInnerPaddingV * 2; // 卡片高度
 const ITEM_GAP = TOKENS.spacing.itemGap; // 卡片间距
+const CENTER_CARD_HEIGHT =
+  TOKENS.sizes.controlTitleCenterHeightWithSubtitle +
+  TOKENS.spacing.cardInnerPaddingV * 2;
+const CENTER_CARD_HEIGHT_NO_SUB =
+  TOKENS.sizes.controlTitleCenterHeight + TOKENS.spacing.cardInnerPaddingV * 2;
 
 const ControlTitleScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
@@ -37,13 +43,33 @@ const ControlTitleScreen: React.FC = () => {
           rightText="xxxxx"
         />
       </View>
-      <View style={styles.itemCard}>
+      <View style={[styles.itemCard, styles.itemSpacing]}>
         <ControlTitleLeft
           titleText="灯光模式"
           subtitleText="副标题"
           subtitleEnabled={true}
           rightMode="device"
           rightText="HELLO_INDIAN_MIFANS"
+        />
+      </View>
+      <View
+        style={[
+          styles.itemCard,
+          styles.itemSpacing,
+          { height: CENTER_CARD_HEIGHT },
+        ]}
+      >
+        <ControlTitleCenter
+          titleText="标题"
+          subtitleText="副标题副标题"
+          subtitleEnabled={true}
+        />
+      </View>
+      <View style={[styles.itemCard, { height: CENTER_CARD_HEIGHT_NO_SUB }]}>
+        <ControlTitleCenter
+          titleText="标题"
+          subtitleText="副标题副标题"
+          subtitleEnabled={false}
         />
       </View>
     </View>
