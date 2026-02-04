@@ -12,6 +12,7 @@ export const TOKENS = {
     mainColor: '#809DE4FF',
     switchOff: '#0000001A',
     switchThumb: '#FFFFFFFF',
+    circleUnselectedBg: '#F2F2F2FF',
   },
   spacing: {
     pagePaddingH: 16,
@@ -27,10 +28,12 @@ export const TOKENS = {
     rightPillPaddingH: 12,
     rightPillPaddingV: 5.5,
     switchTrackPaddingH: 4,
+    circleButtonLabelMarginTop: 4,
   },
   radius: {
     card: 16,
     pill: 999,
+    circle: 999,
   },
   sizes: {
     controlTitleHeight: 28,
@@ -40,6 +43,10 @@ export const TOKENS = {
     switchThumbSize: 20,
     dividerWidth: 1,
     dividerHeight: 12,
+    circleButtonSize: 46,
+    circleButtonIconSize: 20,
+    circleButtonItemWidth: 46,
+    circleButtonItemHeight: 69,
   },
   fontSize: {
     large: 20,

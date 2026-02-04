@@ -94,6 +94,10 @@ const CategorySection: React.FC<CategorySectionProps> = ({ category, onButtonCli
       navigation.navigate('ControlTitle');
       return;
     }
+    if (category.title === '组件' && tab === '按钮') {
+      navigation.navigate('ButtonGroup');
+      return;
+    }
     // 调用父组件的点击处理函数
     onButtonClick(category.title, tab);
   };
