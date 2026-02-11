@@ -36,7 +36,7 @@ const GROUP_CONFIGS: Array<{
         iconUnselected: require('../assets/icons/cool_black.png'),
       },
       {
-        label: '制热',
+        label: 'zzzzz',
         iconSelected: require('../assets/icons/heat_white.png'),
         iconUnselected: require('../assets/icons/heat_black.png'),
       },

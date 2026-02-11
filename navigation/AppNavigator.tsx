@@ -5,6 +5,7 @@ import HomeScreen from '../components/HomeScreen';
 import AirConditionerScreen from '../screens/AirConditionerScreen';
 import ControlTitleScreen from '../screens/ControlTitleScreen';
 import ButtonGroupScreen from '../screens/ButtonGroupScreen';
+import SliderScreen from '../screens/SliderScreen';
 
 // 尝试禁用 react-native-screens（如果存在）
 try {
@@ -19,6 +20,7 @@ export type RootStackParamList = {
   AirConditioner: undefined;
   ControlTitle: undefined;
   ButtonGroup: undefined;
+  Slider: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -50,6 +52,10 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen 
           name="ButtonGroup" 
           component={ButtonGroupScreen}
+        />
+        <Stack.Screen 
+          name="Slider" 
+          component={SliderScreen}
         />
       </Stack.Navigator>
     </NavigationContainer>

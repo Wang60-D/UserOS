@@ -98,6 +98,10 @@ const CategorySection: React.FC<CategorySectionProps> = ({ category, onButtonCli
       navigation.navigate('ButtonGroup');
       return;
     }
+    if (category.title === '组件' && tab === '滑条') {
+      navigation.navigate('Slider');
+      return;
+    }
     // 调用父组件的点击处理函数
     onButtonClick(category.title, tab);
   };
