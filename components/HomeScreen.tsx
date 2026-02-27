@@ -1,348 +1,274 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  TextInput,
   Platform,
-  Animated,
-  Linking,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { TOKENS } from '../tokens';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
-// 定义分类数据结构
-interface Category {
-  title: string;
-  tabs: string[];
-}
+type HomeNavigationProp = StackNavigationProp<RootStackParamList>;
+type QuickActionRouteName = keyof Pick<RootStackParamList, 'Part1' | 'ComponentLibrary'>;
 
-// 分类数据
-const categories: Category[] = [
-  {
-    title: '模式',
-    tabs: ['空调', '空气净化器', '灯光', '音效', '耳机', '冰箱'],
-  },
-  {
-    title: '档位',
-    tabs: ['风速', '加湿器', '净烟机', '电暖器'],
-  },
-  {
-    title: '方位',
-    tabs: ['出风', '浴霸', '风扇', '空调扫风', '空调定格', '梦幻帘'],
-  },
-  {
-    title: '温度',
-    tabs: ['空调', '热水器', '冰箱', '电热水壶'],
-  },
-  {
-    title: '按钮',
-    tabs: ['方形'],
-  },
-  {
-    title: '无极',
-    tabs: ['灯光', '音量', '播放器', '窗帘', '加湿器', '风扇'],
-  },
-  {
-    title: '时间',
-    tabs: ['单把手', '双把手', '倒计时', '延时'],
-  },
-  {
-    title: '组件',
-    tabs: ['控件标题','按钮','滑条','开关滑条','数字滑条','步进器','圆规','播放器','时间滚轮'],
-  },
+// 五个功能按钮的占位数据，支持 emoji 和可编辑文本
+const QUICK_ACTIONS = [
+  { emoji: '1️⃣', label: 'Part01', routeName: 'Part1' as QuickActionRouteName },
+  { emoji: '2️⃣', label: 'Part02' },
+  { emoji: '📚', label: '控件库', routeName: 'ComponentLibrary' as QuickActionRouteName },
+  { emoji: '✨', label: '随机生成一个页面' },
 ];
 
-interface TabButtonProps {
+interface QuickActionButtonProps {
+  emoji: string;
   label: string;
   onPress: () => void;
 }
 
-const TabButton: React.FC<TabButtonProps> = ({ label, onPress }) => {
-  return (
-    <TouchableOpacity
-      style={styles.tabButton}
-      onPress={onPress}
-      activeOpacity={0.7}
-    >
-      <Text style={styles.tabButtonText}>{label}</Text>
-    </TouchableOpacity>
-  );
-};
-
-interface CategorySectionProps {
-  category: Category;
-}
-
-interface CategorySectionProps {
-  category: Category;
-  onButtonClick: (categoryTitle: string, tab: string) => void;
-}
-
-const CategorySection: React.FC<CategorySectionProps> = ({ category, onButtonClick }) => {
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-
-  const handleTabPress = (tab: string) => {
-    // 导航到对应的子页面
-    if (category.title === '模式' && tab === '空调') {
-      navigation.navigate('AirConditioner');
-      return;
-    }
-    if (category.title === '组件' && tab === '控件标题') {
-      navigation.navigate('ControlTitle');
-      return;
-    }
-    if (category.title === '组件' && tab === '按钮') {
-      navigation.navigate('ButtonGroup');
-      return;
-    }
-    if (category.title === '组件' && tab === '滑条') {
-      navigation.navigate('Slider');
-      return;
-    }
-    // 调用父组件的点击处理函数
-    onButtonClick(category.title, tab);
-  };
-
-  return (
-    <View style={styles.categorySection}>
-      <Text style={styles.categoryTitle}>{category.title}</Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.tabsContainer}
-        style={styles.tabsScrollView}
-      >
-        {category.tabs.map((tab, index) => (
-          <TabButton
-            key={index}
-            label={tab}
-            onPress={() => handleTabPress(tab)}
-          />
-        ))}
-      </ScrollView>
-    </View>
-  );
-};
-
-// Toast 组件
-interface ToastProps {
-  message: string;
-  visible: boolean;
-}
-
-const Toast: React.FC<ToastProps> = ({ message, visible }) => {
-  const opacity = useRef(new Animated.Value(0)).current;
-  const [shouldRender, setShouldRender] = useState(false);
-  const animationRef = useRef<Animated.CompositeAnimation | null>(null);
-
-  useEffect(() => {
-    if (visible && message) {
-      // 停止之前的动画
-      if (animationRef.current) {
-        animationRef.current.stop();
-      }
-      
-      setShouldRender(true);
-      opacity.setValue(0); // 重置透明度
-      
-      // 显示动画
-      animationRef.current = Animated.sequence([
-        Animated.timing(opacity, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.delay(2000), // 显示2秒
-        Animated.timing(opacity, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]);
-      
-      animationRef.current.start(() => {
-        // 动画完成后隐藏组件
-        setShouldRender(false);
-        animationRef.current = null;
-      });
-    } else if (!visible) {
-      // 如果 visible 变为 false，立即隐藏
-      if (animationRef.current) {
-        animationRef.current.stop();
-        animationRef.current = null;
-      }
-      setShouldRender(false);
-    }
-  }, [visible, message, opacity]);
-
-  if (!shouldRender || !message) return null;
-
-  return (
-    <Animated.View
-      style={[
-        styles.toastContainer,
-        {
-          opacity,
-          transform: [
-            {
-              translateY: opacity.interpolate({
-                inputRange: [0, 1],
-                outputRange: [20, 0],
-              }),
-            },
-          ],
-        },
-      ]}
-    >
-      <Text style={styles.toastText}>{message}</Text>
-    </Animated.View>
-  );
-};
+const QuickActionButton: React.FC<QuickActionButtonProps> = ({
+  emoji,
+  label,
+  onPress,
+}) => (
+  <TouchableOpacity
+    style={styles.quickActionButton}
+    onPress={onPress}
+    activeOpacity={0.7}
+  >
+    <Text style={styles.quickActionEmoji}>{emoji}</Text>
+    <Text style={styles.quickActionLabel}>{label}</Text>
+  </TouchableOpacity>
+);
 
 const HomeScreen: React.FC = () => {
-  // 记录每个按钮的点击次数，格式：{ "模式-空调": 5 }
-  const [clickCounts, setClickCounts] = useState<Record<string, number>>({});
-  const [toastMessage, setToastMessage] = useState('');
-  const [toastVisible, setToastVisible] = useState(false);
+  const [inputText, setInputText] = useState('');
+  const navigation = useNavigation<HomeNavigationProp>();
 
-  // Rick Roll 视频链接
-  const RICK_ROLL_URL = 'https://www.bilibili.com/video/BV1GJ411x7h7/?share_source=copy_web&vd_source=2824ac185a2d8f2f7972561dd0b51013';
+  const handleQuickActionPress = (index: number) => {
+    const action = QUICK_ACTIONS[index];
+    if (action?.routeName) {
+      navigation.navigate(action.routeName);
+      return;
+    }
+    // 预留：后续可接入其他功能或路由
+    console.log('Quick action pressed:', index, action);
+  };
 
-  const handleButtonClick = (categoryTitle: string, tab: string) => {
-    const buttonKey = `${categoryTitle}-${tab}`;
-    const currentCount = (clickCounts[buttonKey] || 0) + 1;
-    
-    // 更新点击次数
-    setClickCounts((prev) => ({
-      ...prev,
-      [buttonKey]: currentCount,
-    }));
-
-    // 显示 Toast
-    setToastMessage(`点击了${buttonKey}按钮${currentCount}次`);
-    setToastVisible(false); // 先隐藏，确保动画重置
-    setTimeout(() => {
-      setToastVisible(true); // 再显示，触发新的动画
-    }, 50);
-
-    // 如果点击了10次以上，跳转到 Rick Roll 视频
-    if (currentCount >= 10) {
-      // 延迟一下，让用户看到 Toast
-      setTimeout(() => {
-        Linking.openURL(RICK_ROLL_URL).catch((err) => {
-          console.error('打开链接失败:', err);
-        });
-      }, 500);
+  const handleSend = () => {
+    // 预留：后续接入 Gemini API
+    const text = inputText.trim();
+    if (text) {
+      console.log('Send to Gemini:', text);
+      setInputText('');
     }
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+    >
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollViewContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
-        {categories.map((category, index) => (
-          <CategorySection
-            key={index}
-            category={category}
-            onButtonClick={handleButtonClick}
-          />
-        ))}
+        {/* 欢迎标题 */}
+        <Text style={styles.welcomeTitle}>
+          欢迎来到UserOS，
+          这是一个基于米家组件库的用户体验测试系统。
+        </Text>
+
+        {/* 五个功能按钮 */}
+        <View style={styles.quickActionsContainer}>
+          {QUICK_ACTIONS.map((action, index) => (
+            <QuickActionButton
+              key={index}
+              emoji={action.emoji}
+              label={action.label}
+              onPress={() => handleQuickActionPress(index)}
+            />
+          ))}
+        </View>
       </ScrollView>
-      
-      {/* Toast 提示 */}
-      <Toast message={toastMessage} visible={toastVisible} />
-    </View>
+
+      {/* 底部固定输入栏 */}
+      <View style={styles.inputBarContainer}>
+        <View style={styles.inputBar}>
+          <TouchableOpacity
+            style={styles.inputBarLeftButton}
+            onPress={() => {}}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Text style={styles.inputBarIcon}>+</Text>
+          </TouchableOpacity>
+
+          <TextInput
+            style={styles.textInput}
+            placeholder="问问 UserOS"
+            placeholderTextColor="#8E8E93"
+            value={inputText}
+            onChangeText={setInputText}
+            multiline
+            maxLength={2000}
+            returnKeyType="send"
+            onSubmitEditing={handleSend}
+          />
+
+          <View style={styles.inputBarRightButtons}>
+            <TouchableOpacity
+              style={styles.quickModeButton}
+              onPress={() => {}}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Text style={styles.quickModeText}>快速</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={() => {}}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Text style={styles.inputBarIcon}>🎤</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.iconButton, styles.sendButton]}
+              onPress={handleSend}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Text style={styles.sendIcon}>▶</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7', // iOS 系统背景色
+    backgroundColor: TOKENS.colors.pageBg,
   },
   scrollView: {
     flex: 1,
   },
   scrollViewContent: {
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingBottom: 20,
-    paddingHorizontal: 16,
+    paddingBottom: 24,
+    paddingHorizontal: TOKENS.spacing.pagePaddingH,
   },
-  categorySection: {
+  welcomeTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: TOKENS.colors.textPrimary,
+    lineHeight: 36,
+    marginTop: 64,
     marginBottom: 32,
+    letterSpacing: -0.5,
   },
-  categoryTitle: {
-    fontSize: 28,
-    fontWeight: '700', // iOS SF Pro Bold
-    color: '#000000',
-    marginBottom: 16,
-    letterSpacing: -0.5, // iOS 字体间距
+  quickActionsContainer: {
+    gap: 12,
   },
-  tabsContainer: {
-    paddingRight: 16,
-  },
-  tabsScrollView: {
-    marginHorizontal: -16,
-    paddingHorizontal: 16,
-  },
-  tabButton: {
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 12,
-    marginRight: 20,
+  quickActionButton: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    // iOS 阴影效果
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2, // Android 阴影
-  },
-  tabButtonText: {
-    fontSize: 16,
-    fontWeight: '500', // iOS SF Pro Medium
-    color: '#0CCE94', // iOS 系统蓝色
-    letterSpacing: -0.3,
-  },
-  // Toast 样式
-  toastContainer: {
-    position: 'absolute',
-    bottom: 50,
-    left: 20,
-    right: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    borderRadius: 12,
+    backgroundColor: TOKENS.colors.cardBg,
     paddingHorizontal: 20,
     paddingVertical: 14,
+    borderRadius: 22,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  quickActionEmoji: {
+    fontSize: 22,
+    marginRight: 12,
+  },
+  quickActionLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: TOKENS.colors.textPrimary,
+    letterSpacing: -0.3,
+  },
+  inputBarContainer: {
+    paddingHorizontal: TOKENS.spacing.pagePaddingH,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 16,
+    paddingTop: 12,
+    backgroundColor: TOKENS.colors.pageBg,
+  },
+  inputBar: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    backgroundColor: TOKENS.colors.cardBg,
+    borderRadius: TOKENS.radius.card,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    minHeight: 48,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  inputBarLeftButton: {
+    padding: 4,
+    marginRight: 8,
+    marginBottom: 4,
+  },
+  inputBarIcon: {
+    fontSize: 20,
+    color: '#8E8E93',
+  },
+  textInput: {
+    flex: 1,
+    fontSize: 16,
+    color: TOKENS.colors.textPrimary,
+    maxHeight: 120,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+  },
+  inputBarRightButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginLeft: 8,
+  },
+  quickModeButton: {
+    backgroundColor: TOKENS.colors.rightPillBg,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  quickModeText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: TOKENS.colors.rightText,
+  },
+  iconButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: TOKENS.colors.rightPillBg,
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 9999,
-    // iOS 阴影
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8, // Android 阴影
   },
-  toastText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '500',
-    textAlign: 'center',
+  sendButton: {
+    backgroundColor: TOKENS.colors.mainColor,
+  },
+  sendIcon: {
+    fontSize: 14,
+    color: TOKENS.colors.switchThumb,
+    fontWeight: '600',
   },
 });
 

@@ -47,8 +47,10 @@ export const TOKENS = {
     circleButtonIconSize: 20,
     circleButtonItemWidth: 46,
     circleButtonItemHeight: 69,
+    switchCardHeight: 80,
   },
   fontSize: {
+    ExtraLarge: 28,
     large: 20,
     medium: 14,
     small: 12,
