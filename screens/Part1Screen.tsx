@@ -73,10 +73,7 @@ const CATALOG_SECTIONS: CatalogSection[] = [
       { label: '延时' },
     ],
   },
-  {
-    title: '功能入口',
-    items: [{ label: '空调', routeName: 'AirConditioner' }],
-  },
+
 ];
 
 const Part1Screen: React.FC = () => {

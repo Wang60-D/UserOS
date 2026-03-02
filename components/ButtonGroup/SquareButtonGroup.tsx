@@ -7,6 +7,8 @@ export interface SquareButtonGroupItem {
   label: string;
   iconSelected?: ImageSourcePropType;
   iconUnselected?: ImageSourcePropType;
+  iconSelectedTintColor?: string;
+  iconUnselectedTintColor?: string;
   selected?: boolean;
 }
 
@@ -32,15 +34,16 @@ const SquareButtonGroup: React.FC<SquareButtonGroupProps> = ({ items, onItemPres
         ? rows.map((rowItems, rowIndex) => (
             <View key={`row-${rowIndex}`} style={styles.rowContainer}>
               {rowItems.map((item, index) => {
-                const isLast = index === rowItems.length - 1;
                 return (
-                  <View key={`slot-${rowIndex}-${index}`} style={[styles.slot, !isLast && styles.slotGap]}>
+                  <View key={`slot-${rowIndex}-${index}`} style={styles.slot}>
                     {item ? (
                       <SquareButton
                         label={item.label}
                         selected={item.selected}
                         iconSelected={item.iconSelected}
                         iconUnselected={item.iconUnselected}
+                        iconSelectedTintColor={item.iconSelectedTintColor}
+                        iconUnselectedTintColor={item.iconUnselectedTintColor}
                         onPress={onItemPress ? () => onItemPress(rowIndex * columns + index) : undefined}
                       />
                     ) : (
@@ -54,15 +57,16 @@ const SquareButtonGroup: React.FC<SquareButtonGroupProps> = ({ items, onItemPres
         : (
             <View style={styles.rowContainer}>
               {slots.map((item, index) => {
-                const isLast = index === slots.length - 1;
                 return (
-                  <View key={`slot-${index}`} style={[styles.slot, !isLast && styles.slotGap]}>
+                  <View key={`slot-${index}`} style={styles.slot}>
                     {item ? (
                       <SquareButton
                         label={item.label}
                         selected={item.selected}
                         iconSelected={item.iconSelected}
                         iconUnselected={item.iconUnselected}
+                        iconSelectedTintColor={item.iconSelectedTintColor}
+                        iconUnselectedTintColor={item.iconUnselectedTintColor}
                         onPress={onItemPress ? () => onItemPress(index) : undefined}
                       />
                     ) : (
@@ -88,9 +92,6 @@ const styles = StyleSheet.create({
   },
   slot: {
     flex: 1,
-  },
-  slotGap: {
-    marginRight: 8,
   },
   placeholder: {
     opacity: 0,

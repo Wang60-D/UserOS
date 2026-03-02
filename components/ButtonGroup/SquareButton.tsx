@@ -7,6 +7,8 @@ export interface SquareButtonProps {
   selected?: boolean;
   iconSelected?: ImageSourcePropType;
   iconUnselected?: ImageSourcePropType;
+  iconSelectedTintColor?: string;
+  iconUnselectedTintColor?: string;
   onPress?: () => void;
 }
 
@@ -15,35 +17,53 @@ const SquareButton: React.FC<SquareButtonProps> = ({
   selected = false,
   iconSelected,
   iconUnselected,
+  iconSelectedTintColor,
+  iconUnselectedTintColor,
   onPress,
 }) => {
   const iconSource = selected ? iconSelected : iconUnselected;
+  const iconTintColor = selected ? iconSelectedTintColor : iconUnselectedTintColor;
 
   return (
     <Pressable
-      style={[styles.container, selected ? styles.selected : styles.unselected]}
+      style={styles.container}
       onPress={onPress}
       accessibilityRole="button"
       accessibilityState={{ selected }}
     >
-      <View style={styles.iconWrapper}>
-        {iconSource ? <Image source={iconSource} style={styles.icon} /> : null}
+      <View style={[styles.surface, styles.surfaceDefault, selected ? styles.selected : styles.unselected]}>
+        <View style={styles.iconWrapper}>
+          {iconSource ? (
+            <Image
+              source={iconSource}
+              style={[styles.icon, iconTintColor ? { tintColor: iconTintColor } : null]}
+            />
+          ) : null}
+        </View>
+        <Text style={[styles.label, selected ? styles.labelSelected : styles.labelUnselected]}>
+          {label}
+        </Text>
       </View>
-      <Text style={[styles.label, selected ? styles.labelSelected : styles.labelUnselected]}>
-        {label}
-      </Text>
     </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    width: '100%',
     height: 76,
     borderRadius: TOKENS.radius.card,
+  },
+  surface: {
+    width: '100%',
+    height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 10,
     gap: 10,
+  },
+  surfaceDefault: {
+    borderRadius: TOKENS.radius.card,
   },
   selected: {
     backgroundColor: TOKENS.colors.mainColor,
