@@ -36,6 +36,7 @@ const CATALOG_SECTIONS: CatalogSection[] = [
       { label: '灯光', routeName: 'LightMode' },
       { label: '音效', routeName: 'SoundMode' },
       { label: '耳机', routeName: 'EarphoneMode' },
+      { label: '冰箱', routeName: 'FridgeMode' },
     ],
   },
   {

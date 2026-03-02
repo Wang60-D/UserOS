@@ -54,11 +54,26 @@ const CapsuleModeSlider: React.FC<CapsuleModeSliderProps> = ({
   const splitRightTranslateX = useRef(new Animated.Value(0)).current;
   const splitRightOpacity = useRef(new Animated.Value(resolvedValue === 'off' ? 0 : 1)).current;
   const splitOffOpacity = useRef(new Animated.Value(resolvedValue === 'off' ? 1 : 0)).current;
+  const splitTracksRef = useRef(splitTracks);
+  const resolvedValueRef = useRef<CapsuleModeValue>(resolvedValue);
   const singlePanRef = useRef({
     dragStartX: 0,
+    touchStartX: 0,
     maxX: 0,
     segmentWidth: 0,
   });
+  const splitPanRef = useRef({
+    touchStartX: 0,
+    trackWidth: 0,
+  });
+
+  useEffect(() => {
+    splitTracksRef.current = splitTracks;
+  }, [splitTracks]);
+
+  useEffect(() => {
+    resolvedValueRef.current = resolvedValue;
+  }, [resolvedValue]);
 
   const selectedIndex = useMemo(
     () => VALUE_ORDER.findIndex((item) => item === resolvedValue),
@@ -75,6 +90,18 @@ const CapsuleModeSlider: React.FC<CapsuleModeSliderProps> = ({
     0,
     (rightTrackWidth - TRACK_PADDING * 2) / SPLIT_RIGHT_OPTION_COUNT
   );
+
+  const applySingleTrackWidth = (width: number) => {
+    const safeWidth = Math.max(0, width);
+    if (safeWidth <= 0) return;
+    setSingleTrackWidth(safeWidth);
+    const currentSegmentWidth = Math.max(
+      0,
+      (safeWidth - TRACK_PADDING * 2) / SINGLE_TRACK_OPTION_COUNT
+    );
+    singlePanRef.current.segmentWidth = currentSegmentWidth;
+    singlePanRef.current.maxX = Math.max(0, currentSegmentWidth * (SINGLE_TRACK_OPTION_COUNT - 1));
+  };
 
   const commitValue = (nextValue: CapsuleModeValue) => {
     if (!isControlled) {
@@ -154,6 +181,13 @@ const CapsuleModeSlider: React.FC<CapsuleModeSliderProps> = ({
   }, [safeSelectedIndex, splitTracks, singleSegmentWidth]);
 
   useEffect(() => {
+    if (!splitTracks && singleTrackWidth <= 0 && splitPanRef.current.trackWidth > 0) {
+      applySingleTrackWidth(splitPanRef.current.trackWidth);
+      animateSingleToIndex(safeSelectedIndex, true);
+    }
+  }, [splitTracks, singleTrackWidth, safeSelectedIndex]);
+
+  useEffect(() => {
     if (splitTracks) {
       animateSplit(resolvedValue, false);
     }
@@ -161,13 +195,7 @@ const CapsuleModeSlider: React.FC<CapsuleModeSliderProps> = ({
 
   const handleSingleTrackLayout = (event: LayoutChangeEvent) => {
     const width = event.nativeEvent.layout.width;
-    setSingleTrackWidth(width);
-    const currentSegmentWidth = Math.max(
-      0,
-      (width - TRACK_PADDING * 2) / SINGLE_TRACK_OPTION_COUNT
-    );
-    singlePanRef.current.segmentWidth = currentSegmentWidth;
-    singlePanRef.current.maxX = Math.max(0, currentSegmentWidth * (SINGLE_TRACK_OPTION_COUNT - 1));
+    applySingleTrackWidth(width);
     animateSingleToIndex(safeSelectedIndex, true);
   };
 
@@ -177,14 +205,30 @@ const CapsuleModeSlider: React.FC<CapsuleModeSliderProps> = ({
     animateSplit(resolvedValue, true);
   };
 
+  const handleSplitTopRowLayout = (event: LayoutChangeEvent) => {
+    splitPanRef.current.trackWidth = event.nativeEvent.layout.width;
+  };
+
+  const getSplitValueByPosition = (positionX: number): CapsuleModeValue => {
+    const width = splitPanRef.current.trackWidth;
+    if (width <= 0) return resolvedValueRef.current;
+    const clampedX = Math.max(0, Math.min(width, positionX));
+    const sectionWidth = width / 3;
+    if (clampedX < sectionWidth) return 'off';
+    if (clampedX < sectionWidth * 2) return 'modeA';
+    return 'modeB';
+  };
+
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => false,
+      onStartShouldSetPanResponderCapture: () => false,
       onMoveShouldSetPanResponder: (_evt, gestureState) =>
-        !splitTracks && Math.abs(gestureState.dx) > 2,
+        !splitTracksRef.current && Math.abs(gestureState.dx) > 2,
       onMoveShouldSetPanResponderCapture: (_evt, gestureState) =>
-        !splitTracks && Math.abs(gestureState.dx) > 2,
-      onPanResponderGrant: () => {
+        !splitTracksRef.current && Math.abs(gestureState.dx) > 2,
+      onPanResponderGrant: (evt) => {
+        singlePanRef.current.touchStartX = evt.nativeEvent.locationX;
         singleTranslateX.stopAnimation((valueX) => {
           singlePanRef.current.dragStartX = valueX;
         });
@@ -208,6 +252,7 @@ const CapsuleModeSlider: React.FC<CapsuleModeSliderProps> = ({
       onPanResponderRelease: (_evt, gestureState) => {
         const {
           dragStartX,
+          touchStartX,
           maxX,
           segmentWidth: widthPerSegment,
         } = singlePanRef.current;
@@ -215,7 +260,10 @@ const CapsuleModeSlider: React.FC<CapsuleModeSliderProps> = ({
           setDraggingIndex(null);
           return;
         }
-        const releasedX = Math.max(0, Math.min(maxX, dragStartX + gestureState.dx));
+        const isTap = Math.abs(gestureState.dx) < 2 && Math.abs(gestureState.dy) < 2;
+        const releasedX = isTap
+          ? Math.max(0, Math.min(maxX, touchStartX - TRACK_PADDING))
+          : Math.max(0, Math.min(maxX, dragStartX + gestureState.dx));
         const nextIndex = Math.max(
           0,
           Math.min(
@@ -238,12 +286,47 @@ const CapsuleModeSlider: React.FC<CapsuleModeSliderProps> = ({
     })
   ).current;
 
+  const splitPanResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => false,
+      onStartShouldSetPanResponderCapture: () => false,
+      onMoveShouldSetPanResponder: (_evt, gestureState) =>
+        splitTracksRef.current && Math.abs(gestureState.dx) > 2,
+      onMoveShouldSetPanResponderCapture: (_evt, gestureState) =>
+        splitTracksRef.current && Math.abs(gestureState.dx) > 2,
+      onPanResponderGrant: (evt) => {
+        splitPanRef.current.touchStartX = evt.nativeEvent.locationX;
+      },
+      onPanResponderMove: (_evt, gestureState) => {
+        const currentX = splitPanRef.current.touchStartX + gestureState.dx;
+        const nextValue = getSplitValueByPosition(currentX);
+        if (nextValue !== resolvedValueRef.current) {
+          commitValue(nextValue);
+        }
+      },
+      onPanResponderRelease: (_evt, gestureState) => {
+        const releaseX = splitPanRef.current.touchStartX + gestureState.dx;
+        const nextValue = getSplitValueByPosition(releaseX);
+        if (nextValue !== resolvedValueRef.current) {
+          commitValue(nextValue);
+        } else {
+          animateSplit(nextValue, false);
+        }
+      },
+      onPanResponderTerminate: () => {
+        animateSplit(resolvedValueRef.current, false);
+      },
+      onPanResponderTerminationRequest: () => false,
+    })
+  ).current;
+
   const renderIcon = (icon?: ImageSourcePropType, selected = false) => {
     if (!icon) return null;
     return (
       <Image
         source={icon}
         style={[styles.icon, selected ? styles.iconSelected : styles.iconUnselected]}
+        resizeMode="contain"
       />
     );
   };
@@ -251,7 +334,11 @@ const CapsuleModeSlider: React.FC<CapsuleModeSliderProps> = ({
   return (
     <View style={styles.container}>
       {splitTracks ? (
-        <View style={styles.topRow}>
+        <View
+          style={styles.topRow}
+          onLayout={handleSplitTopRowLayout}
+          {...splitPanResponder.panHandlers}
+        >
           <Pressable
             style={styles.offButton}
             onPress={() => commitValue('off')}

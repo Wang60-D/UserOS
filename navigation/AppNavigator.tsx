@@ -7,6 +7,7 @@ import AirPurifierScreen from '../screens/Model/AirPurifierScreen';
 import LightModeScreen from '../screens/Model/LightModeScreen';
 import SoundModeScreen from '../screens/Model/SoundModeScreen';
 import EarphoneModeScreen from '../screens/Model/EarphoneModeScreen';
+import FridgeModeScreen from '../screens/Model/FridgeModeScreen';
 import ControlTitleScreen from '../screens/ControlTitleScreen';
 import ButtonGroupScreen from '../screens/ButtonGroupScreen';
 import SliderScreen from '../screens/SliderScreen';
@@ -39,6 +40,7 @@ export type RootStackParamList = {
   LightMode: undefined;
   SoundMode: undefined;
   EarphoneMode: undefined;
+  FridgeMode: undefined;
   ControlTitle: undefined;
   ButtonGroup: undefined;
   Slider: undefined;
@@ -106,6 +108,10 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen 
           name="EarphoneMode" 
           component={EarphoneModeScreen}
+        />
+        <Stack.Screen 
+          name="FridgeMode" 
+          component={FridgeModeScreen}
         />
         <Stack.Screen 
           name="ControlTitle" 
