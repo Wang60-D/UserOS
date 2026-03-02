@@ -36,6 +36,14 @@ const ControlTitleScreen: React.FC = () => {
       </View>
       <View style={[styles.itemCard, styles.itemSpacing]}>
         <ControlTitleLeft
+          titleText="主标题"
+          subtitleEnabled={true}
+          subtitleText="副标题"
+          rightEnabled={false}
+        />
+      </View>
+      <View style={[styles.itemCard, styles.itemSpacing]}>
+        <ControlTitleLeft
           titleText="空调模式"
           subtitleText="副标题"
           subtitleEnabled={false}

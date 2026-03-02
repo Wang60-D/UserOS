@@ -3,8 +3,10 @@ import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CircleButtonGroup, SquareButtonGroup, ToggleButtonGroup } from '../components/ButtonGroup';
+import { SegmentedSquareSlider } from '../components/Slider';
 import type { CircleButtonGroupItem } from '../components/ButtonGroup/CircleButtonGroup';
 import type { SquareButtonGroupItem } from '../components/ButtonGroup/SquareButtonGroup';
+import type { SegmentedSquareSliderItem } from '../components/Slider';
 import type { ToggleButtonItem } from '../components/ButtonGroup/ToggleButtonGroup';
 import { TOKENS } from '../tokens';
 
@@ -440,6 +442,222 @@ const SQUARE_GROUP_CONFIGS: Array<{
   },
 ];
 
+const SEGMENTED_SQUARE_SLIDER_CONFIGS: Array<{
+  id: string;
+  items: SegmentedSquareSliderItem[];
+}> = [
+  {
+    id: 'square-group-2',
+    items: [
+      {
+        label: '制冷',
+        iconSelected: require('../assets/icons/cool_white.png'),
+        iconUnselected: require('../assets/icons/cool_black.png'),
+      },
+      {
+        label: '制热',
+        iconSelected: require('../assets/icons/heat_white.png'),
+        iconUnselected: require('../assets/icons/heat_black.png'),
+      },
+    ],
+  },
+  {
+    id: 'square-group-3',
+    items: [
+      {
+        label: '制冷',
+        iconSelected: require('../assets/icons/cool_white.png'),
+        iconUnselected: require('../assets/icons/cool_black.png'),
+      },
+      {
+        label: '制热',
+        iconSelected: require('../assets/icons/heat_white.png'),
+        iconUnselected: require('../assets/icons/heat_black.png'),
+      },
+      {
+        label: '除湿',
+        iconSelected: require('../assets/icons/dehumidify_white.png'),
+        iconUnselected: require('../assets/icons/dehumidify_black.png'),
+      },
+    ],
+  },
+  {
+    id: 'square-group-4',
+    items: [
+      {
+        label: '制冷',
+        iconSelected: require('../assets/icons/cool_white.png'),
+        iconUnselected: require('../assets/icons/cool_black.png'),
+      },
+      {
+        label: '制热',
+        iconSelected: require('../assets/icons/heat_white.png'),
+        iconUnselected: require('../assets/icons/heat_black.png'),
+      },
+      {
+        label: '除湿',
+        iconSelected: require('../assets/icons/dehumidify_white.png'),
+        iconUnselected: require('../assets/icons/dehumidify_black.png'),
+      },
+      {
+        label: '送风',
+        iconSelected: require('../assets/icons/fan_white.png'),
+        iconUnselected: require('../assets/icons/fan_black.png'),
+      },
+    ],
+  },
+  {
+    id: 'square-group-5',
+    items: [
+      {
+        label: '制冷',
+        iconSelected: require('../assets/icons/cool_white.png'),
+        iconUnselected: require('../assets/icons/cool_black.png'),
+      },
+      {
+        label: '制热',
+        iconSelected: require('../assets/icons/heat_white.png'),
+        iconUnselected: require('../assets/icons/heat_black.png'),
+      },
+      {
+        label: '除湿',
+        iconSelected: require('../assets/icons/dehumidify_white.png'),
+        iconUnselected: require('../assets/icons/dehumidify_black.png'),
+      },
+      {
+        label: '送风',
+        iconSelected: require('../assets/icons/fan_white.png'),
+        iconUnselected: require('../assets/icons/fan_black.png'),
+      },
+      {
+        label: '加热',
+        iconSelected: require('../assets/icons/heat_white.png'),
+        iconUnselected: require('../assets/icons/heat_black.png'),
+      },
+    ],
+  },
+  {
+    id: 'square-group-6',
+    items: [
+      {
+        label: '制冷',
+        iconSelected: require('../assets/icons/cool_white.png'),
+        iconUnselected: require('../assets/icons/cool_black.png'),
+      },
+      {
+        label: '制热',
+        iconSelected: require('../assets/icons/heat_white.png'),
+        iconUnselected: require('../assets/icons/heat_black.png'),
+      },
+      {
+        label: '除湿',
+        iconSelected: require('../assets/icons/dehumidify_white.png'),
+        iconUnselected: require('../assets/icons/dehumidify_black.png'),
+      },
+      {
+        label: '送风',
+        iconSelected: require('../assets/icons/fan_white.png'),
+        iconUnselected: require('../assets/icons/fan_black.png'),
+      },
+      {
+        label: '加热',
+        iconSelected: require('../assets/icons/heat_white.png'),
+        iconUnselected: require('../assets/icons/heat_black.png'),
+      },
+      {
+        label: '净化',
+        iconSelected: require('../assets/icons/fan_white.png'),
+        iconUnselected: require('../assets/icons/fan_black.png'),
+      },
+    ],
+  },
+  {
+    id: 'square-group-7',
+    items: [
+      {
+        label: '制冷',
+        iconSelected: require('../assets/icons/cool_white.png'),
+        iconUnselected: require('../assets/icons/cool_black.png'),
+      },
+      {
+        label: '制热',
+        iconSelected: require('../assets/icons/heat_white.png'),
+        iconUnselected: require('../assets/icons/heat_black.png'),
+      },
+      {
+        label: '除湿',
+        iconSelected: require('../assets/icons/dehumidify_white.png'),
+        iconUnselected: require('../assets/icons/dehumidify_black.png'),
+      },
+      {
+        label: '送风',
+        iconSelected: require('../assets/icons/fan_white.png'),
+        iconUnselected: require('../assets/icons/fan_black.png'),
+      },
+      {
+        label: '加热',
+        iconSelected: require('../assets/icons/heat_white.png'),
+        iconUnselected: require('../assets/icons/heat_black.png'),
+      },
+      {
+        label: '净化',
+        iconSelected: require('../assets/icons/fan_white.png'),
+        iconUnselected: require('../assets/icons/fan_black.png'),
+      },
+      {
+        label: '省电',
+        iconSelected: require('../assets/icons/cool_white.png'),
+        iconUnselected: require('../assets/icons/cool_black.png'),
+      },
+    ],
+  },
+  {
+    id: 'square-group-8',
+    items: [
+      {
+        label: '制冷',
+        iconSelected: require('../assets/icons/cool_white.png'),
+        iconUnselected: require('../assets/icons/cool_black.png'),
+      },
+      {
+        label: '制热',
+        iconSelected: require('../assets/icons/heat_white.png'),
+        iconUnselected: require('../assets/icons/heat_black.png'),
+      },
+      {
+        label: '除湿',
+        iconSelected: require('../assets/icons/dehumidify_white.png'),
+        iconUnselected: require('../assets/icons/dehumidify_black.png'),
+      },
+      {
+        label: '送风',
+        iconSelected: require('../assets/icons/fan_white.png'),
+        iconUnselected: require('../assets/icons/fan_black.png'),
+      },
+      {
+        label: '加热',
+        iconSelected: require('../assets/icons/heat_white.png'),
+        iconUnselected: require('../assets/icons/heat_black.png'),
+      },
+      {
+        label: '净化',
+        iconSelected: require('../assets/icons/fan_white.png'),
+        iconUnselected: require('../assets/icons/fan_black.png'),
+      },
+      {
+        label: '省电',
+        iconSelected: require('../assets/icons/cool_white.png'),
+        iconUnselected: require('../assets/icons/cool_black.png'),
+      },
+      {
+        label: '睡眠',
+        iconSelected: require('../assets/icons/dehumidify_white.png'),
+        iconUnselected: require('../assets/icons/dehumidify_black.png'),
+      },
+    ],
+  },
+];
+
 const TOGGLE_BUTTONS: ToggleButtonItem[] = [
   {
     id: 'toggle-1',
@@ -485,6 +703,12 @@ const ButtonGroupScreen: React.FC = () => {
       return acc;
     }, {})
   );
+  const [segmentedSliderItems, setSegmentedSliderItems] = useState(() =>
+    SEGMENTED_SQUARE_SLIDER_CONFIGS.reduce<Record<string, SegmentedSquareSliderItem[]>>((acc, group) => {
+      acc[group.id] = createGroupItems(group.items);
+      return acc;
+    }, {})
+  );
   const [toggleButtons, setToggleButtons] = useState<ToggleButtonItem[]>(() => TOGGLE_BUTTONS);
 
   const handleItemPress = (groupId: string, index: number) => {
@@ -507,6 +731,24 @@ const ButtonGroupScreen: React.FC = () => {
   };
   const handleSquareItemPress = (groupId: string, index: number) => {
     setSquareGroupItems((prev) => {
+      const currentItems = prev[groupId] || [];
+      const isSelected = !!currentItems[index]?.selected;
+      if (isSelected) {
+        Haptics.selectionAsync();
+        return prev;
+      }
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      return {
+        ...prev,
+        [groupId]: currentItems.map((item, itemIndex) => ({
+          ...item,
+          selected: itemIndex === index,
+        })),
+      };
+    });
+  };
+  const handleSegmentedSliderPress = (groupId: string, index: number) => {
+    setSegmentedSliderItems((prev) => {
       const currentItems = prev[groupId] || [];
       const isSelected = !!currentItems[index]?.selected;
       if (isSelected) {
@@ -570,6 +812,14 @@ const ButtonGroupScreen: React.FC = () => {
             <SquareButtonGroup
               items={squareGroupItems[group.id] || []}
               onItemPress={(index) => handleSquareItemPress(group.id, index)}
+            />
+          </View>
+        ))}
+        {SEGMENTED_SQUARE_SLIDER_CONFIGS.map((group) => (
+          <View key={`slider-${group.id}`} style={[styles.card, styles.cardSpacing]}>
+            <SegmentedSquareSlider
+              items={segmentedSliderItems[group.id] || []}
+              onItemPress={(index) => handleSegmentedSliderPress(group.id, index)}
             />
           </View>
         ))}

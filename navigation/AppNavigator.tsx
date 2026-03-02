@@ -2,7 +2,11 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from '../components/HomeScreen';
-import AirConditionerScreen from '../screens/AirConditionerScreen';
+import AirConditionerScreen from '../screens/Model/AirConditionerScreen';
+import AirPurifierScreen from '../screens/Model/AirPurifierScreen';
+import LightModeScreen from '../screens/Model/LightModeScreen';
+import SoundModeScreen from '../screens/Model/SoundModeScreen';
+import EarphoneModeScreen from '../screens/Model/EarphoneModeScreen';
 import ControlTitleScreen from '../screens/ControlTitleScreen';
 import ButtonGroupScreen from '../screens/ButtonGroupScreen';
 import SliderScreen from '../screens/SliderScreen';
@@ -31,6 +35,10 @@ export type RootStackParamList = {
   Dehumidifier: undefined;
   ComponentLibrary: undefined;
   AirConditioner: undefined;
+  AirPurifier: undefined;
+  LightMode: undefined;
+  SoundMode: undefined;
+  EarphoneMode: undefined;
   ControlTitle: undefined;
   ButtonGroup: undefined;
   Slider: undefined;
@@ -82,6 +90,22 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen 
           name="AirConditioner" 
           component={AirConditionerScreen}
+        />
+        <Stack.Screen 
+          name="AirPurifier" 
+          component={AirPurifierScreen}
+        />
+        <Stack.Screen 
+          name="LightMode" 
+          component={LightModeScreen}
+        />
+        <Stack.Screen 
+          name="SoundMode" 
+          component={SoundModeScreen}
+        />
+        <Stack.Screen 
+          name="EarphoneMode" 
+          component={EarphoneModeScreen}
         />
         <Stack.Screen 
           name="ControlTitle" 

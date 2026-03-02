@@ -6,10 +6,11 @@ type RightMode = 'device' | 'switch';
 
 interface ControlTitleProps {
   titleText: string;
-  subtitleText: string;
+  subtitleText?: string;
   subtitleEnabled: boolean;
-  rightMode: RightMode;
-  rightText: string;
+  rightEnabled?: boolean;
+  rightMode?: RightMode;
+  rightText?: string;
   switchValue?: boolean;
   onSwitchChange?: (value: boolean) => void;
 }
@@ -18,11 +19,15 @@ const ControlTitle: React.FC<ControlTitleProps> = ({
   titleText,
   subtitleText,
   subtitleEnabled,
+  rightEnabled = true,
   rightMode,
   rightText,
   switchValue,
   onSwitchChange,
 }) => {
+  const resolvedRightMode: RightMode = rightMode ?? 'device';
+  const resolvedSubtitleText = subtitleText ?? '';
+  const resolvedRightText = rightText ?? '';
   const isControlled = typeof switchValue === 'boolean';
   const [internalValue, setInternalValue] = useState(false);
   const isOn = isControlled ? (switchValue as boolean) : internalValue;
@@ -37,7 +42,7 @@ const ControlTitle: React.FC<ControlTitleProps> = ({
   }, [animatedValue, isOn]);
 
   const handleToggle = () => {
-    if (rightMode !== 'switch') return;
+    if (resolvedRightMode !== 'switch') return;
     const nextValue = !isOn;
     if (!isControlled) {
       setInternalValue(nextValue);
@@ -71,36 +76,37 @@ const ControlTitle: React.FC<ControlTitleProps> = ({
           <>
             <View style={styles.divider} />
             <Text style={styles.subTitleText} numberOfLines={1}>
-              {subtitleText}
+              {resolvedSubtitleText}
             </Text>
           </>
         )}
       </View>
-      {rightMode === 'device' ? (
-        <View style={styles.rightPill}>
-          <Text style={styles.rightText} numberOfLines={1}>
-            {rightText}
-          </Text>
-        </View>
-      ) : (
-        <Pressable
-          accessibilityRole="switch"
-          accessibilityState={{ checked: isOn }}
-          onPress={handleToggle}
-          style={styles.switchHit}
-        >
-          <Animated.View style={[styles.switchTrack, { backgroundColor: switchTrackColor }]}>
-            <Animated.View
-              style={[
-                styles.switchThumb,
-                {
-                  transform: [{ translateX: switchThumbTranslateX }],
-                },
-              ]}
-            />
-          </Animated.View>
-        </Pressable>
-      )}
+      {rightEnabled &&
+        (resolvedRightMode === 'device' ? (
+          <View style={styles.rightPill}>
+            <Text style={styles.rightText} numberOfLines={1}>
+              {resolvedRightText}
+            </Text>
+          </View>
+        ) : (
+          <Pressable
+            accessibilityRole="switch"
+            accessibilityState={{ checked: isOn }}
+            onPress={handleToggle}
+            style={styles.switchHit}
+          >
+            <Animated.View style={[styles.switchTrack, { backgroundColor: switchTrackColor }]}>
+              <Animated.View
+                style={[
+                  styles.switchThumb,
+                  {
+                    transform: [{ translateX: switchThumbTranslateX }],
+                  },
+                ]}
+              />
+            </Animated.View>
+          </Pressable>
+        ))}
     </View>
   );
 };
@@ -135,7 +141,7 @@ const styles = StyleSheet.create({
   subTitleText: {
     fontSize: TOKENS.fontSize.large,
     color: TOKENS.colors.subtitleText,
-    fontWeight: '400',
+    fontWeight: '300',
   },
   rightPill: {
     backgroundColor: TOKENS.colors.rightPillBg,

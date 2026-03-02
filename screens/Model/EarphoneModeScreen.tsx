@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
 import { CircleButtonGroup } from '../../components/ButtonGroup';
-import { CapsuleModeSlider, type CapsuleModeValue } from '../../components/Slider/CapsuleModeSlider';
+import CapsuleModeSlider, { type CapsuleModeValue } from '../../components/Slider/CapsuleModeSlider';
 import type { CircleButtonGroupItem } from '../../components/ButtonGroup/CircleButtonGroup';
 import { TOKENS } from '../../tokens';
 

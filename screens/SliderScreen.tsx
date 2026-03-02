@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { DiscreteSlider } from '../components/Slider';
+import { CapsuleModeSlider, DiscreteSlider } from '../components/Slider';
+import type { CapsuleModeValue } from '../components/Slider';
 import { TOKENS } from '../tokens';
 
 const SliderScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const [activeIndex, setActiveIndex] = useState(2);
+  const [capsuleMode, setCapsuleMode] = useState<CapsuleModeValue>('modeA');
   const SLIDER_CONFIG = {
     steps: 6,
     snapEnabled: true,
@@ -27,6 +29,18 @@ const SliderScreen: React.FC = () => {
           snapEnabled={SLIDER_CONFIG.snapEnabled}
         />
       </View>
+      <View style={[styles.card, styles.cardSpacing]}>
+        <CapsuleModeSlider
+          value={capsuleMode}
+          onChange={setCapsuleMode}
+          offLabel="关闭"
+          modeALabel="降噪"
+          modeBLabel="通透"
+          offIcon={require('../assets/icons/mode.png')}
+          modeAIcon={require('../assets/icons/Sound/indoor.png')}
+          modeBIcon={require('../assets/icons/Sound/outdoor.png')}
+        />
+      </View>
     </View>
   );
 };
@@ -44,6 +58,9 @@ const styles = StyleSheet.create({
     borderRadius: TOKENS.radius.card,
     paddingHorizontal: TOKENS.spacing.cardInnerPaddingH,
     paddingVertical: TOKENS.spacing.cardInnerPaddingV,
+  },
+  cardSpacing: {
+    marginTop: TOKENS.spacing.itemGap,
   },
 });
 

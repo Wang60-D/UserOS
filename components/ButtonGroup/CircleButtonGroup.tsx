@@ -8,6 +8,8 @@ export interface CircleButtonGroupItem {
   iconEmoji?: string;
   iconSelected?: ImageSourcePropType;
   iconUnselected?: ImageSourcePropType;
+  iconSelectedTintColor?: string;
+  iconUnselectedTintColor?: string;
   selected?: boolean;
 }
 
@@ -60,6 +62,8 @@ const CircleButtonGroup: React.FC<CircleButtonGroupProps> = ({
                       iconEmoji={item.iconEmoji}
                       iconSelected={item.iconSelected}
                       iconUnselected={item.iconUnselected}
+                      iconSelectedTintColor={item.iconSelectedTintColor}
+                      iconUnselectedTintColor={item.iconUnselectedTintColor}
                       onPress={
                         onItemPress
                           ? () => onItemPress(rowIndex * columns + index)
@@ -83,6 +87,8 @@ const CircleButtonGroup: React.FC<CircleButtonGroupProps> = ({
                   iconEmoji={item.iconEmoji}
                   iconSelected={item.iconSelected}
                   iconUnselected={item.iconUnselected}
+                  iconSelectedTintColor={item.iconSelectedTintColor}
+                  iconUnselectedTintColor={item.iconUnselectedTintColor}
                   onPress={onItemPress ? () => onItemPress(index) : undefined}
                 />
               ) : (

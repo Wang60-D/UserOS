@@ -27,6 +27,8 @@ export interface CircleButtonProps {
   iconEmoji?: string;
   iconSelected?: ImageSourcePropType;
   iconUnselected?: ImageSourcePropType;
+  iconSelectedTintColor?: string;
+  iconUnselectedTintColor?: string;
   onPress?: () => void;
 }
 
@@ -37,9 +39,12 @@ const CircleButton: React.FC<CircleButtonProps> = ({
   iconEmoji = '❄️',
   iconSelected,
   iconUnselected,
+  iconSelectedTintColor,
+  iconUnselectedTintColor,
   onPress,
 }) => {
   const iconSource = selected ? iconSelected : iconUnselected;
+  const iconTintColor = selected ? iconSelectedTintColor : iconUnselectedTintColor;
 
   return (
     <Pressable
@@ -65,7 +70,11 @@ const CircleButton: React.FC<CircleButtonProps> = ({
         )}
         <View style={styles.iconWrapper}>
           {iconSource ? (
-            <Image source={iconSource} style={styles.icon} resizeMode="contain" />
+            <Image
+              source={iconSource}
+              style={[styles.icon, iconTintColor ? { tintColor: iconTintColor } : null]}
+              resizeMode="contain"
+            />
           ) : (
             <Text style={styles.iconEmoji} numberOfLines={1}>
               {iconEmoji}

@@ -32,9 +32,10 @@ const CATALOG_SECTIONS: CatalogSection[] = [
     title: '模式',
     items: [
       { label: '空调', routeName: 'AirConditioner' },
-      { label: '空气净化器' },
-      { label: '灯光' },
-      { label: '音效' },
+      { label: '空气净化器', routeName: 'AirPurifier' },
+      { label: '灯光', routeName: 'LightMode' },
+      { label: '音效', routeName: 'SoundMode' },
+      { label: '耳机', routeName: 'EarphoneMode' },
     ],
   },
   {
