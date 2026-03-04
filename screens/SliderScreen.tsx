@@ -67,7 +67,7 @@ const SliderScreen: React.FC = () => {
           fillMode="left"
           showTickLabels={false}
           showEdgeValues={false}
-          debugEnabled={true}
+          debugEnabled={false}
           debugId="dot-a"
         />
       </View>
@@ -87,7 +87,7 @@ const SliderScreen: React.FC = () => {
           edgeValues={['16', '31']}
           showTickLabels={true}
           tickLabels={['16', '22', '28', '31']}
-          debugEnabled={true}
+          debugEnabled={false}
           debugId="dot-b"
         />
       </View>
@@ -104,7 +104,7 @@ const SliderScreen: React.FC = () => {
           showEdgeValues={true}
           edgeValues={['16', '31']}
           showTickLabels={false}
-          debugEnabled={true}
+          debugEnabled={false}
           debugId="dot-c"
         />
       </View>

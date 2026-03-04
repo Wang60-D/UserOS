@@ -191,7 +191,7 @@ const DotSlider: React.FC<DotSliderProps> = ({
     }
     Animated.spring(translateX, {
       toValue,
-      useNativeDriver: true,
+      useNativeDriver: false,
       tension: 90,
       friction: 12,
     }).start();
