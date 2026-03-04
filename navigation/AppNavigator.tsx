@@ -8,6 +8,10 @@ import LightModeScreen from '../screens/Model/LightModeScreen';
 import SoundModeScreen from '../screens/Model/SoundModeScreen';
 import EarphoneModeScreen from '../screens/Model/EarphoneModeScreen';
 import FridgeModeScreen from '../screens/Model/FridgeModeScreen';
+import HumidifierGearScreen from '../screens/Gear/HumidifierGearScreen';
+import WindSpeedGearScreen from '../screens/Gear/WindSpeedGearScreen';
+import RangehoodGearScreen from '../screens/Gear/RangehoodGearScreen';
+import ElectricHeaterGearScreen from '../screens/Gear/ElectricHeaterGearScreen';
 import ControlTitleScreen from '../screens/ControlTitleScreen';
 import ButtonGroupScreen from '../screens/ButtonGroupScreen';
 import SliderScreen from '../screens/SliderScreen';
@@ -41,6 +45,10 @@ export type RootStackParamList = {
   SoundMode: undefined;
   EarphoneMode: undefined;
   FridgeMode: undefined;
+  HumidifierGear: undefined;
+  WindSpeedGear: undefined;
+  RangehoodGear: undefined;
+  ElectricHeaterGear: undefined;
   ControlTitle: undefined;
   ButtonGroup: undefined;
   Slider: undefined;
@@ -112,6 +120,22 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen 
           name="FridgeMode" 
           component={FridgeModeScreen}
+        />
+        <Stack.Screen 
+          name="HumidifierGear" 
+          component={HumidifierGearScreen}
+        />
+        <Stack.Screen
+          name="WindSpeedGear"
+          component={WindSpeedGearScreen}
+        />
+        <Stack.Screen
+          name="RangehoodGear"
+          component={RangehoodGearScreen}
+        />
+        <Stack.Screen
+          name="ElectricHeaterGear"
+          component={ElectricHeaterGearScreen}
         />
         <Stack.Screen 
           name="ControlTitle" 

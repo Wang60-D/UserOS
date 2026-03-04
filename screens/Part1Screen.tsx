@@ -42,10 +42,10 @@ const CATALOG_SECTIONS: CatalogSection[] = [
   {
     title: '档位',
     items: [
-      { label: '加湿器' },
-      { label: '风速' },
-      { label: '净烟机' },
-      { label: '电暖器' },
+      { label: '加湿器', routeName: 'HumidifierGear' },
+      { label: '风速', routeName: 'WindSpeedGear' },
+      { label: '净烟机', routeName: 'RangehoodGear' },
+      { label: '电暖器', routeName: 'ElectricHeaterGear' },
     ],
   },
   {

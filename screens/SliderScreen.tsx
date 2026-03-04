@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CapsuleModeSlider, DiscreteSlider, DotSlider, NumberCapsuleSlider } from '../components/Slider';
+import { RemoteControlStepper } from '../components/RemoteControlStepper';
 import type { CapsuleModeValue } from '../components/Slider';
 import { TOKENS } from '../tokens';
 
@@ -13,6 +14,7 @@ const SliderScreen: React.FC = () => {
   const [dotSliderAValue, setDotSliderAValue] = useState(0);
   const [dotSliderBValue, setDotSliderBValue] = useState(16);
   const [dotSliderCValue, setDotSliderCValue] = useState(16);
+  const [remoteGear, setRemoteGear] = useState(2);
   const SLIDER_CONFIG = {
     steps: 6,
     snapEnabled: true,
@@ -106,6 +108,15 @@ const SliderScreen: React.FC = () => {
           showTickLabels={false}
           debugEnabled={false}
           debugId="dot-c"
+        />
+      </View>
+      <View style={[styles.card, styles.cardSpacing]}>
+        <RemoteControlStepper
+          range={[1, 5]}
+          step={1}
+          value={remoteGear}
+          onChange={setRemoteGear}
+          unitLabel="档"
         />
       </View>
     </View>

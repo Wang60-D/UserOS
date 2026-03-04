@@ -17,6 +17,7 @@ export interface CircleButtonGroupProps {
   items: CircleButtonGroupItem[];
   showLabel?: boolean;
   itemCount?: number;
+  columns?: number;
   onItemPress?: (index: number) => void;
 }
 
@@ -24,21 +25,22 @@ const CircleButtonGroup: React.FC<CircleButtonGroupProps> = ({
   items,
   showLabel = true,
   itemCount,
+  columns = 4,
   onItemPress,
 }) => {
   const visibleItems = itemCount ? items.slice(0, itemCount) : items;
-  const columns = 4;
-  const shouldWrap = visibleItems.length > columns;
+  const resolvedColumns = Math.max(1, Math.floor(columns));
+  const shouldWrap = visibleItems.length > resolvedColumns;
   const slotCount = shouldWrap
-    ? Math.ceil(visibleItems.length / columns) * columns
+    ? Math.ceil(visibleItems.length / resolvedColumns) * resolvedColumns
     : visibleItems.length;
   const slots = Array.from(
     { length: slotCount },
     (_, index) => visibleItems[index] || null
   );
   const rows = shouldWrap
-    ? Array.from({ length: Math.ceil(slots.length / columns) }, (_, rowIndex) =>
-        slots.slice(rowIndex * columns, (rowIndex + 1) * columns)
+    ? Array.from({ length: Math.ceil(slots.length / resolvedColumns) }, (_, rowIndex) =>
+        slots.slice(rowIndex * resolvedColumns, (rowIndex + 1) * resolvedColumns)
       )
     : [];
 
@@ -66,7 +68,7 @@ const CircleButtonGroup: React.FC<CircleButtonGroupProps> = ({
                       iconUnselectedTintColor={item.iconUnselectedTintColor}
                       onPress={
                         onItemPress
-                          ? () => onItemPress(rowIndex * columns + index)
+                          ? () => onItemPress(rowIndex * resolvedColumns + index)
                           : undefined
                       }
                     />
