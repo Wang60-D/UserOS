@@ -27,8 +27,7 @@ const CATALOG_SECTIONS: CatalogSection[] = [
       { label: '浴霸灯光', routeName: 'BathLight' },
       { label: '晾衣架', routeName: 'ClothrackSwitch' },
       { label: '鱼缸', routeName: 'FishtankLight' },
-      { label: '按摩仪' },
-      { label: '除湿机', routeName: 'Dehumidifier' },
+      { label: '按摩仪', routeName: 'Massage' },
     ],
   },
   {

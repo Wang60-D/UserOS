@@ -11,3 +11,5 @@ export type { DotSliderProps } from './DotSlider';
 export { DEFAULT_DOT_SLIDER_CONFIG } from './DotSlider';
 export { default as DualHandleSlider } from './DualHandleSlider';
 export type { DualHandleSliderProps } from './DualHandleSlider';
+export { default as CircularArcSlider } from './CircularArcSlider';
+export type { CircularArcSliderProps } from './CircularArcSlider';

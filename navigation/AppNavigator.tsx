@@ -26,12 +26,14 @@ import ControlTitleScreen from '../screens/ControlTitleScreen';
 import ButtonGroupScreen from '../screens/ButtonGroupScreen';
 import SliderScreen from '../screens/SliderScreen';
 import TimePickerScreen from '../screens/TimePickerScreen';
+import CircularArcSliderScreen from '../screens/CircularArcSliderScreen';
 import ComponentLibraryScreen from '../screens/ComponentLibraryScreen';
 import SwitchScreen from '../screens/Switch/SwitchScreen';
 import Part1Screen from '../screens/Part1Screen';
 import FanSwitchScreen from '../screens/Switch/FanSwitchScreen';
 import WallSwitchScreen from '../screens/Switch/WallSwitchScreen';
 import BathLightScreen from '../screens/Switch/BathLightScreen';
+import FishtankLightScreen from '../screens/Switch/FishtankLightScreen';
 import MassageScreen from '../screens/Switch/MassageScreen';
 import DehumidifierScreen from '../screens/Switch/DehumidifierScreen';
 import ClothrackSwitchScreen from '../screens/Switch/ClothrackSwitchScreen';
@@ -78,6 +80,7 @@ export type RootStackParamList = {
   ControlTitle: undefined;
   ButtonGroup: undefined;
   Slider: undefined;
+  CircularArcSlider: undefined;
   TimePicker: undefined;
   Switch: undefined;
 };
@@ -122,7 +125,7 @@ const AppNavigator: React.FC = () => {
         />
         <Stack.Screen
           name="FishtankLight"
-          component={MassageScreen}
+          component={FishtankLightScreen}
         />
         <Stack.Screen
           name="Massage"
@@ -227,6 +230,10 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen 
           name="Slider" 
           component={SliderScreen}
+        />
+        <Stack.Screen
+          name="CircularArcSlider"
+          component={CircularArcSliderScreen}
         />
         <Stack.Screen
           name="TimePicker"

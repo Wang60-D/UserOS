@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
 import { CircleButtonGroup } from '../../components/ButtonGroup';
@@ -13,6 +13,7 @@ type PurifierMode = 'auto' | 'sleep' | 'favorite' | 'level';
 const VIEW_TABS = ['1', '2'] as const;
 const ENABLE_TAB_STATE_SYNC = true;
 const INITIAL_MODE_VALUES: PurifierMode[] = ['auto', 'auto'];
+const AIR_PURIFIER_EQUIPMENT_IMAGE = require('../../assets/equipment/airpuffier.png');
 
 const CIRCLE_MODE_CONFIG: Array<{
   key: PurifierMode;
@@ -149,7 +150,9 @@ const AirPurifierScreen: React.FC = () => {
         <Text style={styles.pageTitle}>空气净化器</Text>
       </View>
 
-      <View style={styles.contentPlaceholder} />
+      <View style={styles.contentPlaceholder}>
+        <Image source={AIR_PURIFIER_EQUIPMENT_IMAGE} style={styles.equipmentImage} resizeMode="contain" />
+      </View>
 
       <View style={styles.bottomSection}>
         <View style={styles.modeCard}>
@@ -206,6 +209,13 @@ const styles = StyleSheet.create({
   },
   contentPlaceholder: {
     flex: 1,
+    paddingVertical: TOKENS.spacing.equipmentPaddingVertical,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  equipmentImage: {
+    width: '100%',
+    height: '100%',
   },
   bottomSection: {
     marginBottom: 0,

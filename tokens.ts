@@ -29,6 +29,8 @@ export const TOKENS = {
     rightPillPaddingV: 5.5,
     switchTrackPaddingH: 4,
     circleButtonLabelMarginTop: 4,
+    equipmentPaddingTop: 20,
+    equipmentPaddingVertical: 100,
   },
   radius: {
     card: 16,

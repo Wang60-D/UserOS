@@ -5,43 +5,40 @@ import { SwitchRow } from '../../components/Switch';
 import type { SwitchRowProps } from '../../components/Switch';
 import { TOKENS } from '../../tokens';
 
-const DEHUMIDIFIER_ICONS = {
+const FISHTANK_ICONS = {
   power: require('../../assets/icons/power.png'),
-  feature: require('../../assets/icons/humidity.png'),
+  light: require('../../assets/icons/light.png'),
 } as const;
-const MASSAGER_EQUIPMENT_IMAGE = require('../../assets/equipment/massager.png');
+const FISHTANK_EQUIPMENT_IMAGE = require('../../assets/equipment/fish.png');
 
 const PAGE_TABS = ['1', '2', '3', '4'] as const;
 const ENABLE_TAB_STATE_SYNC = true;
-
 const POWER_MODES: Array<SwitchRowProps['rightMode']> = ['icon', 'icon', 'switch', 'switch'];
-const FEATURE_MODES: Array<SwitchRowProps['rightMode']> = ['switch', 'icon', 'switch', 'icon'];
-const FEATURE_LEFT_ICON_ENABLED = [true, false, true, false] as const;
-const FEATURE_TITLES = ['热敷', '除菌', '除菌', '除菌'] as const;
+const LIGHT_MODES: Array<SwitchRowProps['rightMode']> = ['switch', 'icon', 'switch', 'icon'];
+const LIGHT_LEFT_ICON_ENABLED = [true, false, true, false] as const;
 
 const INITIAL_POWER_VALUES = [true, true, true, true] as const;
-const INITIAL_FEATURE_VALUES = [false, true, true, true] as const;
+const INITIAL_LIGHT_VALUES = [true, true, true, true] as const;
 
 type DynamicRowProps = Pick<
   SwitchRowProps,
   'rightMode' | 'rightIconSource' | 'rightButtonOn' | 'switchValue' | 'onRightButtonChange' | 'onSwitchChange'
 >;
 
-const DehumidifierScreen: React.FC = () => {
+const FishtankLightScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const [activePage, setActivePage] = useState(0);
   const [powerValues, setPowerValues] = useState<boolean[]>([...INITIAL_POWER_VALUES]);
-  const [featureValues, setFeatureValues] = useState<boolean[]>([...INITIAL_FEATURE_VALUES]);
+  const [lightValues, setLightValues] = useState<boolean[]>([...INITIAL_LIGHT_VALUES]);
   const [sharedPowerOn, setSharedPowerOn] = useState<boolean>(INITIAL_POWER_VALUES[0]);
-  const [sharedFeatureOn, setSharedFeatureOn] = useState<boolean>(INITIAL_FEATURE_VALUES[0]);
+  const [sharedLightOn, setSharedLightOn] = useState<boolean>(INITIAL_LIGHT_VALUES[0]);
 
   const powerMode = POWER_MODES[activePage];
-  const featureMode = FEATURE_MODES[activePage];
-  const featureWithLeftIcon = FEATURE_LEFT_ICON_ENABLED[activePage];
-  const featureTitle = FEATURE_TITLES[activePage];
+  const lightMode = LIGHT_MODES[activePage];
+  const lightWithLeftIcon = LIGHT_LEFT_ICON_ENABLED[activePage];
 
   const currentPowerOn = ENABLE_TAB_STATE_SYNC ? sharedPowerOn : powerValues[activePage];
-  const currentFeatureOn = ENABLE_TAB_STATE_SYNC ? sharedFeatureOn : featureValues[activePage];
+  const currentLightOn = ENABLE_TAB_STATE_SYNC ? sharedLightOn : lightValues[activePage];
 
   const updatePowerState = (nextValue: boolean) => {
     if (ENABLE_TAB_STATE_SYNC) {
@@ -49,18 +46,16 @@ const DehumidifierScreen: React.FC = () => {
       setPowerValues((prev) => prev.map(() => nextValue));
       return;
     }
-
     setPowerValues((prev) => prev.map((item, index) => (index === activePage ? nextValue : item)));
   };
 
-  const updateFeatureState = (nextValue: boolean) => {
+  const updateLightState = (nextValue: boolean) => {
     if (ENABLE_TAB_STATE_SYNC) {
-      setSharedFeatureOn(nextValue);
-      setFeatureValues((prev) => prev.map(() => nextValue));
+      setSharedLightOn(nextValue);
+      setLightValues((prev) => prev.map(() => nextValue));
       return;
     }
-
-    setFeatureValues((prev) => prev.map((item, index) => (index === activePage ? nextValue : item)));
+    setLightValues((prev) => prev.map((item, index) => (index === activePage ? nextValue : item)));
   };
 
   const powerRowProps: DynamicRowProps =
@@ -72,33 +67,33 @@ const DehumidifierScreen: React.FC = () => {
         }
       : {
           rightMode: 'icon',
-          rightIconSource: DEHUMIDIFIER_ICONS.power,
+          rightIconSource: FISHTANK_ICONS.power,
           rightButtonOn: currentPowerOn,
           onRightButtonChange: updatePowerState,
         };
 
-  const featureRowProps: DynamicRowProps =
-    featureMode === 'switch'
+  const lightRowProps: DynamicRowProps =
+    lightMode === 'switch'
       ? {
           rightMode: 'switch',
-          switchValue: currentFeatureOn,
-          onSwitchChange: updateFeatureState,
+          switchValue: currentLightOn,
+          onSwitchChange: updateLightState,
         }
       : {
           rightMode: 'icon',
-          rightIconSource: DEHUMIDIFIER_ICONS.feature,
-          rightButtonOn: currentFeatureOn,
-          onRightButtonChange: updateFeatureState,
+          rightIconSource: FISHTANK_ICONS.light,
+          rightButtonOn: currentLightOn,
+          onRightButtonChange: updateLightState,
         };
 
   return (
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 52 }]}>
-        <Text style={styles.title}>按摩仪</Text>
+        <Text style={styles.title}>鱼缸</Text>
       </View>
 
       <View style={styles.contentPlaceholder}>
-        <Image source={MASSAGER_EQUIPMENT_IMAGE} style={styles.equipmentImage} resizeMode="contain" />
+        <Image source={FISHTANK_EQUIPMENT_IMAGE} style={styles.equipmentImage} resizeMode="contain" />
       </View>
 
       <View style={styles.bottomSection}>
@@ -113,12 +108,12 @@ const DehumidifierScreen: React.FC = () => {
 
         <View style={styles.switchCard}>
           <SwitchRow
-            titleText={featureTitle}
-            leftIconEnabled={featureWithLeftIcon}
-            leftIconSource={featureWithLeftIcon ? DEHUMIDIFIER_ICONS.feature : undefined}
+            titleText="照明"
+            leftIconEnabled={lightWithLeftIcon}
+            leftIconSource={lightWithLeftIcon ? FISHTANK_ICONS.light : undefined}
             rowHeight={TOKENS.sizes.switchCardHeight}
             containerBgColor="transparent"
-            {...featureRowProps}
+            {...lightRowProps}
           />
         </View>
 
@@ -210,4 +205,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DehumidifierScreen;
+export default FishtankLightScreen;

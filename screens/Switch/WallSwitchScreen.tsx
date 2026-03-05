@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SwitchRow, WallSwitch } from '../../components/Switch';
 import type { WallSwitchValue } from '../../components/Switch';
@@ -9,6 +9,7 @@ const SWITCH_ROW_ICONS = {
   floor: require('../../assets/icons/floorswitch.png'),
   power: require('../../assets/icons/power.png'),
 } as const;
+const WALL_SWITCH_EQUIPMENT_IMAGE = require('../../assets/equipment/wallswitch.png');
 
 const PAGE_TABS = ['1', '2'] as const;
 const ENABLE_TAB_STATE_SYNC = true;
@@ -76,7 +77,9 @@ const WallSwitchScreen: React.FC = () => {
         <Text style={styles.title}>墙壁开关</Text>
       </View>
 
-      <View style={styles.contentPlaceholder} />
+      <View style={styles.contentPlaceholder}>
+        <Image source={WALL_SWITCH_EQUIPMENT_IMAGE} style={styles.equipmentImage} resizeMode="contain" />
+      </View>
 
       <View style={styles.bottomSection}>
         <View style={styles.wallSwitchWrap}>
@@ -142,6 +145,13 @@ const styles = StyleSheet.create({
   },
   contentPlaceholder: {
     flex: 1,
+    paddingVertical: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  equipmentImage: {
+    width: '100%',
+    height: '100%',
   },
   bottomSection: {
     marginBottom: 0,

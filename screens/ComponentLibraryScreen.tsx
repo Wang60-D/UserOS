@@ -9,6 +9,7 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 type ComponentLibraryRouteName =
   | 'AirConditioner'
   | 'ButtonGroup'
+  | 'CircularArcSlider'
   | 'ControlTitle'
   | 'Slider'
   | 'TimePicker'
@@ -40,6 +41,11 @@ const COMPONENT_ITEMS: ComponentItem[] = [
     title: '滑条组件',
     description: '离散步进滑条与吸附行为演示',
     routeName: 'Slider',
+  },
+  {
+    title: '圆弧滑条组件',
+    description: '圆形弧线滑条 6 种样式与交互示例',
+    routeName: 'CircularArcSlider',
   },
   {
     title: '时间选择组件',

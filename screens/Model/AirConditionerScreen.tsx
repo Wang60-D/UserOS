@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
 import { CircleButtonGroup } from '../../components/ButtonGroup';
@@ -9,6 +9,7 @@ import type { SegmentedSquareSliderItem } from '../../components/Slider';
 import { TOKENS } from '../../tokens';
 
 const VIEW_TABS = ['1', '2'] as const;
+const AIR_CONDITIONER_EQUIPMENT_IMAGE = require('../../assets/equipment/air-conditioner.png');
 
 type AirMode = 'cool' | 'heat' | 'dehumidify' | 'fan';
 
@@ -87,7 +88,9 @@ const AirConditionerModeScreen: React.FC = () => {
         <Text style={styles.title}>空调</Text>
       </View>
 
-      <View style={styles.contentPlaceholder} />
+      <View style={styles.contentPlaceholder}>
+        <Image source={AIR_CONDITIONER_EQUIPMENT_IMAGE} style={styles.equipmentImage} resizeMode="contain" />
+      </View>
 
       <View style={styles.bottomSection}>
         <View style={styles.modeCard}>
@@ -144,6 +147,13 @@ const styles = StyleSheet.create({
   },
   contentPlaceholder: {
     flex: 1,
+    paddingVertical: 140,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  equipmentImage: {
+    width: '100%',
+    height: '100%',
   },
   bottomSection: {
     marginBottom: 0,

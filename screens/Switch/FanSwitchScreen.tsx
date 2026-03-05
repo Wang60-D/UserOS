@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SwitchRow } from '../../components/Switch';
 import type { SwitchRowProps } from '../../components/Switch';
@@ -8,6 +8,7 @@ import { TOKENS } from '../../tokens';
 const FAN_ICONS = {
   power: require('../../assets/icons/power.png'),
 } as const;
+const FAN_EQUIPMENT_IMAGE = require('../../assets/equipment/fan.png');
 
 const PAGE_TABS = ['1', '2'] as const;
 const ENABLE_TAB_STATE_SYNC = true;
@@ -66,7 +67,9 @@ const FanSwitchScreen: React.FC = () => {
         <Text style={styles.title}>风扇</Text>
       </View>
 
-      <View style={styles.contentPlaceholder} />
+      <View style={styles.contentPlaceholder}>
+        <Image source={FAN_EQUIPMENT_IMAGE} style={styles.equipmentImage} resizeMode="contain" />
+      </View>
 
       <View style={styles.bottomSection}>
         <View style={styles.switchCard}>
@@ -116,6 +119,13 @@ const styles = StyleSheet.create({
   },
   contentPlaceholder: {
     flex: 1,
+    paddingVertical: TOKENS.spacing.equipmentPaddingVertical,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  equipmentImage: {
+    width: '100%',
+    height: '100%',
   },
   bottomSection: {
     marginBottom: 0,

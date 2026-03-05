@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
 import { CircleButtonGroup, SquareButtonGroup } from '../../components/ButtonGroup';
@@ -19,6 +19,7 @@ type LightSceneMode =
 const VIEW_TABS = ['1', '2'] as const;
 const ENABLE_TAB_STATE_SYNC = true;
 const INITIAL_MODE_VALUES: LightSceneMode[] = ['reading', 'reading'];
+const LIGHT_EQUIPMENT_IMAGE = require('../../assets/equipment/light.png');
 
 const LIGHT_ICON_SOURCES = {
   reading: require('../../assets/icons/read.png'),
@@ -101,7 +102,9 @@ const LightModeScreen: React.FC = () => {
         <Text style={styles.pageTitle}>灯光</Text>
       </View>
 
-      <View style={styles.contentPlaceholder} />
+      <View style={styles.contentPlaceholder}>
+        <Image source={LIGHT_EQUIPMENT_IMAGE} style={styles.equipmentImage} resizeMode="contain" />
+      </View>
 
       <View style={styles.bottomSection}>
         <View style={styles.modeCard}>
@@ -158,6 +161,13 @@ const styles = StyleSheet.create({
   },
   contentPlaceholder: {
     flex: 1,
+    paddingVertical: TOKENS.spacing.equipmentPaddingVertical,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  equipmentImage: {
+    width: '100%',
+    height: '100%',
   },
   bottomSection: {
     marginBottom: 0,
