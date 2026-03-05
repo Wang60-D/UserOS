@@ -32,7 +32,9 @@ import Part1Screen from '../screens/Part1Screen';
 import FanSwitchScreen from '../screens/Switch/FanSwitchScreen';
 import WallSwitchScreen from '../screens/Switch/WallSwitchScreen';
 import BathLightScreen from '../screens/Switch/BathLightScreen';
+import MassageScreen from '../screens/Switch/MassageScreen';
 import DehumidifierScreen from '../screens/Switch/DehumidifierScreen';
+import ClothrackSwitchScreen from '../screens/Switch/ClothrackSwitchScreen';
 
 // 尝试禁用 react-native-screens（如果存在）
 try {
@@ -48,6 +50,9 @@ export type RootStackParamList = {
   FanSwitch: undefined;
   WallSwitch: undefined;
   BathLight: undefined;
+  ClothrackSwitch: undefined;
+  FishtankLight: undefined;
+  Massage: undefined;
   Dehumidifier: undefined;
   ComponentLibrary: undefined;
   AirConditioner: undefined;
@@ -110,6 +115,18 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen 
           name="BathLight" 
           component={BathLightScreen}
+        />
+        <Stack.Screen
+          name="ClothrackSwitch"
+          component={ClothrackSwitchScreen}
+        />
+        <Stack.Screen
+          name="FishtankLight"
+          component={MassageScreen}
+        />
+        <Stack.Screen
+          name="Massage"
+          component={MassageScreen}
         />
         <Stack.Screen 
           name="Dehumidifier" 

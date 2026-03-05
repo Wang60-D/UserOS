@@ -106,12 +106,18 @@ const TimePickerCard: React.FC<TimePickerCardProps> = ({
             </Pressable>
           </View>
           <View style={styles.currentTimeRow}>
-            <Text style={[styles.currentTimeText, mode === 'start' && styles.currentTimeTextActive]}>
-              {startLabel} {formatTime(resolvedStart)}
-            </Text>
-            <Text style={[styles.currentTimeText, mode === 'end' && styles.currentTimeTextActive]}>
-              {endLabel} {formatTime(resolvedEnd)}
-            </Text>
+            <View style={styles.currentTimeItem}>
+              <Text style={styles.currentTimeText}>{startLabel}</Text>
+              <Text style={[styles.currentTimeValue, mode === 'start' && styles.currentTimeValueActive]}>
+                {formatTime(resolvedStart)}
+              </Text>
+            </View>
+            <View style={styles.currentTimeItem}>
+              <Text style={styles.currentTimeText}>{endLabel}</Text>
+              <Text style={[styles.currentTimeValue, mode === 'end' && styles.currentTimeValueActive]}>
+                {formatTime(resolvedEnd)}
+              </Text>
+            </View>
           </View>
         </View>
       ) : null}
@@ -178,18 +184,27 @@ const styles = StyleSheet.create({
   currentTimeRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     marginBottom: 12,
     paddingHorizontal: 6,
+  },
+  currentTimeItem: {
+    alignItems: 'flex-start',
   },
   currentTimeText: {
     fontSize: 14,
     color: 'rgba(0,0,0,0.6)',
     fontWeight: '400',
   },
-  currentTimeTextActive: {
-    color: '#809DE4',
+  currentTimeValue: {
+    marginTop: 2,
+    fontSize: 24,
+    color: 'rgba(0,0,0,0.6)',
     fontWeight: '500',
+  },
+  currentTimeValueActive: {
+    color: '#809DE4',
+    fontWeight: '600',
   },
   wheelWrap: {
     minHeight: 220,
