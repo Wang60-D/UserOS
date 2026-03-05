@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
 import { CircleButtonGroup } from '../../components/ButtonGroup';
@@ -25,6 +25,7 @@ const FAN_ICONS = {
   selected: require('../../assets/icons/fan_white.png'),
   unselected: require('../../assets/icons/fan_black.png'),
 } as const;
+const WIND_SPEED_EQUIPMENT_IMAGE = require('../../assets/equipment/fan.png');
 
 const WindSpeedGearScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
@@ -108,7 +109,9 @@ const WindSpeedGearScreen: React.FC = () => {
         <Text style={styles.pageTitle}>风速</Text>
       </View>
 
-      <View style={styles.contentPlaceholder} />
+      <View style={styles.contentPlaceholder}>
+        <Image source={WIND_SPEED_EQUIPMENT_IMAGE} style={styles.equipmentImage} resizeMode="contain" />
+      </View>
 
       <View style={styles.bottomSection}>
         <View style={styles.modeCard}>
@@ -166,6 +169,13 @@ const styles = StyleSheet.create({
   },
   contentPlaceholder: {
     flex: 1,
+    paddingVertical: TOKENS.spacing.equipmentPaddingVertical,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  equipmentImage: {
+    width: '100%',
+    height: '100%',
   },
   bottomSection: {
     marginBottom: 0,

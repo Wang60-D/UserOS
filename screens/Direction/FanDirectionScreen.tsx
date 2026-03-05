@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
 import { CircleButtonGroup } from '../../components/ButtonGroup';
@@ -13,6 +13,7 @@ type AngleValue = 30 | 60 | 90 | 120;
 
 const VIEW_TABS = ['1', '2', '3'] as const;
 const ANGLE_ICON = require('../../assets/icons/earphone/noisecancellation.png');
+const FAN_EQUIPMENT_IMAGE = require('../../assets/equipment/fan.png');
 const SYMMETRIC_ANGLE_POINTS = [120, 90, 60, 30, 30, 60, 90, 120] as const;
 
 const ANGLE_OPTIONS: Array<{
@@ -121,7 +122,9 @@ const FanDirectionScreen: React.FC = () => {
         <Text style={styles.pageTitle}>风扇</Text>
       </View>
 
-      <View style={styles.contentPlaceholder} />
+      <View style={styles.contentPlaceholder}>
+        <Image source={FAN_EQUIPMENT_IMAGE} style={styles.equipmentImage} resizeMode="contain" />
+      </View>
 
       <View style={styles.bottomSection}>
         <View style={styles.modeCard}>
@@ -183,6 +186,13 @@ const styles = StyleSheet.create({
   },
   contentPlaceholder: {
     flex: 1,
+    paddingVertical: TOKENS.spacing.equipmentPaddingVertical,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  equipmentImage: {
+    width: '100%',
+    height: '100%',
   },
   bottomSection: {
     marginBottom: 0,

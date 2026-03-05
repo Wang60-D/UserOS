@@ -9,6 +9,7 @@ type CurtainControlType = 0 | 1;
 type CurtainAction = 'open' | 'stop' | 'close';
 
 const VIEW_TABS = ['1', '2'] as const;
+const CURTAIN_EQUIPMENT_IMAGE = require('../../assets/equipment/curtain.png');
 const MIN_POSITION = 0;
 const MAX_POSITION = 100;
 const TAP_STEP = 10;
@@ -167,7 +168,9 @@ const CurtainDirectionScreen: React.FC = () => {
         <Text style={styles.pageTitle}>窗帘</Text>
       </View>
 
-      <View style={styles.contentPlaceholder} />
+      <View style={styles.contentPlaceholder}>
+        <Image source={CURTAIN_EQUIPMENT_IMAGE} style={styles.equipmentImage} resizeMode="contain" />
+      </View>
 
       <View style={styles.bottomSection}>
         <View style={styles.modeCard}>
@@ -225,6 +228,13 @@ const styles = StyleSheet.create({
   },
   contentPlaceholder: {
     flex: 1,
+    paddingVertical: TOKENS.spacing.equipmentPaddingVertical,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  equipmentImage: {
+    width: '100%',
+    height: '100%',
   },
   bottomSection: {
     marginBottom: 0,

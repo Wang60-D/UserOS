@@ -9,6 +9,7 @@ type DreamCurtainControlType = 0 | 1;
 type CurtainAction = 'left' | 'stop' | 'right';
 
 const VIEW_TABS = ['1', '2'] as const;
+const DREAM_CURTAIN_EQUIPMENT_IMAGE = require('../../assets/equipment/curtain.png');
 const MIN_ANGLE = 0;
 const MAX_ANGLE = 180;
 const ANGLE_STEP = 30;
@@ -168,7 +169,9 @@ const DreamCurtainDirectionScreen: React.FC = () => {
         <Text style={styles.pageTitle}>梦幻帘</Text>
       </View>
 
-      <View style={styles.contentPlaceholder} />
+      <View style={styles.contentPlaceholder}>
+        <Image source={DREAM_CURTAIN_EQUIPMENT_IMAGE} style={styles.equipmentImage} resizeMode="contain" />
+      </View>
 
       <View style={styles.bottomSection}>
         <View style={styles.modeCard}>
@@ -226,6 +229,13 @@ const styles = StyleSheet.create({
   },
   contentPlaceholder: {
     flex: 1,
+    paddingVertical: TOKENS.spacing.equipmentPaddingVertical,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  equipmentImage: {
+    width: '100%',
+    height: '100%',
   },
   bottomSection: {
     marginBottom: 0,

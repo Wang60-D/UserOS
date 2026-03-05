@@ -10,6 +10,7 @@ import { TOKENS } from '../../tokens';
 type AirConditionerControlType = 0 | 1 | 2;
 
 const VIEW_TABS = ['1', '2', '3'] as const;
+const AIR_CONDITIONER_EQUIPMENT_IMAGE = require('../../assets/equipment/air-conditioner.png');
 
 const ANGLE_OPTIONS = [
   { label: '上定格', icon: require('../../assets/icons/airconditioner/angletop.png') },
@@ -115,7 +116,9 @@ const AirConditionerDirectionScreen: React.FC = () => {
         <Text style={styles.pageTitle}>空调</Text>
       </View>
 
-      <View style={styles.contentPlaceholder} />
+      <View style={styles.contentPlaceholder}>
+        <Image source={AIR_CONDITIONER_EQUIPMENT_IMAGE} style={styles.equipmentImage} resizeMode="contain" />
+      </View>
 
       <View style={styles.bottomSection}>
         <View style={styles.modeCard}>
@@ -181,6 +184,13 @@ const styles = StyleSheet.create({
   },
   contentPlaceholder: {
     flex: 1,
+    paddingVertical: TOKENS.spacing.equipmentPaddingVertical,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  equipmentImage: {
+    width: '100%',
+    height: '100%',
   },
   bottomSection: {
     marginBottom: 0,

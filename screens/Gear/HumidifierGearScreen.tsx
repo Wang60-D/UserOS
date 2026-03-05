@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
 import { CircleButtonGroup } from '../../components/ButtonGroup';
@@ -22,6 +22,7 @@ const HUMIDIFIER_GEAR_ICONS = {
   level3: require('../../assets/icons/humidifier/3.png'),
   level4: require('../../assets/icons/humidifier/4.png'),
 } as const;
+const HUMIDIFIER_EQUIPMENT_IMAGE = require('../../assets/equipment/humidifier.png');
 
 const GEAR_CIRCLE_ITEMS = [
   { value: 1, label: '1档', icon: HUMIDIFIER_GEAR_ICONS.level1 },
@@ -116,7 +117,9 @@ const HumidifierGearScreen: React.FC = () => {
         <Text style={styles.pageTitle}>加湿器</Text>
       </View>
 
-      <View style={styles.contentPlaceholder} />
+      <View style={styles.contentPlaceholder}>
+        <Image source={HUMIDIFIER_EQUIPMENT_IMAGE} style={styles.equipmentImage} resizeMode="contain" />
+      </View>
 
       <View style={styles.bottomSection}>
         <View style={styles.modeCard}>
@@ -174,6 +177,13 @@ const styles = StyleSheet.create({
   },
   contentPlaceholder: {
     flex: 1,
+    paddingVertical: TOKENS.spacing.equipmentPaddingVertical,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  equipmentImage: {
+    width: '100%',
+    height: '100%',
   },
   bottomSection: {
     marginBottom: 0,
