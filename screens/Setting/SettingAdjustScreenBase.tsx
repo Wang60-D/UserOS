@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { DotSlider, VerticalNumberSlider } from '../../components/Slider';
+import { DotSlider, VerticalNumberSlider, type DotSliderProps } from '../../components/Slider';
 import { PageTabSwitch } from '../../components/PageSwitch';
 import { TOKENS } from '../../tokens';
 
@@ -17,6 +17,10 @@ export interface SettingAdjustConfig {
   defaultValue: number;
   sliderLeftLabel: string;
   sliderRightLabel: string;
+  trackBaseGradientColors?: string[];
+  trackBaseGradientStops?: Array<{ color: string; offset: number }>;
+  sliderShowFill?: boolean;
+  sliderFillMode?: DotSliderProps['fillMode'];
 }
 
 const PAGE_TABS = ['1', '2'] as const;
@@ -85,12 +89,14 @@ const SettingAdjustScreenBase: React.FC<{ config: SettingAdjustConfig }> = ({ co
                 showDots={true}
                 dotCount={2}
                 snapToDots={false}
-                showFill={true}
-                fillMode="left"
+                showFill={config.sliderShowFill ?? true}
+                fillMode={config.sliderFillMode ?? 'left'}
                 showEdgeValues={false}
                 showTickLabels={true}
                 tickLabels={[config.sliderLeftLabel, config.sliderRightLabel]}
                 emitChangeWhileDragging={true}
+                trackBaseGradientColors={config.trackBaseGradientColors}
+                trackBaseGradientStops={config.trackBaseGradientStops}
               />
             </View>
           </View>

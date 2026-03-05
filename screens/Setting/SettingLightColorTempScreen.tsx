@@ -14,6 +14,18 @@ const SettingLightColorTempScreen: React.FC = () => {
         defaultValue: 2900,
         sliderLeftLabel: '2600',
         sliderRightLabel: '6000',
+        sliderShowFill: false,
+        sliderFillMode: 'none',
+        trackBaseGradientStops: [
+          { offset: 0, color: '#FFAB09' },
+          { offset: 14, color: '#FFBF37' },
+          { offset: 29, color: '#FFD466' },
+          { offset: 43, color: '#FFE894' },
+          { offset: 57, color: '#ECF6FF' },
+          { offset: 71, color: '#CAE6FF' },
+          { offset: 86, color: '#9CCFFF' },
+          { offset: 100, color: '#80C2FF' },
+        ],
       }}
     />
   );

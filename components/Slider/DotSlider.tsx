@@ -7,6 +7,7 @@ import {
   View,
   type LayoutChangeEvent,
 } from 'react-native';
+import Svg, { Defs, LinearGradient as SvgLinearGradient, Rect, Stop } from 'react-native-svg';
 import { TOKENS } from '../../tokens';
 
 type DotDistribution = 'even' | 'custom';
@@ -46,6 +47,8 @@ export interface DotSliderProps {
   thumbOutlineColor?: string;
   thumbOutlineWidth?: number;
   emitChangeWhileDragging?: boolean;
+  trackBaseGradientColors?: string[];
+  trackBaseGradientStops?: Array<{ color: string; offset: number }>;
 }
 
 export const DEFAULT_DOT_SLIDER_CONFIG = {
@@ -71,6 +74,8 @@ export const DEFAULT_DOT_SLIDER_CONFIG = {
   thumbOutlineColor: 'transparent',
   thumbOutlineWidth: 0,
   emitChangeWhileDragging: false,
+  trackBaseGradientColors: undefined as string[] | undefined,
+  trackBaseGradientStops: undefined as Array<{ color: string; offset: number }> | undefined,
 } as const;
 
 const TRACK_HEIGHT = 32;
@@ -129,6 +134,8 @@ const DotSlider: React.FC<DotSliderProps> = ({
   thumbOutlineColor = DEFAULT_DOT_SLIDER_CONFIG.thumbOutlineColor,
   thumbOutlineWidth = DEFAULT_DOT_SLIDER_CONFIG.thumbOutlineWidth,
   emitChangeWhileDragging = DEFAULT_DOT_SLIDER_CONFIG.emitChangeWhileDragging,
+  trackBaseGradientColors = DEFAULT_DOT_SLIDER_CONFIG.trackBaseGradientColors,
+  trackBaseGradientStops = DEFAULT_DOT_SLIDER_CONFIG.trackBaseGradientStops,
 }) => {
   const canDrag = interactionMode === 'drag' || interactionMode === 'both';
   const canTap = interactionMode === 'tap' || interactionMode === 'both';
@@ -154,6 +161,9 @@ const DotSlider: React.FC<DotSliderProps> = ({
   const leftTranslateX = useRef(new Animated.Value(0)).current;
   const rightTranslateX = useRef(new Animated.Value(0)).current;
   const trackWidthRef = useRef(0);
+  const gradientIdRef = useRef(
+    `dot-slider-track-gradient-${Math.random().toString(36).slice(2, 10)}`
+  );
   const maxThumbXRef = useRef(0);
   const committedRatioRef = useRef(0);
   const committedLeftRatioRef = useRef(0);
@@ -218,6 +228,11 @@ const DotSlider: React.FC<DotSliderProps> = ({
   const edgeLabelValues: [string | number, string | number] = edgeValues ?? [min, max];
   const resolvedThumbOutlineWidth = Math.max(0, thumbOutlineWidth);
   const hasThumbOutline = resolvedThumbOutlineWidth > 0 && thumbOutlineColor !== 'transparent';
+  const hasTrackGradientStops =
+    Array.isArray(trackBaseGradientStops) && trackBaseGradientStops.length >= 2;
+  const hasTrackGradientColors =
+    Array.isArray(trackBaseGradientColors) && trackBaseGradientColors.length >= 2;
+  const hasTrackGradient = hasTrackGradientStops || hasTrackGradientColors;
   const thumbOutlineSize = THUMB_INNER_SIZE + resolvedThumbOutlineWidth * 2;
   maxThumbXRef.current = maxThumbX;
   committedRatioRef.current = committedRatio;
@@ -769,7 +784,40 @@ const DotSlider: React.FC<DotSliderProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.trackOuter} onLayout={handleLayout} {...panResponder.panHandlers}>
-        <View style={styles.trackBase} />
+        <View style={[styles.trackBase, hasTrackGradient && styles.trackBaseNoBg]}>
+          {hasTrackGradient ? (
+            <Svg style={styles.trackGradientSvg} width="100%" height="100%" preserveAspectRatio="none">
+              <Defs>
+                <SvgLinearGradient id={gradientIdRef.current} x1="0%" y1="0%" x2="100%" y2="0%">
+                  {hasTrackGradientStops
+                    ? trackBaseGradientStops!.map((stop, index) => (
+                        <Stop
+                          key={`track-stop-${stop.color}-${index}`}
+                          offset={`${Math.max(0, Math.min(100, stop.offset))}%`}
+                          stopColor={stop.color}
+                        />
+                      ))
+                    : trackBaseGradientColors!.map((color, index) => (
+                        <Stop
+                          key={`track-stop-${color}-${index}`}
+                          offset={`${(index / (trackBaseGradientColors!.length - 1)) * 100}%`}
+                          stopColor={color}
+                        />
+                      ))}
+                </SvgLinearGradient>
+              </Defs>
+              <Rect
+                x="0"
+                y="0"
+                width="100%"
+                height="100%"
+                rx={TRACK_INNER_HEIGHT / 2}
+                ry={TRACK_INNER_HEIGHT / 2}
+                fill={`url(#${gradientIdRef.current})`}
+              />
+            </Svg>
+          ) : null}
+        </View>
         {isRange ? <View pointerEvents="none" style={styles.fixedCenterDivider} /> : null}
         {fillVisible &&
           (isRange ? (
@@ -960,6 +1008,17 @@ const styles = StyleSheet.create({
     height: TRACK_INNER_HEIGHT,
     borderRadius: TOKENS.radius.pill,
     backgroundColor: TOKENS.colors.rightPillBg,
+    overflow: 'hidden',
+  },
+  trackBaseNoBg: {
+    backgroundColor: 'transparent',
+  },
+  trackGradientSvg: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
   },
   fillLayer: {
     position: 'absolute',
