@@ -1,27 +1,11 @@
 import React, { useMemo, useRef, useState } from 'react';
-import {
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  type NativeScrollEvent,
-  type NativeSyntheticEvent,
-} from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { DotSlider } from '../../components/Slider';
+import { DotSlider, VerticalNumberSlider } from '../../components/Slider';
 import { PageTabSwitch } from '../../components/PageSwitch';
 import { TOKENS } from '../../tokens';
 
 type SettingTab = 0 | 1;
-
-interface SingleValueWheelProps {
-  value: number;
-  min: number;
-  max: number;
-  step: number;
-  onChange: (next: number) => void;
-}
 
 export interface SettingAdjustConfig {
   pageTitle: string;
@@ -35,9 +19,6 @@ export interface SettingAdjustConfig {
   sliderRightLabel: string;
 }
 
-const STEP_HEIGHT = 52;
-const VISIBLE_COUNT = 5;
-const SIDE_COUNT = Math.floor(VISIBLE_COUNT / 2);
 const PAGE_TABS = ['1', '2'] as const;
 
 const clamp = (value: number, minValue: number, maxValue: number) =>
@@ -49,113 +30,6 @@ const quantize = (value: number, minValue: number, step: number) => {
   const safeStep = Math.max(1, step);
   const index = Math.round((value - minValue) / safeStep);
   return minValue + index * safeStep;
-};
-
-const SingleValueWheel: React.FC<SingleValueWheelProps> = ({
-  value,
-  min,
-  max,
-  step,
-  onChange,
-}) => {
-  const values = useMemo(() => {
-    const list: number[] = [];
-    const safeStep = Math.max(1, step);
-    for (let current = min; current <= max + 1e-6; current += safeStep) {
-      list.push(Math.round(current));
-    }
-    return list;
-  }, [max, min, step]);
-
-  const nearestIndex = useMemo(() => {
-    let result = 0;
-    let minDistance = Number.POSITIVE_INFINITY;
-    values.forEach((item, index) => {
-      const distance = Math.abs(item - value);
-      if (distance < minDistance) {
-        minDistance = distance;
-        result = index;
-      }
-    });
-    return result;
-  }, [value, values]);
-
-  const [activeFloatIndex, setActiveFloatIndex] = useState(nearestIndex);
-  const listRef = useRef<FlatList<number>>(null);
-
-  const clampIndex = (index: number) => clamp(index, 0, values.length - 1);
-  const commitByIndex = (index: number) => {
-    const safeIndex = clampIndex(index);
-    const nextValue = values[safeIndex];
-    if (typeof nextValue === 'number') onChange(nextValue);
-  };
-
-  React.useEffect(() => {
-    setActiveFloatIndex(nearestIndex);
-    listRef.current?.scrollToOffset({
-      offset: nearestIndex * STEP_HEIGHT,
-      animated: true,
-    });
-  }, [nearestIndex]);
-
-  const handleMomentumEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const y = event.nativeEvent.contentOffset.y;
-    const index = Math.round(y / STEP_HEIGHT);
-    commitByIndex(index);
-    setActiveFloatIndex(index);
-  };
-
-  return (
-    <View style={styles.wheelWrap}>
-      <FlatList
-        ref={listRef}
-        data={values}
-        keyExtractor={(item) => `setting-wheel-${item}`}
-        showsVerticalScrollIndicator={false}
-        bounces={false}
-        decelerationRate="fast"
-        snapToInterval={STEP_HEIGHT}
-        snapToAlignment="start"
-        contentContainerStyle={{ paddingVertical: STEP_HEIGHT * SIDE_COUNT }}
-        getItemLayout={(_, index) => ({
-          length: STEP_HEIGHT,
-          offset: STEP_HEIGHT * index,
-          index,
-        })}
-        onScroll={(event) => {
-          const y = event.nativeEvent.contentOffset.y;
-          setActiveFloatIndex(y / STEP_HEIGHT);
-        }}
-        scrollEventThrottle={16}
-        onMomentumScrollEnd={handleMomentumEnd}
-        renderItem={({ item, index }) => {
-          const distance = Math.abs(activeFloatIndex - index);
-          const isCenter = distance < 0.5;
-          return (
-            <Pressable
-              style={styles.wheelItem}
-              onPress={() => {
-                listRef.current?.scrollToOffset({
-                  offset: index * STEP_HEIGHT,
-                  animated: true,
-                });
-                commitByIndex(index);
-              }}
-            >
-              <Text
-                style={[
-                  isCenter ? styles.wheelCenterText : styles.wheelSideText,
-                  distance >= 1.5 && styles.wheelFarText,
-                ]}
-              >
-                {formatInt(item)}
-              </Text>
-            </Pressable>
-          );
-        }}
-      />
-    </View>
-  );
 };
 
 const SettingAdjustScreenBase: React.FC<{ config: SettingAdjustConfig }> = ({ config }) => {
@@ -183,14 +57,14 @@ const SettingAdjustScreenBase: React.FC<{ config: SettingAdjustConfig }> = ({ co
           <View style={styles.pickerCard}>
             <Text style={styles.adjustTitle}>{config.adjustTitle}</Text>
             <View style={styles.pickerContent}>
-              <SingleValueWheel
+              <VerticalNumberSlider
                 value={safeValue}
                 min={config.min}
                 max={config.max}
                 step={safeStep}
+                unitLabel={config.unit}
                 onChange={setValue}
               />
-              <Text style={styles.centerUnit}>{config.unit}</Text>
             </View>
           </View>
         ) : (
@@ -274,40 +148,6 @@ const styles = StyleSheet.create({
     marginTop: 14,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  wheelWrap: {
-    width: '100%',
-    height: STEP_HEIGHT * VISIBLE_COUNT,
-    overflow: 'hidden',
-  },
-  wheelItem: {
-    width: '100%',
-    height: STEP_HEIGHT,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  wheelCenterText: {
-    fontSize: 32,
-    color: '#000000',
-    fontWeight: '600',
-  },
-  wheelSideText: {
-    fontSize: 27,
-    color: 'rgba(0,0,0,0.6)',
-    fontWeight: '500',
-  },
-  wheelFarText: {
-    fontSize: 22,
-    color: 'rgba(0,0,0,0.4)',
-    fontWeight: '400',
-  },
-  centerUnit: {
-    position: 'absolute',
-    right: 49,
-    top: STEP_HEIGHT * 2 + 11,
-    fontSize: 11,
-    color: 'rgba(0,0,0,0.4)',
-    fontWeight: '600',
   },
   sliderCard: {
     width: '100%',

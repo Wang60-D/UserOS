@@ -6,6 +6,8 @@ export type { CapsuleModeValue } from './CapsuleModeSlider';
 export { default as NumberCapsuleSlider } from './NumberCapsuleSlider';
 export { default as NumberValueSlider } from './NumberValueSlider';
 export type { NumberValueSliderProps } from './NumberValueSlider';
+export { default as VerticalNumberSlider } from './VerticalNumberSlider';
+export type { VerticalNumberSliderProps } from './VerticalNumberSlider';
 export { default as DotSlider } from './DotSlider';
 export type { DotSliderProps } from './DotSlider';
 export { DEFAULT_DOT_SLIDER_CONFIG } from './DotSlider';
