@@ -116,6 +116,7 @@ const Part1Screen: React.FC = () => {
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
+              style={styles.sectionRowScroll}
               contentContainerStyle={styles.sectionRow}
             >
               {section.items.map((item) => (
@@ -156,7 +157,11 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionRow: {
-    paddingRight: 8,
+    paddingHorizontal: TOKENS.spacing.pagePaddingH,
+    paddingRight: TOKENS.spacing.pagePaddingH + 8,
+  },
+  sectionRowScroll: {
+    marginHorizontal: -TOKENS.spacing.pagePaddingH,
   },
   chipButton: {
     backgroundColor: TOKENS.colors.cardBg,
