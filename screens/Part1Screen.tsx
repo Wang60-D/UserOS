@@ -73,13 +73,28 @@ const CATALOG_SECTIONS: CatalogSection[] = [
   {
     title: '时间',
     items: [
-      { label: '定时1' },
-      { label: '定时2' },
-      { label: '倒计时' },
-      { label: '延时' },
+      { label: '定时1', routeName: 'TimerOne' },
+      { label: '定时2', routeName: 'TimerTwo' },
+      { label: '倒计时', routeName: 'Countdown' },
+      { label: '延时', routeName: 'Delay' },
     ],
   },
-
+  {
+    title: '功能入口',
+    items: [
+      { label: '样式', routeName: 'FeatureEntryStyle1' },
+    ],
+  },
+  {
+    title: '设置',
+    items: [
+      { label: '时间1', routeName: 'SettingTime1' },
+      { label: '时间2', routeName: 'SettingTime2' },
+      { label: '灯光亮度', routeName: 'SettingLightBrightness' },
+      { label: '空气质量', routeName: 'SettingAirQuality' },
+      { label: '灯光色温', routeName: 'SettingLightColorTemp' },
+    ],
+  },
 ];
 
 const Part1Screen: React.FC = () => {

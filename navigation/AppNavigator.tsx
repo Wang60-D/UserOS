@@ -26,7 +26,20 @@ import ControlTitleScreen from '../screens/ControlTitleScreen';
 import ButtonGroupScreen from '../screens/ButtonGroupScreen';
 import SliderScreen from '../screens/SliderScreen';
 import TimePickerScreen from '../screens/TimePickerScreen';
+import TimerOneScreen from '../screens/Time/TimerOneScreen';
+import TimerTwoScreen from '../screens/Time/TimerTwoScreen';
+import CountdownScreen from '../screens/Time/CountdownScreen';
+import DelayScreen from '../screens/Time/DelayScreen';
+import SettingTime1Screen from '../screens/Setting/SettingTime1Screen';
+import SettingTime2Screen from '../screens/Setting/SettingTime2Screen';
+import SettingLightBrightnessScreen from '../screens/Setting/SettingLightBrightnessScreen';
+import SettingAirQualityScreen from '../screens/Setting/SettingAirQualityScreen';
+import SettingLightColorTempScreen from '../screens/Setting/SettingLightColorTempScreen';
+import FeatureEntryStyle1Screen from '../screens/Entry/FeatureEntryStyle1Screen';
+import WindSenseDrawerScreen from '../screens/Entry/WindSenseDrawerScreen';
+import SweepDrawerScreen from '../screens/Entry/SweepDrawerScreen';
 import CircularArcSliderScreen from '../screens/CircularArcSliderScreen';
+import CircularTimePickerScreen from '../screens/CircularTimePickerScreen';
 import ComponentLibraryScreen from '../screens/ComponentLibraryScreen';
 import SwitchScreen from '../screens/Switch/SwitchScreen';
 import Part1Screen from '../screens/Part1Screen';
@@ -81,7 +94,21 @@ export type RootStackParamList = {
   ButtonGroup: undefined;
   Slider: undefined;
   CircularArcSlider: undefined;
+  CircularTimePicker: undefined;
   TimePicker: undefined;
+  TimerOne: undefined;
+  TimerTwo: undefined;
+  Countdown: undefined;
+  Delay: undefined;
+  SettingTime1: undefined;
+  SettingTime2: undefined;
+  SettingLightBrightness: undefined;
+  SettingAirQuality: undefined;
+  SettingLightColorTemp: undefined;
+  FeatureEntryStyle1: undefined;
+  FeatureEntryStyle2: undefined;
+  WindSenseDrawer: undefined;
+  SweepDrawer: undefined;
   Switch: undefined;
 };
 
@@ -236,8 +263,64 @@ const AppNavigator: React.FC = () => {
           component={CircularArcSliderScreen}
         />
         <Stack.Screen
+          name="CircularTimePicker"
+          component={CircularTimePickerScreen}
+        />
+        <Stack.Screen
           name="TimePicker"
           component={TimePickerScreen}
+        />
+        <Stack.Screen
+          name="TimerOne"
+          component={TimerOneScreen}
+        />
+        <Stack.Screen
+          name="TimerTwo"
+          component={TimerTwoScreen}
+        />
+        <Stack.Screen
+          name="Countdown"
+          component={CountdownScreen}
+        />
+        <Stack.Screen
+          name="Delay"
+          component={DelayScreen}
+        />
+        <Stack.Screen
+          name="SettingTime1"
+          component={SettingTime1Screen}
+        />
+        <Stack.Screen
+          name="SettingTime2"
+          component={SettingTime2Screen}
+        />
+        <Stack.Screen
+          name="SettingLightBrightness"
+          component={SettingLightBrightnessScreen}
+        />
+        <Stack.Screen
+          name="SettingAirQuality"
+          component={SettingAirQualityScreen}
+        />
+        <Stack.Screen
+          name="SettingLightColorTemp"
+          component={SettingLightColorTempScreen}
+        />
+        <Stack.Screen
+          name="FeatureEntryStyle1"
+          component={FeatureEntryStyle1Screen}
+        />
+        <Stack.Screen
+          name="FeatureEntryStyle2"
+          component={FeatureEntryStyle1Screen}
+        />
+        <Stack.Screen
+          name="WindSenseDrawer"
+          component={WindSenseDrawerScreen}
+        />
+        <Stack.Screen
+          name="SweepDrawer"
+          component={SweepDrawerScreen}
         />
         <Stack.Screen 
           name="Switch" 

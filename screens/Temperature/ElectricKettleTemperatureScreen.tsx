@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
 import { DotSlider, NumberValueSlider } from '../../components/Slider';
@@ -12,6 +12,7 @@ const VIEW_TABS = ['1', '2', '3'] as const;
 const MIN_TEMP = 40;
 const MAX_TEMP = 90;
 const TEMP_STEP = 1;
+const ELECTRIC_KETTLE_EQUIPMENT_IMAGE = require('../../assets/equipment/kettle.png');
 
 const clamp = (value: number, minValue: number, maxValue: number) =>
   Math.max(minValue, Math.min(maxValue, value));
@@ -83,7 +84,9 @@ const ElectricKettleTemperatureScreen: React.FC = () => {
         <Text style={styles.pageTitle}>电热水壶</Text>
       </View>
 
-      <View style={styles.contentPlaceholder} />
+      <View style={styles.contentPlaceholder}>
+        <Image source={ELECTRIC_KETTLE_EQUIPMENT_IMAGE} style={styles.equipmentImage} resizeMode="contain" />
+      </View>
 
       <View style={styles.bottomSection}>
         <View style={styles.modeCard}>
@@ -141,6 +144,13 @@ const styles = StyleSheet.create({
   },
   contentPlaceholder: {
     flex: 1,
+    paddingVertical: TOKENS.spacing.equipmentPaddingVertical,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  equipmentImage: {
+    width: '100%',
+    height: '100%',
   },
   bottomSection: {
     marginBottom: 0,

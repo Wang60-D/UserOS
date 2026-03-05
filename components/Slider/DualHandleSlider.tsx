@@ -31,7 +31,7 @@ const THUMB_SIZE = 28;
 const THUMB_INNER_SIZE = 20;
 const DRAG_START_HIT_SLOP = 14;
 const CENTER_RATIO = 0.5;
-const HANDLE_TARGET_RADIUS = 9;
+const HANDLE_TARGET_RADIUS = THUMB_SIZE / 2 + 2;
 
 const clamp = (value: number, minValue: number, maxValue: number) =>
   Math.max(minValue, Math.min(maxValue, value));
@@ -268,8 +268,9 @@ const DualHandleSlider: React.FC<DualHandleSliderProps> = ({
   }, [isControlled, max, min, optimisticRange, rangeValue]);
 
   useEffect(() => {
+    if (isDraggingRef.current || dragRange !== null) return;
     animateToRange(committedLeftRatio, committedRightRatio, false);
-  }, [committedLeftRatio, committedRightRatio, maxThumbX]);
+  }, [committedLeftRatio, committedRightRatio, dragRange, maxThumbX]);
 
   const handleLayout = (event: LayoutChangeEvent) => {
     const width = event.nativeEvent.layout.width;
@@ -291,28 +292,27 @@ const DualHandleSlider: React.FC<DualHandleSliderProps> = ({
         startLocationXRef.current = startX;
         isDraggingRef.current = true;
         hasMovedRef.current = false;
+        setDragRange(null);
 
-        leftX.stopAnimation((leftValue) => {
-          rightX.stopAnimation((rightValue) => {
-            const runtimeMaxThumbX = Math.max(1e-6, maxThumbXRef.current);
-            const leftRatio = clamp01((leftValue ?? 0) / runtimeMaxThumbX);
-            const rightRatio = clamp01((rightValue ?? 0) / runtimeMaxThumbX);
-            currentLeftRatioRef.current = Math.min(leftRatio, rightRatio);
-            currentRightRatioRef.current = Math.max(leftRatio, rightRatio);
+        const leftRatio = committedLeftRatioRef.current;
+        const rightRatio = committedRightRatioRef.current;
+        currentLeftRatioRef.current = Math.min(leftRatio, rightRatio);
+        currentRightRatioRef.current = Math.max(leftRatio, rightRatio);
 
-            activeThumbRef.current = resolveActiveThumbByTouch(startX);
+        const runtimeMaxThumbX = Math.max(0, maxThumbXRef.current);
+        leftX.setValue(ratioToThumbXByMax(currentLeftRatioRef.current, runtimeMaxThumbX));
+        rightX.setValue(ratioToThumbXByMax(currentRightRatioRef.current, runtimeMaxThumbX));
 
-            const { leftCenterX, rightCenterX } = getThumbCenters();
+        activeThumbRef.current = resolveActiveThumbByTouch(startX);
 
-            const activeThumbCenter =
-              activeThumbRef.current === 'left' ? leftCenterX : rightCenterX;
-            const distanceToActiveThumb = Math.abs(startX - activeThumbCenter);
-            dragTouchOffsetRef.current =
-              distanceToActiveThumb <= THUMB_SIZE / 2 + DRAG_START_HIT_SLOP
-                ? startX - activeThumbCenter
-                : 0;
-          });
-        });
+        const { leftCenterX, rightCenterX } = getThumbCenters();
+        const activeThumbCenter =
+          activeThumbRef.current === 'left' ? leftCenterX : rightCenterX;
+        const distanceToActiveThumb = Math.abs(startX - activeThumbCenter);
+        dragTouchOffsetRef.current =
+          distanceToActiveThumb <= THUMB_SIZE / 2 + DRAG_START_HIT_SLOP
+            ? startX - activeThumbCenter
+            : 0;
       },
       onPanResponderMove: (_evt, gestureState) => {
         if (!isDraggingRef.current) return;

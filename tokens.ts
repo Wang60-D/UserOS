@@ -53,8 +53,8 @@ export const TOKENS = {
   },
   fontSize: {
     ExtraLarge: 28,
-    large: 20,
-    medium: 14,
+    large: 16,
+    medium: 13,
     small: 12,
   },
 } as const;

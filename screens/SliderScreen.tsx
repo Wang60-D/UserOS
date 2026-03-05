@@ -36,14 +36,6 @@ const SliderScreen: React.FC = () => {
         { paddingTop: insets.top + TOKENS.spacing.pagePaddingV },
       ]}
     >
-      <View style={styles.card}>
-        <DiscreteSlider
-          steps={SLIDER_CONFIG.steps}
-          activeIndex={activeIndex}
-          onChange={setActiveIndex}
-          snapEnabled={SLIDER_CONFIG.snapEnabled}
-        />
-      </View>
       <View style={[styles.card, styles.cardSpacing]}>
         <CapsuleModeSlider
           value={capsuleMode}

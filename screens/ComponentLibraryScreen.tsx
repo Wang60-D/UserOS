@@ -10,7 +10,9 @@ type ComponentLibraryRouteName =
   | 'AirConditioner'
   | 'ButtonGroup'
   | 'CircularArcSlider'
+  | 'CircularTimePicker'
   | 'ControlTitle'
+  | 'FeatureEntryStyle1'
   | 'Slider'
   | 'TimePicker'
   | 'Switch';
@@ -48,6 +50,11 @@ const COMPONENT_ITEMS: ComponentItem[] = [
     routeName: 'CircularArcSlider',
   },
   {
+    title: '圆形时间选择组件',
+    description: '单把手与双把手时间选择，双把手不交叉',
+    routeName: 'CircularTimePicker',
+  },
+  {
     title: '时间选择组件',
     description: '上滑下滑选择时间，支持开始/结束切换',
     routeName: 'TimePicker',
@@ -56,6 +63,11 @@ const COMPONENT_ITEMS: ComponentItem[] = [
     title: 'Switch 组件',
     description: '按钮与开关组合的四种设计态',
     routeName: 'Switch',
+  },
+  {
+    title: '功能入口-样式1',
+    description: '卡片入口与两个抽屉页样式',
+    routeName: 'FeatureEntryStyle1',
   },
 ];
 
