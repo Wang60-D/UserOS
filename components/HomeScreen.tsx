@@ -21,8 +21,8 @@ type QuickActionRouteName = keyof Pick<RootStackParamList, 'Part1' | 'ComponentL
 const QUICK_ACTIONS = [
   { emoji: '1️⃣', label: 'Part01', routeName: 'Part1' as QuickActionRouteName },
   { emoji: '2️⃣', label: 'Part02' },
-  { emoji: '📚', label: '控件库', routeName: 'ComponentLibrary' as QuickActionRouteName },
-  { emoji: '✨', label: '随机生成一个页面' },
+  //{ emoji: '📚', label: '控件库', routeName: 'ComponentLibrary' as QuickActionRouteName },
+  //{ emoji: '✨', label: '随机生成一个页面' },
 ];
 
 interface QuickActionButtonProps {

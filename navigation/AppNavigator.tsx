@@ -12,6 +12,8 @@ import HumidifierGearScreen from '../screens/Gear/HumidifierGearScreen';
 import WindSpeedGearScreen from '../screens/Gear/WindSpeedGearScreen';
 import RangehoodGearScreen from '../screens/Gear/RangehoodGearScreen';
 import ElectricHeaterGearScreen from '../screens/Gear/ElectricHeaterGearScreen';
+import ClothrackDirectionScreen from '../screens/Direction/ClothrackDirectionScreen';
+import BathheaterDirectionScreen from '../screens/Direction/BathheaterDirectionScreen';
 import ControlTitleScreen from '../screens/ControlTitleScreen';
 import ButtonGroupScreen from '../screens/ButtonGroupScreen';
 import SliderScreen from '../screens/SliderScreen';
@@ -49,6 +51,8 @@ export type RootStackParamList = {
   WindSpeedGear: undefined;
   RangehoodGear: undefined;
   ElectricHeaterGear: undefined;
+  ClothrackDirection: undefined;
+  BathheaterDirection: undefined;
   ControlTitle: undefined;
   ButtonGroup: undefined;
   Slider: undefined;
@@ -136,6 +140,14 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen
           name="ElectricHeaterGear"
           component={ElectricHeaterGearScreen}
+        />
+        <Stack.Screen
+          name="ClothrackDirection"
+          component={ClothrackDirectionScreen}
+        />
+        <Stack.Screen
+          name="BathheaterDirection"
+          component={BathheaterDirectionScreen}
         />
         <Stack.Screen 
           name="ControlTitle" 

@@ -51,8 +51,8 @@ const CATALOG_SECTIONS: CatalogSection[] = [
   {
     title: '方位',
     items: [
-      { label: '晾衣架' },
-      { label: '浴霸' },
+      { label: '晾衣架', routeName: 'ClothrackDirection' },
+      { label: '浴霸', routeName: 'BathheaterDirection' },
       { label: '风扇' },
       { label: '空调' },
     ],
