@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
 import { CircleButtonGroup } from '../../components/ButtonGroup';
 import { SegmentedSquareSlider } from '../../components/Slider';
+import { PageTabSwitch } from '../../components/PageSwitch';
 import type { CircleButtonGroupItem } from '../../components/ButtonGroup/CircleButtonGroup';
 import type { SegmentedSquareSliderItem } from '../../components/Slider';
 import { TOKENS } from '../../tokens';
@@ -107,24 +108,7 @@ const AirConditionerModeScreen: React.FC = () => {
           </View>
         </View>
 
-        <View style={styles.pageSwitchContainer}>
-          {VIEW_TABS.map((label, index) => {
-            const selected = index === activeTab;
-            return (
-              <Pressable
-                key={label}
-                style={[styles.pageButton, selected && styles.pageButtonSelected]}
-                onPress={() => setActiveTab(index)}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-              >
-                <Text style={[styles.pageButtonText, selected && styles.pageButtonTextSelected]}>
-                  {label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        <PageTabSwitch activeIndex={activeTab} onChange={setActiveTab} labels={[...VIEW_TABS]} />
       </View>
     </View>
   );

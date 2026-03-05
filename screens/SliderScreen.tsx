@@ -7,6 +7,7 @@ import {
   DotSlider,
   DualHandleSlider,
   NumberCapsuleSlider,
+  NumberValueSlider,
 } from '../components/Slider';
 import { RemoteControlStepper } from '../components/RemoteControlStepper';
 import type { CapsuleModeValue } from '../components/Slider';
@@ -23,6 +24,7 @@ const SliderScreen: React.FC = () => {
   const [rangeValue, setRangeValue] = useState<[number, number]>([25, 75]);
   const [symmetricRangeValue, setSymmetricRangeValue] = useState<[number, number]>([35, 65]);
   const [remoteGear, setRemoteGear] = useState(2);
+  const [temperatureValue, setTemperatureValue] = useState(23);
   const SLIDER_CONFIG = {
     steps: 6,
     snapEnabled: true,
@@ -117,6 +119,28 @@ const SliderScreen: React.FC = () => {
           value={remoteGear}
           onChange={setRemoteGear}
           unitLabel="档"
+        />
+      </View>
+      <View style={[styles.card, styles.cardSpacing]}>
+        <RemoteControlStepper
+          range={[16, 31]}
+          step={0.5}
+          value={temperatureValue}
+          onChange={setTemperatureValue}
+          unitLabel="℃"
+          showDegreeSymbol={true}
+          showCornerIcon={true}
+        />
+      </View>
+      <View style={[styles.card, styles.cardSpacing]}>
+        <NumberValueSlider
+          min={16}
+          max={31}
+          step={0.5}
+          value={temperatureValue}
+          onChange={setTemperatureValue}
+          onChangeEnd={setTemperatureValue}
+          showDegreeSymbol={true}
         />
       </View>
       <View style={[styles.card, styles.cardSpacing]}>

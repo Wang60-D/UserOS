@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
 import { DotSlider, NumberValueSlider } from '../../components/Slider';
 import { RemoteControlStepper } from '../../components/RemoteControlStepper';
+import { PageTabSwitch } from '../../components/PageSwitch';
 import { TOKENS } from '../../tokens';
 
 type FridgeTemperatureControlType = 0 | 1 | 2;
@@ -82,6 +83,8 @@ const FridgeTemperatureScreen: React.FC = () => {
           onChange={onChange}
           unitLabel="℃"
           enableContinuousPress={true}
+          showDegreeSymbol={true}
+          showCornerIcon={true}
         />
       );
     }
@@ -94,6 +97,7 @@ const FridgeTemperatureScreen: React.FC = () => {
         value={value}
         onChange={onChange}
         onChangeEnd={onChange}
+        showDegreeSymbol={true}
       />
     );
   };
@@ -151,24 +155,11 @@ const FridgeTemperatureScreen: React.FC = () => {
           </View>
         </View>
 
-        <View style={styles.pageSwitchContainer}>
-          {VIEW_TABS.map((label, index) => {
-            const selected = index === activeTab;
-            return (
-              <Pressable
-                key={label}
-                style={[styles.pageButton, selected && styles.pageButtonSelected]}
-                onPress={() => setActiveTab(index as FridgeTemperatureControlType)}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-              >
-                <Text style={[styles.pageButtonText, selected && styles.pageButtonTextSelected]}>
-                  {label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        <PageTabSwitch
+          activeIndex={activeTab}
+          onChange={(index) => setActiveTab(index as FridgeTemperatureControlType)}
+          labels={[...VIEW_TABS]}
+        />
       </View>
     </View>
   );

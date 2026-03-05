@@ -5,12 +5,14 @@ import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
 import { CircleButtonGroup } from '../../components/ButtonGroup';
 import { DotSlider, NumberCapsuleSlider } from '../../components/Slider';
 import { RemoteControlStepper } from '../../components/RemoteControlStepper';
+import { PageTabSwitch } from '../../components/PageSwitch';
 import type { CircleButtonGroupItem } from '../../components/ButtonGroup/CircleButtonGroup';
 import { TOKENS } from '../../tokens';
 
 type HumidifierGearControlType = 0 | 1 | 2 | 3;
 
 const VIEW_TABS = ['1', '2', '3', '4'] as const;
+const HUMIDIFIER_GEAR_ICON_SIZE = 16;
 const ICON_TINT_COLORS = {
   selected: '#FFFFFF',
   unselected: '#000000CC',
@@ -42,6 +44,7 @@ const HumidifierGearScreen: React.FC = () => {
     () =>
       GEAR_CIRCLE_ITEMS.map((item) => ({
         label: item.label,
+        iconSize: HUMIDIFIER_GEAR_ICON_SIZE,
         iconSelected: item.icon,
         iconUnselected: item.icon,
         iconSelectedTintColor: ICON_TINT_COLORS.selected,
@@ -137,24 +140,11 @@ const HumidifierGearScreen: React.FC = () => {
           </View>
         </View>
 
-        <View style={styles.pageSwitchContainer}>
-          {VIEW_TABS.map((label, index) => {
-            const selected = index === activeTab;
-            return (
-              <Pressable
-                key={label}
-                style={[styles.pageButton, selected && styles.pageButtonSelected]}
-                onPress={() => setActiveTab(index as HumidifierGearControlType)}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-              >
-                <Text style={[styles.pageButtonText, selected && styles.pageButtonTextSelected]}>
-                  {label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        <PageTabSwitch
+          activeIndex={activeTab}
+          onChange={(index) => setActiveTab(index as HumidifierGearControlType)}
+          labels={[...VIEW_TABS]}
+        />
       </View>
     </View>
   );

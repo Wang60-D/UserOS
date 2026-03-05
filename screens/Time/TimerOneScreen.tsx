@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CircularTimePicker, TimeAdjustPickerCard, type CircularTimeValue } from '../../components/time';
+import { PageTabSwitch } from '../../components/PageSwitch';
 import { TOKENS } from '../../tokens';
 
 type TimerOneControlType = 0 | 1;
@@ -53,24 +54,11 @@ const TimerOneScreen: React.FC = () => {
 
         <Text style={styles.timePreview}>{subtitleText}</Text>
 
-        <View style={styles.pageSwitchContainer}>
-          {VIEW_TABS.map((label, index) => {
-            const selected = index === activeTab;
-            return (
-              <Pressable
-                key={label}
-                style={[styles.pageButton, selected && styles.pageButtonSelected]}
-                onPress={() => setActiveTab(index as TimerOneControlType)}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-              >
-                <Text style={[styles.pageButtonText, selected && styles.pageButtonTextSelected]}>
-                  {label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        <PageTabSwitch
+          activeIndex={activeTab}
+          onChange={(index) => setActiveTab(index as TimerOneControlType)}
+          labels={[...VIEW_TABS]}
+        />
       </View>
     </View>
   );

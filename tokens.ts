@@ -20,7 +20,7 @@ export const TOKENS = {
     containerPaddingH: 0,
     containerPaddingV: 0,
     itemGap: 24,
-    cardInnerPaddingH: 16,
+    cardInnerPaddingH: 14,
     cardInnerPaddingV: 12,
     titleGap: 8,
     leftGroupMarginRight: 8,

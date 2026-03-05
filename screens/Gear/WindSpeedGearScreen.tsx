@@ -6,6 +6,7 @@ import { CircleButtonGroup } from '../../components/ButtonGroup';
 import type { CircleButtonGroupItem } from '../../components/ButtonGroup/CircleButtonGroup';
 import { DotSlider, NumberCapsuleSlider } from '../../components/Slider';
 import { RemoteControlStepper } from '../../components/RemoteControlStepper';
+import { PageTabSwitch } from '../../components/PageSwitch';
 import { TOKENS } from '../../tokens';
 
 type WindSpeedControlType = 0 | 1 | 2 | 3;
@@ -129,24 +130,11 @@ const WindSpeedGearScreen: React.FC = () => {
           </View>
         </View>
 
-        <View style={styles.pageSwitchContainer}>
-          {VIEW_TABS.map((label, index) => {
-            const selected = index === activeTab;
-            return (
-              <Pressable
-                key={label}
-                style={[styles.pageButton, selected && styles.pageButtonSelected]}
-                onPress={() => setActiveTab(index as WindSpeedControlType)}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-              >
-                <Text style={[styles.pageButtonText, selected && styles.pageButtonTextSelected]}>
-                  {label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        <PageTabSwitch
+          activeIndex={activeTab}
+          onChange={(index) => setActiveTab(index as WindSpeedControlType)}
+          labels={[...VIEW_TABS]}
+        />
       </View>
     </View>
   );

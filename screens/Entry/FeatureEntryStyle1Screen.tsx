@@ -3,6 +3,7 @@ import { useRoute } from '@react-navigation/native';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SwitchRow } from '../../components/Switch';
+import { PageTabSwitch } from '../../components/PageSwitch';
 import { TOKENS } from '../../tokens';
 
 type EntryTabType = 0 | 1;
@@ -241,24 +242,11 @@ const FeatureEntryStyle1Screen: React.FC = () => {
       <View style={styles.bottomSection}>
         {activeTab === 0 ? renderStyle1() : renderStyle2()}
 
-        <View style={styles.pageSwitchContainer}>
-          {PAGE_TABS.map((label, index) => {
-            const selected = index === activeTab;
-            return (
-              <Pressable
-                key={label}
-                style={[styles.pageButton, selected && styles.pageButtonSelected]}
-                onPress={() => setActiveTab(index as EntryTabType)}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-              >
-                <Text style={[styles.pageButtonText, selected && styles.pageButtonTextSelected]}>
-                  {label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        <PageTabSwitch
+          activeIndex={activeTab}
+          onChange={(index) => setActiveTab(index as EntryTabType)}
+          labels={[...PAGE_TABS]}
+        />
       </View>
 
       {drawerType !== 'none' && (

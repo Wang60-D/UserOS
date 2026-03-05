@@ -3,6 +3,7 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
 import { DotSlider } from '../../components/Slider';
+import { PageTabSwitch } from '../../components/PageSwitch';
 import { TOKENS } from '../../tokens';
 
 type CurtainControlType = 0 | 1;
@@ -12,9 +13,8 @@ const VIEW_TABS = ['1', '2'] as const;
 const CURTAIN_EQUIPMENT_IMAGE = require('../../assets/equipment/curtain.png');
 const MIN_POSITION = 0;
 const MAX_POSITION = 100;
-const TAP_STEP = 10;
-const LONG_PRESS_STEP = 1;
-const LONG_PRESS_INTERVAL_MS = 120;
+const CONTINUOUS_STEP = 1;
+const CONTINUOUS_INTERVAL_MS = 120;
 
 const ACTION_ITEMS: Array<{
   key: CurtainAction;
@@ -47,8 +47,6 @@ const CurtainDirectionScreen: React.FC = () => {
   const [positionValue, setPositionValue] = useState(35);
   const [activeAction, setActiveAction] = useState<CurtainAction>('stop');
   const continuousTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const isContinuousAdjustingRef = useRef(false);
-  const longPressTriggeredRef = useRef(false);
 
   const subtitleText = `${positionValue}%`;
 
@@ -57,7 +55,6 @@ const CurtainDirectionScreen: React.FC = () => {
       clearInterval(continuousTimerRef.current);
       continuousTimerRef.current = null;
     }
-    isContinuousAdjustingRef.current = false;
     if (resetAction) {
       setActiveAction('stop');
     }
@@ -65,30 +62,11 @@ const CurtainDirectionScreen: React.FC = () => {
 
   const startContinuousAdjust = (action: Exclude<CurtainAction, 'stop'>) => {
     stopContinuousAdjust(false);
-    longPressTriggeredRef.current = true;
-    isContinuousAdjustingRef.current = true;
     setActiveAction(action);
-    const delta = action === 'open' ? -LONG_PRESS_STEP : LONG_PRESS_STEP;
+    const delta = action === 'open' ? -CONTINUOUS_STEP : CONTINUOUS_STEP;
     continuousTimerRef.current = setInterval(() => {
       setPositionValue((prev) => clamp(prev + delta, MIN_POSITION, MAX_POSITION));
-    }, LONG_PRESS_INTERVAL_MS);
-  };
-
-  const handleTapAdjust = (action: Exclude<CurtainAction, 'stop'>) => {
-    if (longPressTriggeredRef.current) {
-      longPressTriggeredRef.current = false;
-      return;
-    }
-    stopContinuousAdjust(false);
-    setActiveAction(action);
-    const delta = action === 'open' ? -TAP_STEP : TAP_STEP;
-    setPositionValue((prev) => clamp(prev + delta, MIN_POSITION, MAX_POSITION));
-  };
-
-  const handlePressOut = () => {
-    if (!isContinuousAdjustingRef.current) {
-      setActiveAction('stop');
-    }
+    }, CONTINUOUS_INTERVAL_MS);
   };
 
   useEffect(() => {
@@ -112,17 +90,12 @@ const CurtainDirectionScreen: React.FC = () => {
                 ? () => {
                     stopContinuousAdjust(true);
                   }
-                : () => handleTapAdjust(item.key)
-            }
-            onLongPress={
-              item.key === 'stop'
-                ? undefined
                 : () => {
-                    startContinuousAdjust(item.key);
+                    if (item.key === 'open' || item.key === 'close') {
+                      startContinuousAdjust(item.key);
+                    }
                   }
             }
-            onPressOut={item.key === 'stop' ? undefined : handlePressOut}
-            delayLongPress={260}
             accessibilityRole="button"
             accessibilityState={{ selected }}
           >
@@ -188,24 +161,11 @@ const CurtainDirectionScreen: React.FC = () => {
           </View>
         </View>
 
-        <View style={styles.pageSwitchContainer}>
-          {VIEW_TABS.map((label, index) => {
-            const selected = index === activeTab;
-            return (
-              <Pressable
-                key={label}
-                style={[styles.pageButton, selected && styles.pageButtonSelected]}
-                onPress={() => setActiveTab(index as CurtainControlType)}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-              >
-                <Text style={[styles.pageButtonText, selected && styles.pageButtonTextSelected]}>
-                  {label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        <PageTabSwitch
+          activeIndex={activeTab}
+          onChange={(index) => setActiveTab(index as CurtainControlType)}
+          labels={[...VIEW_TABS]}
+        />
       </View>
     </View>
   );

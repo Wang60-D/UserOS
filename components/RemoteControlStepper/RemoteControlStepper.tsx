@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View, type ImageSourcePropType } from 'react-native';
 import { TOKENS } from '../../tokens';
 
 type NumericRange = [number, number];
@@ -12,6 +12,9 @@ export interface RemoteControlStepperProps {
   onChange?: (nextValue: number) => void;
   unitLabel?: string;
   enableContinuousPress?: boolean;
+  showDegreeSymbol?: boolean;
+  showCornerIcon?: boolean;
+  cornerIconSource?: ImageSourcePropType;
 }
 
 const CONTROL_HEIGHT = 36;
@@ -37,6 +40,9 @@ const RemoteControlStepper: React.FC<RemoteControlStepperProps> = ({
   onChange,
   unitLabel = '挡',
   enableContinuousPress = false,
+  showDegreeSymbol = false,
+  showCornerIcon = false,
+  cornerIconSource = require('../../assets/icons/airconditioner/snow.png'),
 }) => {
   const [rangeStartRaw, rangeEndRaw] = range;
   const rangeStart = Math.min(rangeStartRaw, rangeEndRaw);
@@ -166,8 +172,19 @@ const RemoteControlStepper: React.FC<RemoteControlStepperProps> = ({
       </Pressable>
 
       <View style={styles.centerInfo}>
-        <Text style={styles.valueText}>{valueText}</Text>
-        <Text style={styles.unitText}>{unitLabel}</Text>
+        <View style={styles.valueDecorRow}>
+          <Text style={styles.valueText}>{valueText}</Text>
+          {showDegreeSymbol || showCornerIcon ? (
+            <View style={styles.valueDecorCol}>
+              {showDegreeSymbol ? <Text style={styles.degreeText}>°</Text> : null}
+              {showCornerIcon ? (
+                <Image source={cornerIconSource} style={styles.cornerIcon} resizeMode="contain" />
+              ) : null}
+            </View>
+          ) : (
+            <Text style={styles.unitText}>{unitLabel}</Text>
+          )}
+        </View>
       </View>
 
       <Pressable
@@ -211,7 +228,19 @@ const styles = StyleSheet.create({
     height: CONTROL_HEIGHT,
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
+  },
+  valueDecorRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    minHeight: CONTROL_HEIGHT,
+  },
+  valueDecorCol: {
+    marginLeft: 2,
+    marginBottom: 5,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    minHeight: 24,
   },
   valueText: {
     color: TOKENS.colors.rightText,
@@ -220,12 +249,23 @@ const styles = StyleSheet.create({
     lineHeight: 28,
   },
   unitText: {
-    position: 'absolute',
-    top: 2,
-    right: 14,
+    marginLeft: 2,
+    marginBottom: 4,
     color: TOKENS.colors.subtitleText,
     fontSize: 10,
     lineHeight: 12,
+  },
+  degreeText: {
+    marginBottom: -4,
+    color: TOKENS.colors.subtitleText,
+    fontSize: 16,
+    lineHeight: 16,
+    fontWeight: '500',
+  },
+  cornerIcon: {
+    width: 10,
+    height: 10,
+    tintColor: '#809DE4',
   },
   minusIcon: {
     width: 15,

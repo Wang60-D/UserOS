@@ -808,6 +808,8 @@ const DotSlider: React.FC<DotSliderProps> = ({
           stops.map((ratio, index) => {
             const visible = dotVisibleMask ? dotVisibleMask[index] !== false : true;
             if (!visible) return null;
+            const hideEdgeDot = showEdgeValues && (index === 0 || index === stops.length - 1);
+            if (hideEdgeDot) return null;
             const dotCenterX = TRACK_PADDING + ratioToThumbX(ratio) + THUMB_SIZE / 2;
             return (
               <View

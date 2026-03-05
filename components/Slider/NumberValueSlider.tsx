@@ -9,6 +9,7 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native';
+import { TOKENS } from '../../tokens';
 
 type SliderNumber = number;
 
@@ -20,6 +21,8 @@ export interface NumberValueSliderProps {
   onChange?: (nextValue: number) => void;
   onChangeEnd?: (nextValue: number) => void;
   iconSource?: ImageSourcePropType;
+  edgeBleed?: number;
+  showDegreeSymbol?: boolean;
 }
 
 const ITEM_WIDTH = 76;
@@ -55,6 +58,8 @@ const NumberValueSlider: React.FC<NumberValueSliderProps> = ({
   onChange,
   onChangeEnd,
   iconSource = require('../../assets/icons/airconditioner/snow.png'),
+  edgeBleed = TOKENS.spacing.cardInnerPaddingH,
+  showDegreeSymbol = false,
 }) => {
   const normalizedMin = Math.min(min, max);
   const normalizedMax = Math.max(min, max);
@@ -105,12 +110,14 @@ const NumberValueSlider: React.FC<NumberValueSliderProps> = ({
 
   const [containerWidth, setContainerWidth] = useState(0);
   const [activeFloatIndex, setActiveFloatIndex] = useState(resolvedIndex);
+  const safeEdgeBleed = Math.max(0, edgeBleed);
+  const viewportWidth = Math.max(0, containerWidth + safeEdgeBleed * 2);
 
   const listRef = useRef<FlatList<SliderNumber>>(null);
   const hasInitialScrolledRef = useRef(false);
 
   useEffect(() => {
-    if (containerWidth <= 0 || !listRef.current) return;
+    if (viewportWidth <= 0 || !listRef.current) return;
     const offset = resolvedIndex * ITEM_WIDTH;
     listRef.current.scrollToOffset({
       offset,
@@ -118,7 +125,7 @@ const NumberValueSlider: React.FC<NumberValueSliderProps> = ({
     });
     setActiveFloatIndex(resolvedIndex);
     hasInitialScrolledRef.current = true;
-  }, [containerWidth, resolvedIndex]);
+  }, [resolvedIndex, viewportWidth]);
 
   const commitByIndex = (index: number, isEnd = false) => {
     const clampedIndex = clamp(index, 0, values.length - 1);
@@ -179,14 +186,19 @@ const NumberValueSlider: React.FC<NumberValueSliderProps> = ({
               {formatValue(item)}
             </Text>
           </View>
-          {isSelected ? <Image source={iconSource} style={styles.selectedIcon} resizeMode="contain" /> : null}
+          {isSelected ? (
+            <View style={styles.decorationCol}>
+              {showDegreeSymbol ? <Text style={styles.degreeText}>°</Text> : null}
+              <Image source={iconSource} style={styles.selectedIcon} resizeMode="contain" />
+            </View>
+          ) : null}
         </View>
       </View>
     );
   };
 
   const keyExtractor = (_item: number, index: number) => `number-value-${index}`;
-  const sidePadding = Math.max(0, containerWidth / 2 - ITEM_WIDTH / 2);
+  const sidePadding = Math.max(0, viewportWidth / 2 - ITEM_WIDTH / 2);
 
   return (
     <View
@@ -197,6 +209,13 @@ const NumberValueSlider: React.FC<NumberValueSliderProps> = ({
     >
       <FlatList
         ref={listRef}
+        style={[
+          styles.flatList,
+          {
+            width: viewportWidth,
+            marginLeft: -safeEdgeBleed,
+          },
+        ]}
         data={values}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
@@ -207,6 +226,7 @@ const NumberValueSlider: React.FC<NumberValueSliderProps> = ({
         snapToInterval={ITEM_WIDTH}
         snapToAlignment="start"
         contentContainerStyle={{ paddingHorizontal: sidePadding }}
+        removeClippedSubviews={false}
         getItemLayout={(_, index) => ({
           length: ITEM_WIDTH,
           offset: ITEM_WIDTH * index,
@@ -226,17 +246,22 @@ const styles = StyleSheet.create({
     height: CONTAINER_HEIGHT,
     justifyContent: 'center',
   },
+  flatList: {
+    overflow: 'visible',
+  },
   itemWrap: {
     width: ITEM_WIDTH,
     height: CONTAINER_HEIGHT,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'visible',
   },
   valueRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     justifyContent: 'center',
     minHeight: BASE_LINE_HEIGHT + 8,
+    overflow: 'visible',
   },
   valueTextSlot: {
     height: BASE_LINE_HEIGHT,
@@ -249,10 +274,24 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
     textAlignVertical: 'center',
   },
+  decorationCol: {
+    marginLeft: 6,
+    marginBottom: 2,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    minHeight: BASE_LINE_HEIGHT,
+  },
+  degreeText: {
+    fontSize: 16,
+    lineHeight: 16,
+    color: 'rgba(0,0,0,0.5)',
+    fontWeight: '500',
+    marginBottom: 0,
+    includeFontPadding: false,
+  },
   selectedIcon: {
     width: 10,
     height: 10,
-    marginLeft: 4,
     marginBottom: 2,
     tintColor: '#809DE4',
   },

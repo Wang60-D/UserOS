@@ -32,7 +32,10 @@ const SquareButtonGroup: React.FC<SquareButtonGroupProps> = ({ items, onItemPres
     <View style={styles.groupContainer}>
       {shouldWrap
         ? rows.map((rowItems, rowIndex) => (
-            <View key={`row-${rowIndex}`} style={styles.rowContainer}>
+            <View
+              key={`row-${rowIndex}`}
+              style={[styles.rowContainer, rowIndex > 0 && styles.wrappedRowSpacing]}
+            >
               {rowItems.map((item, index) => {
                 return (
                   <View key={`slot-${rowIndex}-${index}`} style={styles.slot}>
@@ -89,6 +92,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'stretch',
     justifyContent: 'space-between',
+  },
+  wrappedRowSpacing: {
+    marginTop: 12,
   },
   slot: {
     flex: 1,

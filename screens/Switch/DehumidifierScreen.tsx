@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SwitchRow } from '../../components/Switch';
 import type { SwitchRowProps } from '../../components/Switch';
+import { PageTabSwitch } from '../../components/PageSwitch';
 import { TOKENS } from '../../tokens';
 
 const DEHUMIDIFIER_ICONS = {
@@ -119,22 +120,7 @@ const DehumidifierScreen: React.FC = () => {
           />
         </View>
 
-        <View style={styles.pageSwitchContainer}>
-          {PAGE_TABS.map((label, index) => {
-            const selected = index === activePage;
-            return (
-              <Pressable
-                key={label}
-                style={[styles.pageButton, selected && styles.pageButtonSelected]}
-                onPress={() => setActivePage(index)}
-              >
-                <Text style={[styles.pageButtonText, selected && styles.pageButtonTextSelected]}>
-                  {label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        <PageTabSwitch activeIndex={activePage} onChange={setActivePage} labels={[...PAGE_TABS]} />
       </View>
     </View>
   );

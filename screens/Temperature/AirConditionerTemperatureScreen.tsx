@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
 import { DotSlider, NumberValueSlider } from '../../components/Slider';
 import { RemoteControlStepper } from '../../components/RemoteControlStepper';
+import { PageTabSwitch } from '../../components/PageSwitch';
 import { TOKENS } from '../../tokens';
 
 type AirConditionerTemperatureControlType = 0 | 1 | 2;
@@ -64,6 +65,8 @@ const AirConditionerTemperatureScreen: React.FC = () => {
           onChange={commitTemperature}
           unitLabel="℃"
           enableContinuousPress={true}
+          showDegreeSymbol={true}
+          showCornerIcon={true}
         />
       );
     }
@@ -77,6 +80,7 @@ const AirConditionerTemperatureScreen: React.FC = () => {
         onChange={commitTemperature}
         onChangeEnd={commitTemperature}
         iconSource={require('../../assets/icons/airconditioner/snow.png')}
+        showDegreeSymbol={true}
       />
     );
   };
@@ -107,24 +111,11 @@ const AirConditionerTemperatureScreen: React.FC = () => {
           </View>
         </View>
 
-        <View style={styles.pageSwitchContainer}>
-          {VIEW_TABS.map((label, index) => {
-            const selected = index === activeTab;
-            return (
-              <Pressable
-                key={label}
-                style={[styles.pageButton, selected && styles.pageButtonSelected]}
-                onPress={() => setActiveTab(index as AirConditionerTemperatureControlType)}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-              >
-                <Text style={[styles.pageButtonText, selected && styles.pageButtonTextSelected]}>
-                  {label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        <PageTabSwitch
+          activeIndex={activeTab}
+          onChange={(index) => setActiveTab(index as AirConditionerTemperatureControlType)}
+          labels={[...VIEW_TABS]}
+        />
       </View>
     </View>
   );

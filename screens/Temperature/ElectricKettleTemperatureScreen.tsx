@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
 import { DotSlider, NumberValueSlider } from '../../components/Slider';
 import { RemoteControlStepper } from '../../components/RemoteControlStepper';
+import { PageTabSwitch } from '../../components/PageSwitch';
 import { TOKENS } from '../../tokens';
 
 type ElectricKettleTemperatureControlType = 0 | 1 | 2;
@@ -62,6 +63,8 @@ const ElectricKettleTemperatureScreen: React.FC = () => {
           onChange={commitTemperature}
           unitLabel="℃"
           enableContinuousPress={true}
+          showDegreeSymbol={true}
+          showCornerIcon={true}
         />
       );
     }
@@ -74,6 +77,7 @@ const ElectricKettleTemperatureScreen: React.FC = () => {
         value={temperatureValue}
         onChange={commitTemperature}
         onChangeEnd={commitTemperature}
+        showDegreeSymbol={true}
       />
     );
   };
@@ -104,24 +108,11 @@ const ElectricKettleTemperatureScreen: React.FC = () => {
           </View>
         </View>
 
-        <View style={styles.pageSwitchContainer}>
-          {VIEW_TABS.map((label, index) => {
-            const selected = index === activeTab;
-            return (
-              <Pressable
-                key={label}
-                style={[styles.pageButton, selected && styles.pageButtonSelected]}
-                onPress={() => setActiveTab(index as ElectricKettleTemperatureControlType)}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-              >
-                <Text style={[styles.pageButtonText, selected && styles.pageButtonTextSelected]}>
-                  {label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        <PageTabSwitch
+          activeIndex={activeTab}
+          onChange={(index) => setActiveTab(index as ElectricKettleTemperatureControlType)}
+          labels={[...VIEW_TABS]}
+        />
       </View>
     </View>
   );

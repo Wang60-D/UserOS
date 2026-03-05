@@ -3,6 +3,7 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
 import { DotSlider } from '../../components/Slider';
+import { PageTabSwitch } from '../../components/PageSwitch';
 import { TOKENS } from '../../tokens';
 
 type DreamCurtainControlType = 0 | 1;
@@ -12,9 +13,8 @@ const VIEW_TABS = ['1', '2'] as const;
 const DREAM_CURTAIN_EQUIPMENT_IMAGE = require('../../assets/equipment/curtain.png');
 const MIN_ANGLE = 0;
 const MAX_ANGLE = 180;
-const ANGLE_STEP = 30;
-const LONG_PRESS_STEP = 1;
-const LONG_PRESS_INTERVAL_MS = 120;
+const CONTINUOUS_STEP = 1;
+const CONTINUOUS_INTERVAL_MS = 120;
 
 const ACTION_ITEMS: Array<{
   key: CurtainAction;
@@ -47,8 +47,6 @@ const DreamCurtainDirectionScreen: React.FC = () => {
   const [angleValue, setAngleValue] = useState(120);
   const [activeAction, setActiveAction] = useState<CurtainAction>('stop');
   const continuousTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const isContinuousAdjustingRef = useRef(false);
-  const longPressTriggeredRef = useRef(false);
 
   const subtitleText = `${angleValue}°`;
 
@@ -57,7 +55,6 @@ const DreamCurtainDirectionScreen: React.FC = () => {
       clearInterval(continuousTimerRef.current);
       continuousTimerRef.current = null;
     }
-    isContinuousAdjustingRef.current = false;
     if (resetAction) {
       setActiveAction('stop');
     }
@@ -65,30 +62,11 @@ const DreamCurtainDirectionScreen: React.FC = () => {
 
   const startContinuousAdjust = (action: Exclude<CurtainAction, 'stop'>) => {
     stopContinuousAdjust(false);
-    longPressTriggeredRef.current = true;
-    isContinuousAdjustingRef.current = true;
     setActiveAction(action);
-    const delta = action === 'left' ? -LONG_PRESS_STEP : LONG_PRESS_STEP;
+    const delta = action === 'left' ? -CONTINUOUS_STEP : CONTINUOUS_STEP;
     continuousTimerRef.current = setInterval(() => {
       setAngleValue((prev) => clamp(prev + delta, MIN_ANGLE, MAX_ANGLE));
-    }, LONG_PRESS_INTERVAL_MS);
-  };
-
-  const handleTapAdjust = (action: Exclude<CurtainAction, 'stop'>) => {
-    if (longPressTriggeredRef.current) {
-      longPressTriggeredRef.current = false;
-      return;
-    }
-    stopContinuousAdjust(false);
-    setActiveAction(action);
-    const delta = action === 'left' ? -ANGLE_STEP : ANGLE_STEP;
-    setAngleValue((prev) => clamp(prev + delta, MIN_ANGLE, MAX_ANGLE));
-  };
-
-  const handlePressOut = () => {
-    if (!isContinuousAdjustingRef.current) {
-      setActiveAction('stop');
-    }
+    }, CONTINUOUS_INTERVAL_MS);
   };
 
   useEffect(() => {
@@ -112,17 +90,12 @@ const DreamCurtainDirectionScreen: React.FC = () => {
                 ? () => {
                     stopContinuousAdjust(true);
                   }
-                : () => handleTapAdjust(item.key)
-            }
-            onLongPress={
-              item.key === 'stop'
-                ? undefined
                 : () => {
-                    startContinuousAdjust(item.key);
+                    if (item.key === 'left' || item.key === 'right') {
+                      startContinuousAdjust(item.key);
+                    }
                   }
             }
-            onPressOut={item.key === 'stop' ? undefined : handlePressOut}
-            delayLongPress={260}
             accessibilityRole="button"
             accessibilityState={{ selected }}
           >
@@ -189,24 +162,11 @@ const DreamCurtainDirectionScreen: React.FC = () => {
           </View>
         </View>
 
-        <View style={styles.pageSwitchContainer}>
-          {VIEW_TABS.map((label, index) => {
-            const selected = index === activeTab;
-            return (
-              <Pressable
-                key={label}
-                style={[styles.pageButton, selected && styles.pageButtonSelected]}
-                onPress={() => setActiveTab(index as DreamCurtainControlType)}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-              >
-                <Text style={[styles.pageButtonText, selected && styles.pageButtonTextSelected]}>
-                  {label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        <PageTabSwitch
+          activeIndex={activeTab}
+          onChange={(index) => setActiveTab(index as DreamCurtainControlType)}
+          labels={[...VIEW_TABS]}
+        />
       </View>
     </View>
   );

@@ -5,6 +5,7 @@ import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
 import { CircleButtonGroup } from '../../components/ButtonGroup';
 import type { CircleButtonGroupItem } from '../../components/ButtonGroup/CircleButtonGroup';
 import { SegmentedSquareSlider } from '../../components/Slider';
+import { PageTabSwitch } from '../../components/PageSwitch';
 import type { SegmentedSquareSliderItem } from '../../components/Slider';
 import { TOKENS } from '../../tokens';
 
@@ -113,24 +114,11 @@ const ElectricHeaterGearScreen: React.FC = () => {
           </View>
         </View>
 
-        <View style={styles.pageSwitchContainer}>
-          {VIEW_TABS.map((label, index) => {
-            const selected = index === activeTab;
-            return (
-              <Pressable
-                key={label}
-                style={[styles.pageButton, selected && styles.pageButtonSelected]}
-                onPress={() => setActiveTab(index as ElectricHeaterControlType)}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-              >
-                <Text style={[styles.pageButtonText, selected && styles.pageButtonTextSelected]}>
-                  {label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        <PageTabSwitch
+          activeIndex={activeTab}
+          onChange={(index) => setActiveTab(index as ElectricHeaterControlType)}
+          labels={[...VIEW_TABS]}
+        />
       </View>
     </View>
   );

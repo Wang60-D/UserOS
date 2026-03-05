@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DotSlider } from '../../components/Slider';
+import { PageTabSwitch } from '../../components/PageSwitch';
 import { TOKENS } from '../../tokens';
 
 type SettingTab = 0 | 1;
@@ -221,24 +222,11 @@ const SettingAdjustScreenBase: React.FC<{ config: SettingAdjustConfig }> = ({ co
           </View>
         )}
 
-        <View style={styles.pageSwitchContainer}>
-          {PAGE_TABS.map((label, index) => {
-            const selected = index === activeTab;
-            return (
-              <Pressable
-                key={label}
-                style={[styles.pageButton, selected && styles.pageButtonSelected]}
-                onPress={() => setActiveTab(index as SettingTab)}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-              >
-                <Text style={[styles.pageButtonText, selected && styles.pageButtonTextSelected]}>
-                  {label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        <PageTabSwitch
+          activeIndex={activeTab}
+          onChange={(index) => setActiveTab(index as SettingTab)}
+          labels={[...PAGE_TABS]}
+        />
       </View>
     </View>
   );
@@ -269,8 +257,8 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: '#FFFFFF',
     borderRadius: 22.654,
-    paddingTop: 14,
-    paddingBottom: 14,
+    paddingTop: TOKENS.spacing.cardInnerPaddingV,
+    paddingBottom: TOKENS.spacing.cardInnerPaddingV,
     alignItems: 'center',
     marginBottom: 48,
   },
@@ -328,7 +316,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginBottom: 48,
     paddingTop: 20,
-    paddingBottom: 14,
+    paddingBottom: TOKENS.spacing.cardInnerPaddingV,
   },
   selectedValueRow: {
     marginTop: 12,
@@ -352,7 +340,7 @@ const styles = StyleSheet.create({
   },
   sliderPanel: {
     marginTop: 6,
-    paddingHorizontal: 14,
+    paddingHorizontal: TOKENS.spacing.cardInnerPaddingH,
     paddingBottom: 6,
   },
   pageSwitchContainer: {

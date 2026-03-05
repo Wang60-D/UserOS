@@ -24,6 +24,10 @@ export interface CircleButtonProps {
   label: string;
   showLabel?: boolean;
   selected?: boolean;
+  iconSize?: number;
+  labelNumberOfLines?: number;
+  labelAdjustsFontSizeToFit?: boolean;
+  labelMinimumFontScale?: number;
   iconEmoji?: string;
   iconSelected?: ImageSourcePropType;
   iconUnselected?: ImageSourcePropType;
@@ -36,6 +40,10 @@ const CircleButton: React.FC<CircleButtonProps> = ({
   label,
   showLabel = true,
   selected = false,
+  iconSize,
+  labelNumberOfLines = 1,
+  labelAdjustsFontSizeToFit = false,
+  labelMinimumFontScale = 0.75,
   iconEmoji = '❄️',
   iconSelected,
   iconUnselected,
@@ -45,6 +53,7 @@ const CircleButton: React.FC<CircleButtonProps> = ({
 }) => {
   const iconSource = selected ? iconSelected : iconUnselected;
   const iconTintColor = selected ? iconSelectedTintColor : iconUnselectedTintColor;
+  const resolvedIconSize = iconSize ?? TOKENS.sizes.circleButtonIconSize;
 
   return (
     <Pressable
@@ -72,7 +81,14 @@ const CircleButton: React.FC<CircleButtonProps> = ({
           {iconSource ? (
             <Image
               source={iconSource}
-              style={[styles.icon, iconTintColor ? { tintColor: iconTintColor } : null]}
+              style={[
+                styles.icon,
+                {
+                  width: resolvedIconSize,
+                  height: resolvedIconSize,
+                },
+                iconTintColor ? { tintColor: iconTintColor } : null,
+              ]}
               resizeMode="contain"
             />
           ) : (
@@ -83,7 +99,12 @@ const CircleButton: React.FC<CircleButtonProps> = ({
         </View>
       </View>
       {showLabel && (
-        <Text style={styles.labelText} numberOfLines={1}>
+        <Text
+          style={styles.labelText}
+          numberOfLines={labelNumberOfLines}
+          adjustsFontSizeToFit={labelAdjustsFontSizeToFit}
+          minimumFontScale={labelMinimumFontScale}
+        >
           {label}
         </Text>
       )}

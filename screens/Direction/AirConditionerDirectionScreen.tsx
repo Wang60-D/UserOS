@@ -1,10 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
-import { CircleButtonGroup } from '../../components/ButtonGroup';
+import { CircleButtonGroup, SquareButtonGroup } from '../../components/ButtonGroup';
 import type { CircleButtonGroupItem } from '../../components/ButtonGroup/CircleButtonGroup';
+import type { SquareButtonGroupItem } from '../../components/ButtonGroup/SquareButtonGroup';
 import { DotSlider } from '../../components/Slider';
+import { PageTabSwitch } from '../../components/PageSwitch';
 import { TOKENS } from '../../tokens';
 
 type AirConditionerControlType = 0 | 1 | 2;
@@ -42,42 +44,28 @@ const AirConditionerDirectionScreen: React.FC = () => {
     [selectedIndex]
   );
 
+  const squareItems = useMemo<SquareButtonGroupItem[]>(
+    () =>
+      ANGLE_OPTIONS.map((item, index) => ({
+        label: item.label,
+        iconSelected: item.icon,
+        iconUnselected: item.icon,
+        iconSelectedTintColor: '#FFFFFF',
+        iconUnselectedTintColor: TOKENS.colors.rightText,
+        selected: index === selectedIndex,
+      })),
+    [selectedIndex]
+  );
+
   const handleSelect = (index: number) => {
     if (index < 0 || index >= ANGLE_OPTIONS.length) return;
     setSelectedIndex(index);
   };
 
-  const renderGridSelector = () => (
-    <View style={styles.gridWrap}>
-      {ANGLE_OPTIONS.map((item, index) => {
-        const isSelected = index === selectedIndex;
-        return (
-          <Pressable
-            key={`air-grid-${item.label}`}
-            style={[styles.gridItem, isSelected && styles.gridItemSelected]}
-            onPress={() => handleSelect(index)}
-            accessibilityRole="button"
-            accessibilityState={{ selected: isSelected }}
-          >
-            <Image
-              source={item.icon}
-              style={[
-                styles.gridIcon,
-                isSelected ? styles.gridIconSelected : styles.gridIconUnselected,
-              ]}
-              resizeMode="contain"
-            />
-            <Text style={[styles.gridLabel, isSelected && styles.gridLabelSelected]} numberOfLines={1}>
-              {item.label}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </View>
-  );
-
   const renderCurrentControl = () => {
-    if (activeTab === 0) return renderGridSelector();
+    if (activeTab === 0) {
+      return <SquareButtonGroup items={squareItems} onItemPress={handleSelect} />;
+    }
     if (activeTab === 1) {
       return (
         <DotSlider
@@ -105,6 +93,9 @@ const AirConditionerDirectionScreen: React.FC = () => {
         itemCount={7}
         columns={4}
         showLabel={true}
+        labelNumberOfLines={1}
+        labelAdjustsFontSizeToFit={true}
+        labelMinimumFontScale={0.45}
         onItemPress={handleSelect}
       />
     );
@@ -144,24 +135,11 @@ const AirConditionerDirectionScreen: React.FC = () => {
           </View>
         </View>
 
-        <View style={styles.pageSwitchContainer}>
-          {VIEW_TABS.map((label, index) => {
-            const selected = index === activeTab;
-            return (
-              <Pressable
-                key={label}
-                style={[styles.pageButton, selected && styles.pageButtonSelected]}
-                onPress={() => setActiveTab(index as AirConditionerControlType)}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-              >
-                <Text style={[styles.pageButtonText, selected && styles.pageButtonTextSelected]}>
-                  {label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        <PageTabSwitch
+          activeIndex={activeTab}
+          onChange={(index) => setActiveTab(index as AirConditionerControlType)}
+          labels={[...VIEW_TABS]}
+        />
       </View>
     </View>
   );
@@ -220,69 +198,6 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingHorizontal: 14,
     paddingBottom: 18,
-  },
-  gridWrap: {
-    width: '100%',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  gridItem: {
-    width: '25%',
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
-    minHeight: 64,
-  },
-  gridItemSelected: {
-    backgroundColor: TOKENS.colors.mainColor,
-  },
-  gridIcon: {
-    width: 22,
-    height: 22,
-    marginBottom: 8,
-  },
-  gridIconSelected: {
-    tintColor: '#FFFFFF',
-  },
-  gridIconUnselected: {
-    tintColor: TOKENS.colors.rightText,
-  },
-  gridLabel: {
-    fontSize: 12,
-    color: TOKENS.colors.textPrimary,
-    fontWeight: '500',
-  },
-  gridLabelSelected: {
-    color: '#FFFFFF',
-  },
-  pageSwitchContainer: {
-    flexDirection: 'row',
-    alignSelf: 'center',
-    columnGap: 18,
-  },
-  pageButton: {
-    width: 54,
-    height: 54,
-    borderRadius: TOKENS.radius.circle,
-    backgroundColor: TOKENS.colors.circleUnselectedBg,
-    borderWidth: 1,
-    borderColor: TOKENS.colors.pageBg,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pageButtonSelected: {
-    backgroundColor: TOKENS.colors.pageBg,
-    borderColor: TOKENS.colors.mainColor,
-    borderWidth: 2,
-  },
-  pageButtonText: {
-    fontSize: 17,
-    color: '#666666',
-    fontWeight: '400',
-  },
-  pageButtonTextSelected: {
-    color: '#0A6EFF',
   },
 });
 
