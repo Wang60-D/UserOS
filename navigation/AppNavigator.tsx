@@ -14,9 +14,18 @@ import RangehoodGearScreen from '../screens/Gear/RangehoodGearScreen';
 import ElectricHeaterGearScreen from '../screens/Gear/ElectricHeaterGearScreen';
 import ClothrackDirectionScreen from '../screens/Direction/ClothrackDirectionScreen';
 import BathheaterDirectionScreen from '../screens/Direction/BathheaterDirectionScreen';
+import FanDirectionScreen from '../screens/Direction/FanDirectionScreen';
+import AirConditionerDirectionScreen from '../screens/Direction/AirConditionerDirectionScreen';
+import DreamCurtainDirectionScreen from '../screens/Direction/DreamCurtainDirectionScreen';
+import CurtainDirectionScreen from '../screens/Direction/CurtainDirectionScreen';
+import AirConditionerTemperatureScreen from '../screens/Temperature/AirConditionerTemperatureScreen';
+import WaterHeaterTemperatureScreen from '../screens/Temperature/WaterHeaterTemperatureScreen';
+import FridgeTemperatureScreen from '../screens/Temperature/FridgeTemperatureScreen';
+import ElectricKettleTemperatureScreen from '../screens/Temperature/ElectricKettleTemperatureScreen';
 import ControlTitleScreen from '../screens/ControlTitleScreen';
 import ButtonGroupScreen from '../screens/ButtonGroupScreen';
 import SliderScreen from '../screens/SliderScreen';
+import TimePickerScreen from '../screens/TimePickerScreen';
 import ComponentLibraryScreen from '../screens/ComponentLibraryScreen';
 import SwitchScreen from '../screens/Switch/SwitchScreen';
 import Part1Screen from '../screens/Part1Screen';
@@ -53,9 +62,18 @@ export type RootStackParamList = {
   ElectricHeaterGear: undefined;
   ClothrackDirection: undefined;
   BathheaterDirection: undefined;
+  FanDirection: undefined;
+  AirConditionerDirection: undefined;
+  DreamCurtainDirection: undefined;
+  CurtainDirection: undefined;
+  AirConditionerTemperature: undefined;
+  WaterHeaterTemperature: undefined;
+  FridgeTemperature: undefined;
+  ElectricKettleTemperature: undefined;
   ControlTitle: undefined;
   ButtonGroup: undefined;
   Slider: undefined;
+  TimePicker: undefined;
   Switch: undefined;
 };
 
@@ -149,6 +167,38 @@ const AppNavigator: React.FC = () => {
           name="BathheaterDirection"
           component={BathheaterDirectionScreen}
         />
+        <Stack.Screen
+          name="FanDirection"
+          component={FanDirectionScreen}
+        />
+        <Stack.Screen
+          name="AirConditionerDirection"
+          component={AirConditionerDirectionScreen}
+        />
+        <Stack.Screen
+          name="DreamCurtainDirection"
+          component={DreamCurtainDirectionScreen}
+        />
+        <Stack.Screen
+          name="CurtainDirection"
+          component={CurtainDirectionScreen}
+        />
+        <Stack.Screen
+          name="AirConditionerTemperature"
+          component={AirConditionerTemperatureScreen}
+        />
+        <Stack.Screen
+          name="WaterHeaterTemperature"
+          component={WaterHeaterTemperatureScreen}
+        />
+        <Stack.Screen
+          name="FridgeTemperature"
+          component={FridgeTemperatureScreen}
+        />
+        <Stack.Screen
+          name="ElectricKettleTemperature"
+          component={ElectricKettleTemperatureScreen}
+        />
         <Stack.Screen 
           name="ControlTitle" 
           component={ControlTitleScreen}
@@ -160,6 +210,10 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen 
           name="Slider" 
           component={SliderScreen}
+        />
+        <Stack.Screen
+          name="TimePicker"
+          component={TimePickerScreen}
         />
         <Stack.Screen 
           name="Switch" 

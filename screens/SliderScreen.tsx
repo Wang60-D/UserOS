@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { CapsuleModeSlider, DiscreteSlider, DotSlider, NumberCapsuleSlider } from '../components/Slider';
+import {
+  CapsuleModeSlider,
+  DiscreteSlider,
+  DotSlider,
+  DualHandleSlider,
+  NumberCapsuleSlider,
+} from '../components/Slider';
 import { RemoteControlStepper } from '../components/RemoteControlStepper';
 import type { CapsuleModeValue } from '../components/Slider';
 import { TOKENS } from '../tokens';
@@ -14,6 +20,8 @@ const SliderScreen: React.FC = () => {
   const [dotSliderAValue, setDotSliderAValue] = useState(0);
   const [dotSliderBValue, setDotSliderBValue] = useState(16);
   const [dotSliderCValue, setDotSliderCValue] = useState(16);
+  const [rangeValue, setRangeValue] = useState<[number, number]>([25, 75]);
+  const [symmetricRangeValue, setSymmetricRangeValue] = useState<[number, number]>([35, 65]);
   const [remoteGear, setRemoteGear] = useState(2);
   const SLIDER_CONFIG = {
     steps: 6,
@@ -117,6 +125,30 @@ const SliderScreen: React.FC = () => {
           value={remoteGear}
           onChange={setRemoteGear}
           unitLabel="档"
+        />
+      </View>
+      <View style={[styles.card, styles.cardSpacing]}>
+        <DualHandleSlider
+          rangeValue={rangeValue}
+          onRangeChange={setRangeValue}
+          min={0}
+          max={100}
+          showDots={true}
+          snapToDots={true}
+          dotCount={6}
+          symmetricMove={false}
+        />
+      </View>
+      <View style={[styles.card, styles.cardSpacing]}>
+        <DualHandleSlider
+          rangeValue={symmetricRangeValue}
+          onRangeChange={setSymmetricRangeValue}
+          min={0}
+          max={100}
+          showDots={true}
+          snapToDots={true}
+          dotCount={6}
+          symmetricMove={true}
         />
       </View>
     </View>

@@ -53,17 +53,19 @@ const CATALOG_SECTIONS: CatalogSection[] = [
     items: [
       { label: '晾衣架', routeName: 'ClothrackDirection' },
       { label: '浴霸', routeName: 'BathheaterDirection' },
-      { label: '风扇' },
-      { label: '空调' },
+      { label: '风扇', routeName: 'FanDirection' },
+      { label: '空调', routeName: 'AirConditionerDirection' },
+      { label: '梦幻帘', routeName: 'DreamCurtainDirection' },
+      { label: '窗帘', routeName: 'CurtainDirection' },
     ],
   },
   {
     title: '温度',
     items: [
-      { label: '空调', routeName: 'AirConditioner' },
-      { label: '热水器' },
-      { label: '冰箱' },
-      { label: '电热水壶' },
+      { label: '空调', routeName: 'AirConditionerTemperature' },
+      { label: '热水器', routeName: 'WaterHeaterTemperature' },
+      { label: '冰箱', routeName: 'FridgeTemperature' },
+      { label: '电热水壶', routeName: 'ElectricKettleTemperature' },
     ],
   },
   {
@@ -103,7 +105,7 @@ const Part1Screen: React.FC = () => {
                 <TouchableOpacity
                   key={`${section.title}-${item.label}`}
                   style={styles.chipButton}
-                  onPress={() => item.routeName && navigation.navigate(item.routeName)}
+                  onPress={() => item.routeName && navigation.navigate(item.routeName as never)}
                   activeOpacity={item.routeName ? 0.75 : 1}
                   disabled={!item.routeName}
                 >

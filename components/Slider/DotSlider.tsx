@@ -12,11 +12,16 @@ import { TOKENS } from '../../tokens';
 type DotDistribution = 'even' | 'custom';
 type FillMode = 'none' | 'left' | 'between' | 'all';
 type InteractionMode = 'drag' | 'tap' | 'both';
+type RangeValue = [number, number];
+type ThumbKey = 'left' | 'right';
 
 export interface DotSliderProps {
   value?: number;
   onChange?: (nextValue: number) => void;
   onChangeEnd?: (nextValue: number) => void;
+  onRangeChange?: (nextRange: RangeValue) => void;
+  onRangeChangeEnd?: (nextRange: RangeValue) => void;
+  onRangeGapChange?: (gapValue: number) => void;
   min?: number;
   max?: number;
   step?: number;
@@ -34,9 +39,13 @@ export interface DotSliderProps {
   fillMode?: FillMode;
   interactionMode?: InteractionMode;
   isRange?: boolean;
-  rangeValue?: [number, number];
+  rangeValue?: RangeValue;
+  symmetricRangeMove?: boolean;
   debugId?: string;
   debugEnabled?: boolean;
+  thumbOutlineColor?: string;
+  thumbOutlineWidth?: number;
+  emitChangeWhileDragging?: boolean;
 }
 
 export const DEFAULT_DOT_SLIDER_CONFIG = {
@@ -57,7 +66,11 @@ export const DEFAULT_DOT_SLIDER_CONFIG = {
   fillMode: 'left' as FillMode,
   interactionMode: 'both' as InteractionMode,
   isRange: false,
-  rangeValue: undefined as [number, number] | undefined,
+  rangeValue: undefined as RangeValue | undefined,
+  symmetricRangeMove: false,
+  thumbOutlineColor: 'transparent',
+  thumbOutlineWidth: 0,
+  emitChangeWhileDragging: false,
 } as const;
 
 const TRACK_HEIGHT = 32;
@@ -73,11 +86,25 @@ const DRAG_START_HIT_SLOP = 14;
 const clamp = (value: number, minValue: number, maxValue: number) =>
   Math.max(minValue, Math.min(maxValue, value));
 const clamp01 = (value: number) => clamp(value, 0, 1);
+const normalizeRangeValue = (
+  range: RangeValue | undefined,
+  min: number,
+  max: number
+): RangeValue => {
+  const leftRaw = range?.[0] ?? min;
+  const rightRaw = range?.[1] ?? max;
+  const left = clamp(leftRaw, min, max);
+  const right = clamp(rightRaw, min, max);
+  return left <= right ? [left, right] : [right, left];
+};
 
 const DotSlider: React.FC<DotSliderProps> = ({
   value,
   onChange,
   onChangeEnd,
+  onRangeChange,
+  onRangeChangeEnd,
+  onRangeGapChange,
   min = DEFAULT_DOT_SLIDER_CONFIG.min,
   max = DEFAULT_DOT_SLIDER_CONFIG.max,
   step = DEFAULT_DOT_SLIDER_CONFIG.step,
@@ -95,28 +122,51 @@ const DotSlider: React.FC<DotSliderProps> = ({
   fillMode = DEFAULT_DOT_SLIDER_CONFIG.fillMode,
   interactionMode = DEFAULT_DOT_SLIDER_CONFIG.interactionMode,
   isRange = DEFAULT_DOT_SLIDER_CONFIG.isRange,
+  rangeValue = DEFAULT_DOT_SLIDER_CONFIG.rangeValue,
+  symmetricRangeMove = DEFAULT_DOT_SLIDER_CONFIG.symmetricRangeMove,
   debugId = 'dot-slider',
   debugEnabled = false,
+  thumbOutlineColor = DEFAULT_DOT_SLIDER_CONFIG.thumbOutlineColor,
+  thumbOutlineWidth = DEFAULT_DOT_SLIDER_CONFIG.thumbOutlineWidth,
+  emitChangeWhileDragging = DEFAULT_DOT_SLIDER_CONFIG.emitChangeWhileDragging,
 }) => {
   const canDrag = interactionMode === 'drag' || interactionMode === 'both';
   const canTap = interactionMode === 'tap' || interactionMode === 'both';
   const isControlled = typeof value === 'number';
+  const isRangeControlled =
+    isRange &&
+    Array.isArray(rangeValue) &&
+    rangeValue.length === 2 &&
+    typeof rangeValue[0] === 'number' &&
+    typeof rangeValue[1] === 'number';
 
   const [internalValue, setInternalValue] = useState(min);
   const [optimisticValue, setOptimisticValue] = useState<number | null>(null);
+  const [internalRangeValue, setInternalRangeValue] = useState<RangeValue>(
+    normalizeRangeValue(rangeValue, min, max)
+  );
+  const [optimisticRangeValue, setOptimisticRangeValue] = useState<RangeValue | null>(null);
   const [trackWidth, setTrackWidth] = useState(0);
   const [dragRatio, setDragRatio] = useState<number | null>(null);
+  const [rangeDragRatios, setRangeDragRatios] = useState<RangeValue | null>(null);
 
   const translateX = useRef(new Animated.Value(0)).current;
+  const leftTranslateX = useRef(new Animated.Value(0)).current;
+  const rightTranslateX = useRef(new Animated.Value(0)).current;
   const trackWidthRef = useRef(0);
   const maxThumbXRef = useRef(0);
   const committedRatioRef = useRef(0);
+  const committedLeftRatioRef = useRef(0);
+  const committedRightRatioRef = useRef(1);
   const canDragRef = useRef(canDrag);
   const canTapRef = useRef(canTap);
   const isDraggingRef = useRef(false);
   const isThumbDragRef = useRef(false);
+  const activeThumbRef = useRef<ThumbKey | null>(null);
   const dragTouchOffsetRef = useRef(0);
   const currentRatioRef = useRef(0);
+  const currentLeftRatioRef = useRef(0);
+  const currentRightRatioRef = useRef(1);
   const startLocationXRef = useRef(0);
 
   const logDebug = (phase: string, payload: Record<string, unknown>) => {
@@ -148,22 +198,42 @@ const DotSlider: React.FC<DotSliderProps> = ({
     [resolvedStops]
   );
 
+  const resolvedRangeValue = normalizeRangeValue(
+    optimisticRangeValue ??
+      (isRangeControlled ? (rangeValue as RangeValue) : internalRangeValue),
+    min,
+    max
+  );
   const activeValue = optimisticValue ?? (isControlled ? (value as number) : internalValue);
   const clampedValue = clamp(activeValue, min, max);
   const valueRange = Math.max(1e-6, max - min);
   const committedRatio = clamp01((clampedValue - min) / valueRange);
+  const committedLeftRatio = clamp01((resolvedRangeValue[0] - min) / valueRange);
+  const committedRightRatio = clamp01((resolvedRangeValue[1] - min) / valueRange);
   const displayRatio = dragRatio ?? committedRatio;
+  const displayLeftRatio = rangeDragRatios?.[0] ?? committedLeftRatio;
+  const displayRightRatio = rangeDragRatios?.[1] ?? committedRightRatio;
   const innerWidth = Math.max(0, trackWidth - TRACK_PADDING * 2);
   const maxThumbX = Math.max(0, innerWidth - THUMB_SIZE);
   const edgeLabelValues: [string | number, string | number] = edgeValues ?? [min, max];
+  const resolvedThumbOutlineWidth = Math.max(0, thumbOutlineWidth);
+  const hasThumbOutline = resolvedThumbOutlineWidth > 0 && thumbOutlineColor !== 'transparent';
+  const thumbOutlineSize = THUMB_INNER_SIZE + resolvedThumbOutlineWidth * 2;
   maxThumbXRef.current = maxThumbX;
   committedRatioRef.current = committedRatio;
+  committedLeftRatioRef.current = committedLeftRatio;
+  committedRightRatioRef.current = committedRightRatio;
   canDragRef.current = canDrag;
   canTapRef.current = canTap;
 
   useEffect(() => {
     currentRatioRef.current = displayRatio;
   }, [displayRatio]);
+
+  useEffect(() => {
+    currentLeftRatioRef.current = displayLeftRatio;
+    currentRightRatioRef.current = displayRightRatio;
+  }, [displayLeftRatio, displayRightRatio]);
 
   const ratioToThumbX = (ratio: number) => clamp01(ratio) * maxThumbX;
   const ratioToThumbXByMax = (ratio: number, currentMaxThumbX: number) =>
@@ -197,6 +267,30 @@ const DotSlider: React.FC<DotSliderProps> = ({
     }).start();
   };
 
+  const animateRangeToRatios = (nextRange: RangeValue, immediate = false) => {
+    const toLeftValue = ratioToThumbX(nextRange[0]);
+    const toRightValue = ratioToThumbX(nextRange[1]);
+    if (immediate) {
+      leftTranslateX.setValue(toLeftValue);
+      rightTranslateX.setValue(toRightValue);
+      return;
+    }
+    Animated.parallel([
+      Animated.spring(leftTranslateX, {
+        toValue: toLeftValue,
+        useNativeDriver: false,
+        tension: 90,
+        friction: 12,
+      }),
+      Animated.spring(rightTranslateX, {
+        toValue: toRightValue,
+        useNativeDriver: false,
+        tension: 90,
+        friction: 12,
+      }),
+    ]).start();
+  };
+
   const commitRatio = (ratio: number, fromRelease = false) => {
     const normalized = clamp01(ratio);
     const targetRatio = snapToDots ? getNearestStop(normalized) : normalized;
@@ -220,6 +314,64 @@ const DotSlider: React.FC<DotSliderProps> = ({
     animateToRatio(targetRatio, false);
   };
 
+  const commitRangeRatios = (
+    rawLeftRatio: number,
+    rawRightRatio: number,
+    fromRelease = false
+  ) => {
+    let nextLeftRatio = clamp01(rawLeftRatio);
+    let nextRightRatio = clamp01(rawRightRatio);
+    if (nextLeftRatio > nextRightRatio) {
+      [nextLeftRatio, nextRightRatio] = [nextRightRatio, nextLeftRatio];
+    }
+
+    const applySnap = (ratio: number) => (snapToDots ? getNearestStop(ratio) : ratio);
+    if (symmetricRangeMove) {
+      const activeThumb = activeThumbRef.current ?? 'left';
+      if (activeThumb === 'left') {
+        nextLeftRatio = applySnap(Math.min(nextLeftRatio, 0.5));
+        nextRightRatio = 1 - nextLeftRatio;
+      } else {
+        nextRightRatio = applySnap(Math.max(nextRightRatio, 0.5));
+        nextLeftRatio = 1 - nextRightRatio;
+      }
+    } else {
+      nextLeftRatio = applySnap(nextLeftRatio);
+      nextRightRatio = applySnap(nextRightRatio);
+      if (nextLeftRatio > nextRightRatio) {
+        [nextLeftRatio, nextRightRatio] = [nextRightRatio, nextLeftRatio];
+      }
+    }
+
+    const nextRangeValue: RangeValue = [
+      ratioToValue(nextLeftRatio),
+      ratioToValue(nextRightRatio),
+    ];
+    logDebug('commit-range', {
+      rawLeftRatio,
+      rawRightRatio,
+      nextLeftRatio,
+      nextRightRatio,
+      nextRangeValue,
+      symmetricRangeMove,
+      fromRelease,
+      isRangeControlled,
+    });
+    setOptimisticRangeValue(nextRangeValue);
+    if (!isRangeControlled) {
+      setInternalRangeValue(nextRangeValue);
+    }
+    onRangeChange?.(nextRangeValue);
+    onRangeGapChange?.(Math.abs(nextRangeValue[1] - nextRangeValue[0]));
+    if (fromRelease) {
+      onRangeChangeEnd?.(nextRangeValue);
+    }
+    setRangeDragRatios([nextLeftRatio, nextRightRatio]);
+    currentLeftRatioRef.current = nextLeftRatio;
+    currentRightRatioRef.current = nextRightRatio;
+    animateRangeToRatios([nextLeftRatio, nextRightRatio], false);
+  };
+
   useEffect(() => {
     if (!isControlled) {
       if (optimisticValue !== null) setOptimisticValue(null);
@@ -232,9 +384,29 @@ const DotSlider: React.FC<DotSliderProps> = ({
   }, [isControlled, optimisticValue, value]);
 
   useEffect(() => {
+    if (!isRange) return;
+    if (!isRangeControlled) {
+      if (optimisticRangeValue !== null) setOptimisticRangeValue(null);
+      return;
+    }
+    if (optimisticRangeValue === null || !Array.isArray(rangeValue)) return;
+    const [nextLeft, nextRight] = normalizeRangeValue(rangeValue, min, max);
+    if (
+      Math.abs(nextLeft - optimisticRangeValue[0]) < 1e-6 &&
+      Math.abs(nextRight - optimisticRangeValue[1]) < 1e-6
+    ) {
+      setOptimisticRangeValue(null);
+    }
+  }, [isRange, isRangeControlled, max, min, optimisticRangeValue, rangeValue]);
+
+  useEffect(() => {
     if (isDraggingRef.current) return;
+    if (isRange) {
+      animateRangeToRatios([committedLeftRatio, committedRightRatio], false);
+      return;
+    }
     animateToRatio(committedRatio, false);
-  }, [committedRatio, maxThumbX]);
+  }, [committedLeftRatio, committedRatio, committedRightRatio, isRange, maxThumbX]);
 
   const handleLayout = (event: LayoutChangeEvent) => {
     const width = event.nativeEvent.layout.width;
@@ -245,7 +417,11 @@ const DotSlider: React.FC<DotSliderProps> = ({
       committedRatio,
       maxThumbX,
     });
-    animateToRatio(committedRatio, true);
+    if (isRange) {
+      animateRangeToRatios([committedLeftRatio, committedRightRatio], true);
+    } else {
+      animateToRatio(committedRatio, true);
+    }
   };
 
   const panResponder = useRef(
@@ -253,10 +429,61 @@ const DotSlider: React.FC<DotSliderProps> = ({
       onStartShouldSetPanResponder: () => canTap || canDrag,
       onStartShouldSetPanResponderCapture: () => canTap || canDrag,
       onMoveShouldSetPanResponder: (_evt, gestureState) =>
-        canDrag && Math.hypot(gestureState.dx, gestureState.dy) > 2,
+        canDrag && trackWidthRef.current > 0 && Math.hypot(gestureState.dx, gestureState.dy) > 2,
       onMoveShouldSetPanResponderCapture: (_evt, gestureState) =>
-        canDrag && Math.hypot(gestureState.dx, gestureState.dy) > 2,
+        canDrag && trackWidthRef.current > 0 && Math.hypot(gestureState.dx, gestureState.dy) > 2,
       onPanResponderGrant: (evt) => {
+        if (isRange) {
+          isDraggingRef.current = false;
+          isThumbDragRef.current = false;
+          activeThumbRef.current = null;
+          const startX = evt.nativeEvent.locationX;
+          startLocationXRef.current = startX;
+          leftTranslateX.stopAnimation((leftXValue) => {
+            rightTranslateX.stopAnimation((rightXValue) => {
+              const runtimeMaxThumbX = Math.max(1e-6, maxThumbXRef.current);
+              const leftRatioFromThumb = clamp01((leftXValue ?? 0) / runtimeMaxThumbX);
+              const rightRatioFromThumb = clamp01((rightXValue ?? 0) / runtimeMaxThumbX);
+              currentLeftRatioRef.current = Math.min(leftRatioFromThumb, rightRatioFromThumb);
+              currentRightRatioRef.current = Math.max(leftRatioFromThumb, rightRatioFromThumb);
+              const leftCenterX =
+                TRACK_PADDING +
+                ratioToThumbXByMax(currentLeftRatioRef.current, maxThumbXRef.current) +
+                THUMB_SIZE / 2;
+              const rightCenterX =
+                TRACK_PADDING +
+                ratioToThumbXByMax(currentRightRatioRef.current, maxThumbXRef.current) +
+                THUMB_SIZE / 2;
+              const leftDistance = Math.abs(startX - leftCenterX);
+              const rightDistance = Math.abs(startX - rightCenterX);
+              const activeThumb: ThumbKey = leftDistance <= rightDistance ? 'left' : 'right';
+              activeThumbRef.current = activeThumb;
+              const touchingThumbDistance = Math.min(leftDistance, rightDistance);
+              const targetCenterX = activeThumb === 'left' ? leftCenterX : rightCenterX;
+              isDraggingRef.current =
+                canDragRef.current &&
+                touchingThumbDistance <= THUMB_SIZE / 2 + DRAG_START_HIT_SLOP;
+              isThumbDragRef.current = isDraggingRef.current;
+              dragTouchOffsetRef.current = startX - targetCenterX;
+              setRangeDragRatios([
+                currentLeftRatioRef.current,
+                currentRightRatioRef.current,
+              ]);
+              logDebug('grant-range', {
+                startX,
+                activeThumb,
+                leftCenterX,
+                rightCenterX,
+                leftDistance,
+                rightDistance,
+                isDragging: isDraggingRef.current,
+                dragTouchOffset: dragTouchOffsetRef.current,
+              });
+            });
+          });
+          return;
+        }
+
         isDraggingRef.current = false;
         isThumbDragRef.current = false;
 
@@ -293,6 +520,51 @@ const DotSlider: React.FC<DotSliderProps> = ({
         }
       },
       onPanResponderMove: (evt, gestureState) => {
+        if (isRange) {
+          if (
+            !isDraggingRef.current ||
+            !isThumbDragRef.current ||
+            !canDragRef.current ||
+            !activeThumbRef.current
+          )
+            return;
+          if (Math.hypot(gestureState.dx, gestureState.dy) <= 2) return;
+          const localX = startLocationXRef.current + gestureState.dx;
+          const thumbCenterX = localX - dragTouchOffsetRef.current;
+          const thumbX = thumbCenterX - TRACK_PADDING - THUMB_SIZE / 2;
+          const runtimeMaxThumbX = maxThumbXRef.current;
+          const nextRatio =
+            runtimeMaxThumbX <= 0 ? 0 : clamp01(thumbX / runtimeMaxThumbX);
+          let nextLeftRatio = currentLeftRatioRef.current;
+          let nextRightRatio = currentRightRatioRef.current;
+          if (symmetricRangeMove) {
+            if (activeThumbRef.current === 'left') {
+              nextLeftRatio = Math.min(nextRatio, 0.5);
+              nextRightRatio = 1 - nextLeftRatio;
+            } else {
+              nextRightRatio = Math.max(nextRatio, 0.5);
+              nextLeftRatio = 1 - nextRightRatio;
+            }
+          } else if (activeThumbRef.current === 'left') {
+            nextLeftRatio = Math.min(nextRatio, currentRightRatioRef.current);
+          } else {
+            nextRightRatio = Math.max(nextRatio, currentLeftRatioRef.current);
+          }
+          currentLeftRatioRef.current = nextLeftRatio;
+          currentRightRatioRef.current = nextRightRatio;
+          setRangeDragRatios([nextLeftRatio, nextRightRatio]);
+          leftTranslateX.setValue(ratioToThumbXByMax(nextLeftRatio, runtimeMaxThumbX));
+          rightTranslateX.setValue(ratioToThumbXByMax(nextRightRatio, runtimeMaxThumbX));
+          logDebug('move-range', {
+            locationX: evt.nativeEvent.locationX,
+            dx: gestureState.dx,
+            activeThumb: activeThumbRef.current,
+            nextLeftRatio,
+            nextRightRatio,
+          });
+          return;
+        }
+
         if (
           !isDraggingRef.current ||
           !isThumbDragRef.current ||
@@ -309,6 +581,10 @@ const DotSlider: React.FC<DotSliderProps> = ({
         setDragRatio(nextRatio);
         currentRatioRef.current = nextRatio;
         translateX.setValue(ratioToThumbXByMax(nextRatio, runtimeMaxThumbX));
+        if (emitChangeWhileDragging) {
+          const nextValue = ratioToValue(nextRatio);
+          onChange?.(nextValue);
+        }
         logDebug('move', {
           locationX: evt.nativeEvent.locationX,
           dx: gestureState.dx,
@@ -321,6 +597,66 @@ const DotSlider: React.FC<DotSliderProps> = ({
         });
       },
       onPanResponderRelease: (evt, gestureState) => {
+        if (isRange) {
+          const movedDistance = Math.hypot(gestureState.dx, gestureState.dy);
+          const isTapGesture = movedDistance <= 6;
+          logDebug('release-range-start', {
+            locationX: evt.nativeEvent.locationX,
+            dx: gestureState.dx,
+            dy: gestureState.dy,
+            movedDistance,
+            isTapGesture,
+            isDragging: isDraggingRef.current,
+            activeThumb: activeThumbRef.current,
+          });
+
+          if (isDraggingRef.current && isThumbDragRef.current && activeThumbRef.current) {
+            const finalLeftRatio = currentLeftRatioRef.current;
+            const finalRightRatio = currentRightRatioRef.current;
+            isDraggingRef.current = false;
+            isThumbDragRef.current = false;
+            commitRangeRatios(finalLeftRatio, finalRightRatio, true);
+            activeThumbRef.current = null;
+            return;
+          }
+
+          if (canTapRef.current && isTapGesture) {
+            const tapRatio = locationXToRatio(evt.nativeEvent.locationX);
+            const leftDistance = Math.abs(tapRatio - committedLeftRatioRef.current);
+            const rightDistance = Math.abs(tapRatio - committedRightRatioRef.current);
+            const activeThumb: ThumbKey = leftDistance <= rightDistance ? 'left' : 'right';
+            activeThumbRef.current = activeThumb;
+            let nextLeftRatio = committedLeftRatioRef.current;
+            let nextRightRatio = committedRightRatioRef.current;
+            if (symmetricRangeMove) {
+              if (activeThumb === 'left') {
+                nextLeftRatio = Math.min(tapRatio, 0.5);
+                nextRightRatio = 1 - nextLeftRatio;
+              } else {
+                nextRightRatio = Math.max(tapRatio, 0.5);
+                nextLeftRatio = 1 - nextRightRatio;
+              }
+            } else if (activeThumb === 'left') {
+              nextLeftRatio = Math.min(tapRatio, committedRightRatioRef.current);
+            } else {
+              nextRightRatio = Math.max(tapRatio, committedLeftRatioRef.current);
+            }
+            commitRangeRatios(nextLeftRatio, nextRightRatio, true);
+            activeThumbRef.current = null;
+            return;
+          }
+
+          setRangeDragRatios(null);
+          isDraggingRef.current = false;
+          isThumbDragRef.current = false;
+          activeThumbRef.current = null;
+          animateRangeToRatios(
+            [committedLeftRatioRef.current, committedRightRatioRef.current],
+            false
+          );
+          return;
+        }
+
         const movedDistance = Math.hypot(gestureState.dx, gestureState.dy);
         const isTapGesture = movedDistance <= 6;
         logDebug('release-start', {
@@ -373,6 +709,17 @@ const DotSlider: React.FC<DotSliderProps> = ({
         animateToRatio(committedRatioRef.current, false);
       },
       onPanResponderTerminate: () => {
+        if (isRange) {
+          setRangeDragRatios(null);
+          isDraggingRef.current = false;
+          isThumbDragRef.current = false;
+          activeThumbRef.current = null;
+          animateRangeToRatios(
+            [committedLeftRatioRef.current, committedRightRatioRef.current],
+            false
+          );
+          return;
+        }
         setDragRatio(null);
         isDraggingRef.current = false;
         isThumbDragRef.current = false;
@@ -386,14 +733,21 @@ const DotSlider: React.FC<DotSliderProps> = ({
   ).current;
 
   const fillVisible = showFill && fillMode !== 'none';
-  const fillStartRatio = fillMode === 'between' ? displayRatio : 0;
-  const fillEndRatio = fillMode === 'all' ? 1 : displayRatio;
+  const fillStartRatio = isRange
+    ? displayLeftRatio
+    : fillMode === 'between'
+      ? displayRatio
+      : 0;
+  const fillEndRatio = isRange ? displayRightRatio : fillMode === 'all' ? 1 : displayRatio;
   const fillLeft = ratioToThumbX(Math.min(fillStartRatio, fillEndRatio));
   const fillRight = ratioToThumbX(Math.max(fillStartRatio, fillEndRatio)) + THUMB_SIZE;
   const fillWidth = fillMode === 'none' ? 0 : Math.max(0, fillRight - fillLeft);
 
   const isDotActive = (ratio: number) => {
     if (!fillVisible) return false;
+    if (isRange) {
+      return ratio >= displayLeftRatio && ratio <= displayRightRatio;
+    }
     if (fillMode === 'all') return true;
     return ratio <= displayRatio;
   };
@@ -416,8 +770,19 @@ const DotSlider: React.FC<DotSliderProps> = ({
     <View style={styles.container}>
       <View style={styles.trackOuter} onLayout={handleLayout} {...panResponder.panHandlers}>
         <View style={styles.trackBase} />
+        {isRange ? <View pointerEvents="none" style={styles.fixedCenterDivider} /> : null}
         {fillVisible &&
-          (fillMode === 'left' || fillMode === 'between' ? (
+          (isRange ? (
+            <View
+              style={[
+                styles.fillLayer,
+                {
+                  left: TRACK_PADDING + fillLeft,
+                  width: fillWidth,
+                },
+              ]}
+            />
+          ) : fillMode === 'left' || fillMode === 'between' ? (
             <Animated.View
               style={[
                 styles.fillLayer,
@@ -465,17 +830,94 @@ const DotSlider: React.FC<DotSliderProps> = ({
           </>
         )}
 
-        <Animated.View
-          pointerEvents="none"
-          style={[
-            styles.thumbOuter,
-            {
-              transform: [{ translateX }],
-            },
-          ]}
-        >
-          <View style={styles.thumbInner} />
-        </Animated.View>
+        {isRange ? (
+          <>
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                styles.thumbOuter,
+                {
+                  left: TRACK_PADDING,
+                  transform: [{ translateX: leftTranslateX }],
+                },
+              ]}
+            >
+              <View style={styles.thumbInnerWrap}>
+                {hasThumbOutline && (
+                  <View
+                    style={[
+                      styles.thumbOutline,
+                      {
+                        width: thumbOutlineSize,
+                        height: thumbOutlineSize,
+                        borderRadius: thumbOutlineSize / 2,
+                        borderColor: thumbOutlineColor,
+                        borderWidth: resolvedThumbOutlineWidth,
+                      },
+                    ]}
+                  />
+                )}
+                <View style={styles.thumbInner} />
+              </View>
+            </Animated.View>
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                styles.thumbOuter,
+                {
+                  left: TRACK_PADDING,
+                  transform: [{ translateX: rightTranslateX }],
+                },
+              ]}
+            >
+              <View style={styles.thumbInnerWrap}>
+                {hasThumbOutline && (
+                  <View
+                    style={[
+                      styles.thumbOutline,
+                      {
+                        width: thumbOutlineSize,
+                        height: thumbOutlineSize,
+                        borderRadius: thumbOutlineSize / 2,
+                        borderColor: thumbOutlineColor,
+                        borderWidth: resolvedThumbOutlineWidth,
+                      },
+                    ]}
+                  />
+                )}
+                <View style={styles.thumbInner} />
+              </View>
+            </Animated.View>
+          </>
+        ) : (
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              styles.thumbOuter,
+              {
+                transform: [{ translateX }],
+              },
+            ]}
+          >
+            <View style={styles.thumbInnerWrap}>
+              {hasThumbOutline && (
+                <View
+                  style={[
+                    styles.thumbOutline,
+                    {
+                      width: thumbOutlineSize,
+                      height: thumbOutlineSize,
+                      borderRadius: thumbOutlineSize / 2,
+                      borderColor: thumbOutlineColor,
+                      borderWidth: resolvedThumbOutlineWidth,
+                    },
+                  ]}
+                />
+              )}
+              <View style={styles.thumbInner} />
+            </View>
+          </Animated.View>
+        )}
       </View>
 
       {showTickLabels && (
@@ -491,7 +933,11 @@ const DotSlider: React.FC<DotSliderProps> = ({
         </View>
       )}
 
-      {isRange && <Text style={styles.rangeHint}>范围滑条模式将在 Phase 2 补齐</Text>}
+      {isRange && (
+        <Text style={styles.rangeHint}>
+          区间值：{Number(Math.abs(resolvedRangeValue[1] - resolvedRangeValue[0]).toFixed(2))}
+        </Text>
+      )}
     </View>
   );
 };
@@ -518,6 +964,24 @@ const styles = StyleSheet.create({
     height: TRACK_INNER_HEIGHT,
     borderRadius: TOKENS.radius.pill,
     backgroundColor: TOKENS.colors.mainColor,
+    overflow: 'hidden',
+  },
+  fixedCenterDivider: {
+    position: 'absolute',
+    top: (TRACK_HEIGHT - 8) / 2,
+    left: '50%',
+    width: 1,
+    marginLeft: -0.5,
+    height: 8,
+    borderRadius: TOKENS.radius.pill,
+    backgroundColor: 'rgba(0,0,0,0.12)',
+    zIndex: 3,
+  },
+  rangeDivider: {
+    width: 1,
+    height: 8,
+    borderRadius: TOKENS.radius.pill,
+    backgroundColor: 'rgba(255,255,255,0.35)',
   },
   dot: {
     position: 'absolute',
@@ -561,6 +1025,16 @@ const styles = StyleSheet.create({
       width: 0,
       height: 1,
     },
+  },
+  thumbInnerWrap: {
+    width: THUMB_INNER_SIZE,
+    height: THUMB_INNER_SIZE,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  thumbOutline: {
+    position: 'absolute',
+    backgroundColor: 'transparent',
   },
   labelRow: {
     marginTop: 4,

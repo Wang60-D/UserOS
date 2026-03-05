@@ -6,7 +6,13 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { TOKENS } from '../tokens';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
-type ComponentLibraryRouteName = 'AirConditioner' | 'ButtonGroup' | 'ControlTitle' | 'Slider' | 'Switch';
+type ComponentLibraryRouteName =
+  | 'AirConditioner'
+  | 'ButtonGroup'
+  | 'ControlTitle'
+  | 'Slider'
+  | 'TimePicker'
+  | 'Switch';
 
 interface ComponentItem {
   title: string;
@@ -34,6 +40,11 @@ const COMPONENT_ITEMS: ComponentItem[] = [
     title: '滑条组件',
     description: '离散步进滑条与吸附行为演示',
     routeName: 'Slider',
+  },
+  {
+    title: '时间选择组件',
+    description: '上滑下滑选择时间，支持开始/结束切换',
+    routeName: 'TimePicker',
   },
   {
     title: 'Switch 组件',
