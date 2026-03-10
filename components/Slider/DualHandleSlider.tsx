@@ -7,6 +7,7 @@ import {
   type LayoutChangeEvent,
 } from 'react-native';
 import { TOKENS } from '../../tokens';
+import { traceStateFlow } from '../../utils/stateflow/traceStateFlow';
 
 type RangeValue = [number, number];
 type ThumbKey = 'left' | 'right';
@@ -22,6 +23,8 @@ export interface DualHandleSliderProps {
   showDots?: boolean;
   snapToDots?: boolean;
   symmetricMove?: boolean;
+  debugEnabled?: boolean;
+  debugId?: string;
 }
 
 const TRACK_HEIGHT = 32;
@@ -63,6 +66,8 @@ const DualHandleSlider: React.FC<DualHandleSliderProps> = ({
   showDots = true,
   snapToDots = true,
   symmetricMove = false,
+  debugEnabled = false,
+  debugId = 'dual-handle-slider',
 }) => {
   const isControlled =
     Array.isArray(rangeValue) &&
@@ -91,6 +96,7 @@ const DualHandleSlider: React.FC<DualHandleSliderProps> = ({
   const isDraggingRef = useRef(false);
   const hasMovedRef = useRef(false);
   const activeThumbRef = useRef<ThumbKey>('left');
+  const startedOnActiveThumbRef = useRef(false);
   const currentLeftRatioRef = useRef(0.25);
   const currentRightRatioRef = useRef(0.75);
   const committedLeftRatioRef = useRef(0.25);
@@ -184,14 +190,14 @@ const DualHandleSlider: React.FC<DualHandleSliderProps> = ({
       Animated.spring(leftX, {
         toValue: toLeft,
         useNativeDriver: false,
-        tension: 90,
-        friction: 12,
+        tension: TOKENS.motion.springTension,
+        friction: TOKENS.motion.springFriction,
       }),
       Animated.spring(rightX, {
         toValue: toRight,
         useNativeDriver: false,
-        tension: 90,
-        friction: 12,
+        tension: TOKENS.motion.springTension,
+        friction: TOKENS.motion.springFriction,
       }),
     ]).start();
   };
@@ -304,13 +310,18 @@ const DualHandleSlider: React.FC<DualHandleSliderProps> = ({
         rightX.setValue(ratioToThumbXByMax(currentRightRatioRef.current, runtimeMaxThumbX));
 
         activeThumbRef.current = resolveActiveThumbByTouch(startX);
+        traceStateFlow({ enabled: debugEnabled, id: debugId }, 'grant', {
+          startX,
+          activeThumb: activeThumbRef.current,
+        });
 
         const { leftCenterX, rightCenterX } = getThumbCenters();
         const activeThumbCenter =
           activeThumbRef.current === 'left' ? leftCenterX : rightCenterX;
         const distanceToActiveThumb = Math.abs(startX - activeThumbCenter);
+        startedOnActiveThumbRef.current = distanceToActiveThumb <= THUMB_SIZE / 2 + DRAG_START_HIT_SLOP;
         dragTouchOffsetRef.current =
-          distanceToActiveThumb <= THUMB_SIZE / 2 + DRAG_START_HIT_SLOP
+          startedOnActiveThumbRef.current
             ? startX - activeThumbCenter
             : 0;
       },
@@ -352,14 +363,34 @@ const DualHandleSlider: React.FC<DualHandleSliderProps> = ({
         setDragRange([ratioToValue(nextLeftRatio), ratioToValue(nextRightRatio)]);
         leftX.setValue(ratioToThumbXByMax(nextLeftRatio, runtimeMaxThumbX));
         rightX.setValue(ratioToThumbXByMax(nextRightRatio, runtimeMaxThumbX));
+        traceStateFlow({ enabled: debugEnabled, id: debugId }, 'move', {
+          nextLeftRatio,
+          nextRightRatio,
+        });
       },
       onPanResponderRelease: (evt, gestureState) => {
         const movedDistance = Math.hypot(gestureState.dx, gestureState.dy);
         const isTapGesture = movedDistance <= 6;
+        const tapX = startLocationXRef.current;
+
+        // 点按把手本身（无位移）应保持当前位置，避免 release location 异常时跳回起点
+        if (
+          isTapGesture &&
+          isDraggingRef.current &&
+          !hasMovedRef.current &&
+          startedOnActiveThumbRef.current
+        ) {
+          applyRange(currentLeftRatioRef.current, currentRightRatioRef.current, true);
+          setDragRange(null);
+          isDraggingRef.current = false;
+          hasMovedRef.current = false;
+          startedOnActiveThumbRef.current = false;
+          return;
+        }
 
         if (isTapGesture) {
-          const tapRatio = locationXToRatio(evt.nativeEvent.locationX);
-          activeThumbRef.current = resolveActiveThumbByTouch(evt.nativeEvent.locationX);
+          const tapRatio = locationXToRatio(tapX);
+          activeThumbRef.current = resolveActiveThumbByTouch(tapX);
 
           let nextLeftRatio = committedLeftRatioRef.current;
           let nextRightRatio = committedRightRatioRef.current;
@@ -384,27 +415,47 @@ const DualHandleSlider: React.FC<DualHandleSliderProps> = ({
           }
           setDragRange(null);
           applyRange(nextLeftRatio, nextRightRatio, true);
+          traceStateFlow({ enabled: debugEnabled, id: debugId }, 'release-tap', {
+            nextLeftRatio,
+            nextRightRatio,
+          });
           isDraggingRef.current = false;
           hasMovedRef.current = false;
+          startedOnActiveThumbRef.current = false;
           return;
         }
 
         if (isDraggingRef.current && hasMovedRef.current) {
           applyRange(currentLeftRatioRef.current, currentRightRatioRef.current, true);
+          traceStateFlow({ enabled: debugEnabled, id: debugId }, 'release-drag', {
+            leftRatio: currentLeftRatioRef.current,
+            rightRatio: currentRightRatioRef.current,
+          });
           setDragRange(null);
           isDraggingRef.current = false;
           hasMovedRef.current = false;
+          startedOnActiveThumbRef.current = false;
           return;
         }
 
         setDragRange(null);
+        isDraggingRef.current = false;
         hasMovedRef.current = false;
+        startedOnActiveThumbRef.current = false;
         animateToRange(committedLeftRatioRef.current, committedRightRatioRef.current, false);
       },
       onPanResponderTerminate: () => {
         setDragRange(null);
+        if (isDraggingRef.current && hasMovedRef.current) {
+          applyRange(currentLeftRatioRef.current, currentRightRatioRef.current, true);
+          isDraggingRef.current = false;
+          hasMovedRef.current = false;
+          startedOnActiveThumbRef.current = false;
+          return;
+        }
         isDraggingRef.current = false;
         hasMovedRef.current = false;
+        startedOnActiveThumbRef.current = false;
         animateToRange(committedLeftRatioRef.current, committedRightRatioRef.current, false);
       },
       onPanResponderTerminationRequest: () => false,

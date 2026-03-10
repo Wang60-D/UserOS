@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   subTitleText: {
-    marginTop: 4,
+    marginTop: TOKENS.spacing.centerSubtitleMarginTop,
     fontSize: TOKENS.fontSize.large,
     color: TOKENS.colors.subtitleText,
     fontWeight: '400',

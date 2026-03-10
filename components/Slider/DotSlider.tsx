@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import Svg, { Defs, LinearGradient as SvgLinearGradient, Rect, Stop } from 'react-native-svg';
 import { TOKENS } from '../../tokens';
+import { traceStateFlow } from '../../utils/stateflow/traceStateFlow';
 
 type DotDistribution = 'even' | 'custom';
 type FillMode = 'none' | 'left' | 'between' | 'all';
@@ -178,17 +179,10 @@ const DotSlider: React.FC<DotSliderProps> = ({
   const currentLeftRatioRef = useRef(0);
   const currentRightRatioRef = useRef(1);
   const startLocationXRef = useRef(0);
+  const didMoveDuringDragRef = useRef(false);
 
-  const logDebug = (phase: string, payload: Record<string, unknown>) => {
-    if (!debugEnabled) return;
-    const body = {
-      ts: Date.now(),
-      id: debugId,
-      phase,
-      ...payload,
-    };
-    console.log(`[DotSliderDebug] ${JSON.stringify(body)}`);
-  };
+  const logDebug = (phase: string, payload: Record<string, unknown>) =>
+    traceStateFlow({ enabled: debugEnabled, id: debugId }, phase, payload);
 
   const resolvedStops = useMemo(() => {
     if (dotDistribution === 'custom' && dotPositions && dotPositions.length >= MIN_STOPS) {
@@ -277,8 +271,8 @@ const DotSlider: React.FC<DotSliderProps> = ({
     Animated.spring(translateX, {
       toValue,
       useNativeDriver: false,
-      tension: 90,
-      friction: 12,
+      tension: TOKENS.motion.springTension,
+      friction: TOKENS.motion.springFriction,
     }).start();
   };
 
@@ -294,14 +288,14 @@ const DotSlider: React.FC<DotSliderProps> = ({
       Animated.spring(leftTranslateX, {
         toValue: toLeftValue,
         useNativeDriver: false,
-        tension: 90,
-        friction: 12,
+        tension: TOKENS.motion.springTension,
+        friction: TOKENS.motion.springFriction,
       }),
       Animated.spring(rightTranslateX, {
         toValue: toRightValue,
         useNativeDriver: false,
-        tension: 90,
-        friction: 12,
+        tension: TOKENS.motion.springTension,
+        friction: TOKENS.motion.springFriction,
       }),
     ]).start();
   };
@@ -501,6 +495,7 @@ const DotSlider: React.FC<DotSliderProps> = ({
 
         isDraggingRef.current = false;
         isThumbDragRef.current = false;
+        didMoveDuringDragRef.current = false;
 
         const startX = evt.nativeEvent.locationX;
         startLocationXRef.current = startX;
@@ -525,6 +520,7 @@ const DotSlider: React.FC<DotSliderProps> = ({
         ) {
           isDraggingRef.current = true;
           isThumbDragRef.current = true;
+          didMoveDuringDragRef.current = false;
           dragTouchOffsetRef.current = startX - thumbCenterX;
           setDragRatio(committedRatioRef.current);
           currentRatioRef.current = committedRatioRef.current;
@@ -593,6 +589,7 @@ const DotSlider: React.FC<DotSliderProps> = ({
         const runtimeMaxThumbX = maxThumbXRef.current;
         const nextRatio =
           runtimeMaxThumbX <= 0 ? 0 : clamp01(thumbX / runtimeMaxThumbX);
+        didMoveDuringDragRef.current = true;
         setDragRatio(nextRatio);
         currentRatioRef.current = nextRatio;
         translateX.setValue(ratioToThumbXByMax(nextRatio, runtimeMaxThumbX));
@@ -615,8 +612,10 @@ const DotSlider: React.FC<DotSliderProps> = ({
         if (isRange) {
           const movedDistance = Math.hypot(gestureState.dx, gestureState.dy);
           const isTapGesture = movedDistance <= 6;
+          const tapLocationX = startLocationXRef.current;
           logDebug('release-range-start', {
             locationX: evt.nativeEvent.locationX,
+            tapLocationX,
             dx: gestureState.dx,
             dy: gestureState.dy,
             movedDistance,
@@ -636,7 +635,7 @@ const DotSlider: React.FC<DotSliderProps> = ({
           }
 
           if (canTapRef.current && isTapGesture) {
-            const tapRatio = locationXToRatio(evt.nativeEvent.locationX);
+            const tapRatio = locationXToRatio(tapLocationX);
             const leftDistance = Math.abs(tapRatio - committedLeftRatioRef.current);
             const rightDistance = Math.abs(tapRatio - committedRightRatioRef.current);
             const activeThumb: ThumbKey = leftDistance <= rightDistance ? 'left' : 'right';
@@ -674,8 +673,10 @@ const DotSlider: React.FC<DotSliderProps> = ({
 
         const movedDistance = Math.hypot(gestureState.dx, gestureState.dy);
         const isTapGesture = movedDistance <= 6;
+        const tapLocationX = startLocationXRef.current;
         logDebug('release-start', {
           locationX: evt.nativeEvent.locationX,
+          tapLocationX,
           dx: gestureState.dx,
           dy: gestureState.dy,
           movedDistance,
@@ -686,19 +687,30 @@ const DotSlider: React.FC<DotSliderProps> = ({
         });
 
         if (isDraggingRef.current && isThumbDragRef.current) {
-          const localX = startLocationXRef.current + gestureState.dx;
-          const thumbCenterX = localX - dragTouchOffsetRef.current;
-          const thumbX = thumbCenterX - TRACK_PADDING - THUMB_SIZE / 2;
           const runtimeMaxThumbX = maxThumbXRef.current;
-          const finalRatio =
+          const movedEnoughForReleaseCalc = Math.hypot(gestureState.dx, gestureState.dy) > 2;
+          const localXFromGesture = startLocationXRef.current + gestureState.dx;
+          const thumbCenterXFromGesture = localXFromGesture - dragTouchOffsetRef.current;
+          const thumbXFromGesture = thumbCenterXFromGesture - TRACK_PADDING - THUMB_SIZE / 2;
+          const finalRatioFromGesture =
             runtimeMaxThumbX <= 0
               ? currentRatioRef.current
-              : clamp01(thumbX / runtimeMaxThumbX);
+              : clamp01(thumbXFromGesture / runtimeMaxThumbX);
+          const usedMoveRatio = didMoveDuringDragRef.current;
+          const finalRatio = usedMoveRatio
+            ? currentRatioRef.current
+            : movedEnoughForReleaseCalc
+              ? finalRatioFromGesture
+              : currentRatioRef.current;
           setDragRatio(null);
           isDraggingRef.current = false;
           isThumbDragRef.current = false;
+          didMoveDuringDragRef.current = false;
           logDebug('release-drag', {
             finalRatio,
+            finalRatioFromGesture,
+            usedMoveRatio,
+            movedEnoughForReleaseCalc,
             runtimeMaxThumbX,
           });
           commitRatio(finalRatio, true);
@@ -706,10 +718,11 @@ const DotSlider: React.FC<DotSliderProps> = ({
         }
 
         if (canTapRef.current && isTapGesture) {
-          const tapRatio = locationXToRatio(evt.nativeEvent.locationX);
+          const tapRatio = locationXToRatio(tapLocationX);
           setDragRatio(null);
           logDebug('release-tap', {
             tapRatio,
+            tapLocationX,
           });
           commitRatio(tapRatio, true);
           return;
@@ -718,6 +731,7 @@ const DotSlider: React.FC<DotSliderProps> = ({
         setDragRatio(null);
         isDraggingRef.current = false;
         isThumbDragRef.current = false;
+        didMoveDuringDragRef.current = false;
         logDebug('release-cancel', {
           committedRatio: committedRatioRef.current,
         });
@@ -725,6 +739,20 @@ const DotSlider: React.FC<DotSliderProps> = ({
       },
       onPanResponderTerminate: () => {
         if (isRange) {
+          if (isDraggingRef.current && isThumbDragRef.current && activeThumbRef.current) {
+            const finalLeftRatio = currentLeftRatioRef.current;
+            const finalRightRatio = currentRightRatioRef.current;
+            setRangeDragRatios(null);
+            isDraggingRef.current = false;
+            isThumbDragRef.current = false;
+            activeThumbRef.current = null;
+            logDebug('terminate-range-commit', {
+              finalLeftRatio,
+              finalRightRatio,
+            });
+            commitRangeRatios(finalLeftRatio, finalRightRatio, true);
+            return;
+          }
           setRangeDragRatios(null);
           isDraggingRef.current = false;
           isThumbDragRef.current = false;
@@ -735,9 +763,22 @@ const DotSlider: React.FC<DotSliderProps> = ({
           );
           return;
         }
+        if (isDraggingRef.current && isThumbDragRef.current) {
+          const finalRatio = currentRatioRef.current;
+          setDragRatio(null);
+          isDraggingRef.current = false;
+          isThumbDragRef.current = false;
+          didMoveDuringDragRef.current = false;
+          logDebug('terminate-commit', {
+            finalRatio,
+          });
+          commitRatio(finalRatio, true);
+          return;
+        }
         setDragRatio(null);
         isDraggingRef.current = false;
         isThumbDragRef.current = false;
+        didMoveDuringDragRef.current = false;
         logDebug('terminate', {
           committedRatio: committedRatioRef.current,
         });
@@ -782,11 +823,20 @@ const DotSlider: React.FC<DotSliderProps> = ({
   const animatedFillWidth = Animated.add(translateX, THUMB_SIZE);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.trackOuter} onLayout={handleLayout} {...panResponder.panHandlers}>
-        <View style={[styles.trackBase, hasTrackGradient && styles.trackBaseNoBg]}>
+    <View style={styles.container} {...panResponder.panHandlers}>
+      <View style={styles.trackOuter} onLayout={handleLayout}>
+        <View
+          style={[styles.trackBase, hasTrackGradient && styles.trackBaseNoBg]}
+          pointerEvents={hasTrackGradient ? 'none' : 'auto'}
+        >
           {hasTrackGradient ? (
-            <Svg style={styles.trackGradientSvg} width="100%" height="100%" preserveAspectRatio="none">
+            <Svg
+              style={styles.trackGradientSvg}
+              width="100%"
+              height="100%"
+              preserveAspectRatio="none"
+              pointerEvents="none"
+            >
               <Defs>
                 <SvgLinearGradient id={gradientIdRef.current} x1="0%" y1="0%" x2="100%" y2="0%">
                   {hasTrackGradientStops
@@ -822,6 +872,7 @@ const DotSlider: React.FC<DotSliderProps> = ({
         {fillVisible &&
           (isRange ? (
             <View
+              pointerEvents="none"
               style={[
                 styles.fillLayer,
                 {
@@ -832,6 +883,7 @@ const DotSlider: React.FC<DotSliderProps> = ({
             />
           ) : fillMode === 'left' || fillMode === 'between' ? (
             <Animated.View
+              pointerEvents="none"
               style={[
                 styles.fillLayer,
                 {
@@ -842,6 +894,7 @@ const DotSlider: React.FC<DotSliderProps> = ({
             />
           ) : (
             <View
+              pointerEvents="none"
               style={[
                 styles.fillLayer,
                 {
@@ -856,12 +909,15 @@ const DotSlider: React.FC<DotSliderProps> = ({
           stops.map((ratio, index) => {
             const visible = dotVisibleMask ? dotVisibleMask[index] !== false : true;
             if (!visible) return null;
-            const hideEdgeDot = showEdgeValues && (index === 0 || index === stops.length - 1);
+            // 仅在刻度点真正位于轨道两端（0/1）时隐藏，避免 custom 分布时误隐藏
+            const atTrackEdge = ratio <= 0.01 || ratio >= 0.99;
+            const hideEdgeDot = showEdgeValues && atTrackEdge;
             if (hideEdgeDot) return null;
             const dotCenterX = TRACK_PADDING + ratioToThumbX(ratio) + THUMB_SIZE / 2;
             return (
               <View
                 key={`dot-${index}`}
+                pointerEvents="none"
                 style={[
                   styles.dot,
                   {
@@ -875,8 +931,8 @@ const DotSlider: React.FC<DotSliderProps> = ({
 
         {showEdgeValues && (
           <>
-            <Text style={[styles.edgeValue, styles.leftEdgeValue]}>{String(edgeLabelValues[0])}</Text>
-            <Text style={[styles.edgeValue, styles.rightEdgeValue]}>{String(edgeLabelValues[1])}</Text>
+            <Text pointerEvents="none" style={[styles.edgeValue, styles.leftEdgeValue]}>{String(edgeLabelValues[0])}</Text>
+            <Text pointerEvents="none" style={[styles.edgeValue, styles.rightEdgeValue]}>{String(edgeLabelValues[1])}</Text>
           </>
         )}
 
@@ -968,6 +1024,8 @@ const DotSlider: React.FC<DotSliderProps> = ({
             </View>
           </Animated.View>
         )}
+
+        {/* 渐变时子视图可能抢触摸：手势已绑定在外层容器，轨道子节点统一 pointerEvents="none" */}
       </View>
 
       {showTickLabels && (
@@ -1000,6 +1058,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: TRACK_HEIGHT,
     justifyContent: 'center',
+    position: 'relative',
   },
   trackBase: {
     position: 'absolute',

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { TOKENS } from '../../tokens';
+import { useControllableState } from '../../utils/stateflow/useControllableState';
 
 type RightMode = 'device' | 'switch';
 
@@ -13,6 +14,7 @@ interface ControlTitleProps {
   rightText?: string;
   switchValue?: boolean;
   onSwitchChange?: (value: boolean) => void;
+  defaultSwitchValue?: boolean;
 }
 
 const ControlTitle: React.FC<ControlTitleProps> = ({
@@ -24,32 +26,29 @@ const ControlTitle: React.FC<ControlTitleProps> = ({
   rightText,
   switchValue,
   onSwitchChange,
+  defaultSwitchValue = false,
 }) => {
   const resolvedRightMode: RightMode = rightMode ?? 'device';
   const resolvedSubtitleText = subtitleText ?? '';
   const resolvedRightText = rightText ?? '';
-  const isControlled = typeof switchValue === 'boolean';
-  const [internalValue, setInternalValue] = useState(false);
-  const isOn = isControlled ? (switchValue as boolean) : internalValue;
+  const { value: isOn, setValue: setSwitchValue } = useControllableState<boolean>({
+    value: switchValue,
+    defaultValue: defaultSwitchValue,
+    onChange: onSwitchChange,
+  });
   const animatedValue = useRef(new Animated.Value(isOn ? 1 : 0)).current;
 
   useEffect(() => {
     Animated.timing(animatedValue, {
       toValue: isOn ? 1 : 0,
-      duration: 180,
+      duration: TOKENS.motion.normal,
       useNativeDriver: false,
     }).start();
   }, [animatedValue, isOn]);
 
   const handleToggle = () => {
     if (resolvedRightMode !== 'switch') return;
-    const nextValue = !isOn;
-    if (!isControlled) {
-      setInternalValue(nextValue);
-    }
-    if (onSwitchChange) {
-      onSwitchChange(nextValue);
-    }
+    setSwitchValue(!isOn);
   };
 
   const switchTrackColor = animatedValue.interpolate({
@@ -124,9 +123,9 @@ const styles = StyleSheet.create({
   leftGroup: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: TOKENS.spacing.titleGap,
     flex: 1,
-    marginRight: 8,
+    marginRight: TOKENS.spacing.leftGroupMarginRight,
   },
   titleText: {
     fontSize: TOKENS.fontSize.large,
@@ -145,9 +144,9 @@ const styles = StyleSheet.create({
   },
   rightPill: {
     backgroundColor: TOKENS.colors.rightPillBg,
-    paddingHorizontal: 12,
-    paddingVertical: 5.5,
-    borderRadius: 999,
+    paddingHorizontal: TOKENS.spacing.rightPillPaddingH,
+    paddingVertical: TOKENS.spacing.rightPillPaddingV,
+    borderRadius: TOKENS.radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -162,7 +161,7 @@ const styles = StyleSheet.create({
   switchTrack: {
     width: 50,
     height: TOKENS.sizes.controlTitleHeight,
-    borderRadius: 999,
+    borderRadius: TOKENS.radius.pill,
     backgroundColor: TOKENS.colors.switchOff,
     justifyContent: 'center',
     paddingHorizontal: 4,
@@ -170,7 +169,7 @@ const styles = StyleSheet.create({
   switchThumb: {
     width: 20,
     height: 20,
-    borderRadius: 999,
+    borderRadius: TOKENS.radius.pill,
     backgroundColor: TOKENS.colors.switchThumb,
   },
 });

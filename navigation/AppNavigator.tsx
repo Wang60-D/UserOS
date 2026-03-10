@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { CardStyleInterpolators, createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from '../components/HomeScreen';
 import AirConditionerScreen from '../screens/Model/AirConditionerScreen';
 import AirPurifierScreen from '../screens/Model/AirPurifierScreen';
@@ -39,10 +39,27 @@ import FeatureEntryStyle1Screen from '../screens/Entry/FeatureEntryStyle1Screen'
 import WindSenseDrawerScreen from '../screens/Entry/WindSenseDrawerScreen';
 import SweepDrawerScreen from '../screens/Entry/SweepDrawerScreen';
 import CircularArcSliderScreen from '../screens/CircularArcSliderScreen';
+import BaseArcScreen from '../screens/BaseArcScreen';
 import CircularTimePickerScreen from '../screens/CircularTimePickerScreen';
 import ComponentLibraryScreen from '../screens/ComponentLibraryScreen';
 import SwitchScreen from '../screens/Switch/SwitchScreen';
 import Part1Screen from '../screens/Part1Screen';
+import Part2Screen from '../screens/Part2Screen';
+import Part2CatalogScreen from '../screens/Part2/Part2CatalogScreen';
+import Part2SinglePointScreen from '../screens/Part2/Part2SinglePointScreen';
+import Part2TickMarks1Screen from '../screens/Part2/TickMarks1/Part2TickMarks1Screen';
+import Part2TickMarks3DelayShortScreen from '../screens/Part2/TickMarks3/Part2TickMarks3DelayShortScreen';
+import Part2TickMarks3DelayLongScreen from '../screens/Part2/TickMarks3/Part2TickMarks3DelayLongScreen';
+import Part2TickMarks3WaterHeaterTempScreen from '../screens/Part2/TickMarks3/Part2TickMarks3WaterHeaterTempScreen';
+import Part2TickMarks3KettleTempScreen from '../screens/Part2/TickMarks3/Part2TickMarks3KettleTempScreen';
+import Part2TickMarks3HumidityScreen from '../screens/Part2/TickMarks3/Part2TickMarks3HumidityScreen';
+import Part2TickMarks3FridgeTempScreen from '../screens/Part2/TickMarks3/Part2TickMarks3FridgeTempScreen';
+import Part2TickMarks2WindSpeedScreen from '../screens/Part2/TickMarks2/Part2TickMarks2WindSpeedScreen';
+import Part2TickMarks2DirectionScreen from '../screens/Part2/TickMarks2/Part2TickMarks2DirectionScreen';
+import Part2TickMarks2CurtainScreen from '../screens/Part2/TickMarks2/Part2TickMarks2CurtainScreen';
+import Part2TickMarks2BrightnessScreen from '../screens/Part2/TickMarks2/Part2TickMarks2BrightnessScreen';
+import Part2TickMarks2VolumeScreen from '../screens/Part2/TickMarks2/Part2TickMarks2VolumeScreen';
+import Part2TickMarks2ColorTempScreen from '../screens/Part2/TickMarks2/Part2TickMarks2ColorTempScreen';
 import FanSwitchScreen from '../screens/Switch/FanSwitchScreen';
 import WallSwitchScreen from '../screens/Switch/WallSwitchScreen';
 import BathLightScreen from '../screens/Switch/BathLightScreen';
@@ -62,6 +79,22 @@ try {
 export type RootStackParamList = {
   Home: undefined;
   Part1: undefined;
+  Part2: undefined;
+  Part2Catalog: { catalogKey: string; title: string };
+  Part2SinglePoint: undefined;
+  Part2TickMarks1: undefined;
+  Part2TickMarks2WindSpeed: undefined;
+  Part2TickMarks2Direction: undefined;
+  Part2TickMarks2Curtain: undefined;
+  Part2TickMarks2Brightness: undefined;
+  Part2TickMarks2Volume: undefined;
+  Part2TickMarks2ColorTemp: undefined;
+  Part2TickMarks3DelayShort: undefined;
+  Part2TickMarks3DelayLong: undefined;
+  Part2TickMarks3WaterHeaterTemp: undefined;
+  Part2TickMarks3KettleTemp: undefined;
+  Part2TickMarks3Humidity: undefined;
+  Part2TickMarks3FridgeTemp: undefined;
   FanSwitch: undefined;
   WallSwitch: undefined;
   BathLight: undefined;
@@ -94,6 +127,7 @@ export type RootStackParamList = {
   ButtonGroup: undefined;
   Slider: undefined;
   CircularArcSlider: undefined;
+  BaseArc: undefined;
   CircularTimePicker: undefined;
   TimePicker: undefined;
   TimerOne: undefined;
@@ -133,6 +167,82 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen 
           name="Part1" 
           component={Part1Screen}
+        />
+        <Stack.Screen 
+          name="Part2" 
+          component={Part2Screen}
+        />
+        <Stack.Screen 
+          name="Part2Catalog" 
+          component={Part2CatalogScreen}
+        />
+        <Stack.Screen 
+          name="Part2SinglePoint" 
+          component={Part2SinglePointScreen}
+        />
+        <Stack.Screen 
+          name="Part2TickMarks1" 
+          component={Part2TickMarks1Screen}
+        />
+        <Stack.Screen
+          name="Part2TickMarks2WindSpeed"
+          component={Part2TickMarks2WindSpeedScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2TickMarks2Direction"
+          component={Part2TickMarks2DirectionScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2TickMarks2Curtain"
+          component={Part2TickMarks2CurtainScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2TickMarks2Brightness"
+          component={Part2TickMarks2BrightnessScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2TickMarks2Volume"
+          component={Part2TickMarks2VolumeScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2TickMarks2ColorTemp"
+          component={Part2TickMarks2ColorTempScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2TickMarks3DelayShort"
+          component={Part2TickMarks3DelayShortScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2TickMarks3DelayLong"
+          component={Part2TickMarks3DelayLongScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2TickMarks3WaterHeaterTemp"
+          component={Part2TickMarks3WaterHeaterTempScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2TickMarks3KettleTemp"
+          component={Part2TickMarks3KettleTempScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2TickMarks3Humidity"
+          component={Part2TickMarks3HumidityScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2TickMarks3FridgeTemp"
+          component={Part2TickMarks3FridgeTempScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
         />
         <Stack.Screen 
           name="FanSwitch" 
@@ -261,6 +371,10 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen
           name="CircularArcSlider"
           component={CircularArcSliderScreen}
+        />
+        <Stack.Screen
+          name="BaseArc"
+          component={BaseArcScreen}
         />
         <Stack.Screen
           name="CircularTimePicker"

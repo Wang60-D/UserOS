@@ -34,6 +34,15 @@ type TickLabel = {
   fontSize?: number;
 };
 
+type OuterCoordinateLabel = {
+  value: number;
+  text: string;
+  radiusOffset?: number;
+  color?: string;
+  fontSize?: number;
+  tangentAligned?: boolean;
+};
+
 export interface CircularArcSliderProps {
   mode?: SliderMode;
   min: number;
@@ -71,6 +80,8 @@ export interface CircularArcSliderProps {
 
   tickDots?: TickDot[];
   tickLabels?: TickLabel[];
+  tickLabelRadiusOffset?: number;
+  outerCoordinateLabels?: OuterCoordinateLabel[];
   showCenterGuide?: boolean;
 
   titleText?: string;
@@ -79,9 +90,12 @@ export interface CircularArcSliderProps {
   rangeValueFormatter?: (range: [number, number]) => string;
   centerValueText?: string;
   centerValueUnitText?: string;
+  centerValueAnchorY?: number;
+  followCenterValueAnchor?: boolean;
 }
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
+const EPSILON = 1e-6;
 
 const normalizeAngle = (angle: number) => {
   const mod = angle % 360;
@@ -173,6 +187,8 @@ const CircularArcSlider: React.FC<CircularArcSliderProps> = ({
   hitSlopPx = 26,
   tickDots = [],
   tickLabels = [],
+  tickLabelRadiusOffset,
+  outerCoordinateLabels = [],
   showCenterGuide = false,
   titleText,
   subtitleText,
@@ -180,13 +196,17 @@ const CircularArcSlider: React.FC<CircularArcSliderProps> = ({
   rangeValueFormatter,
   centerValueText,
   centerValueUnitText,
+  centerValueAnchorY,
+  followCenterValueAnchor = false,
 }) => {
   const safeMin = Math.min(min, max);
   const safeMax = Math.max(min, max);
   const safeStep = Math.abs(step) > 1e-6 ? Math.abs(step) : 1;
   const span = Math.max(1e-6, safeMax - safeMin);
   const cx = centerX ?? size / 2;
-  const cy = centerY ?? size / 2;
+  const defaultCenterValueAnchorY = size - 74 - 24;
+  const resolvedCenterValueAnchorY = centerValueAnchorY ?? defaultCenterValueAnchorY;
+  const cy = centerY ?? (followCenterValueAnchor ? resolvedCenterValueAnchorY : size / 2);
   const r = radius ?? size * 0.38;
 
   const sweep = useMemo(() => {
@@ -209,12 +229,31 @@ const CircularArcSlider: React.FC<CircularArcSliderProps> = ({
   const angleToT = (angle: number) => {
     const a = normalizeAngle(angle);
     const start = normalizeAngle(startAngle);
-    if (clockwise) {
-      const delta = (a - start + 360) % 360;
+    const end = tToAngle(1);
+    const shortestDistance = (from: number, to: number) => {
+      const delta = Math.abs(normalizeAngle(from - to));
+      return Math.min(delta, 360 - delta);
+    };
+
+    if (sweep >= 360 - EPSILON) {
+      if (clockwise) {
+        const delta = (a - start + 360) % 360;
+        return clamp(delta / sweep, 0, 1);
+      }
+      const delta = (start - a + 360) % 360;
       return clamp(delta / sweep, 0, 1);
     }
+
+    if (clockwise) {
+      const delta = (a - start + 360) % 360;
+      if (delta <= sweep + EPSILON) return clamp(delta / sweep, 0, 1);
+      // 触点落在弧外时，钳制到最近端点，避免 0%/100% 边界跳变
+      return shortestDistance(a, start) <= shortestDistance(a, end) ? 0 : 1;
+    }
+
     const delta = (start - a + 360) % 360;
-    return clamp(delta / sweep, 0, 1);
+    if (delta <= sweep + EPSILON) return clamp(delta / sweep, 0, 1);
+    return shortestDistance(a, start) <= shortestDistance(a, end) ? 0 : 1;
   };
 
   const resolvedValue = clamp(value ?? safeMin, safeMin, safeMax);
@@ -227,6 +266,8 @@ const CircularArcSlider: React.FC<CircularArcSliderProps> = ({
   const singleT = valueToT(resolvedValue);
   const rangeT: [number, number] = [valueToT(orderedRange[0]), valueToT(orderedRange[1])];
   const activeHandleRef = useRef<'single' | 'left' | 'right'>('single');
+  const startTouchRef = useRef({ x: 0, y: 0 });
+  const hasMovedRef = useRef(false);
 
   const commitSingle = (nextT: number, isEnd: boolean) => {
     const nextValue = tToValue(nextT);
@@ -289,16 +330,30 @@ const CircularArcSlider: React.FC<CircularArcSliderProps> = ({
       onMoveShouldSetPanResponder: (_evt, gesture) =>
         Math.hypot(gesture.dx, gesture.dy) > 2,
       onPanResponderGrant: (evt) => {
-        resolveTouch(evt.nativeEvent.locationX, evt.nativeEvent.locationY, false);
+        startTouchRef.current = {
+          x: evt.nativeEvent.locationX,
+          y: evt.nativeEvent.locationY,
+        };
+        hasMovedRef.current = false;
+        resolveTouch(startTouchRef.current.x, startTouchRef.current.y, false);
       },
       onPanResponderMove: (evt) => {
+        hasMovedRef.current = true;
         resolveTouch(evt.nativeEvent.locationX, evt.nativeEvent.locationY, false);
       },
-      onPanResponderRelease: (evt) => {
-        resolveTouch(evt.nativeEvent.locationX, evt.nativeEvent.locationY, true);
+      onPanResponderRelease: (evt, gestureState) => {
+        const movedDistance = Math.hypot(gestureState.dx, gestureState.dy);
+        const isTapGesture = movedDistance <= 6 && !hasMovedRef.current;
+        const finalX = isTapGesture ? startTouchRef.current.x : evt.nativeEvent.locationX;
+        const finalY = isTapGesture ? startTouchRef.current.y : evt.nativeEvent.locationY;
+        resolveTouch(finalX, finalY, true);
+        hasMovedRef.current = false;
       },
       onPanResponderTerminate: (evt) => {
-        resolveTouch(evt.nativeEvent.locationX, evt.nativeEvent.locationY, true);
+        const finalX = hasMovedRef.current ? evt.nativeEvent.locationX : startTouchRef.current.x;
+        const finalY = hasMovedRef.current ? evt.nativeEvent.locationY : startTouchRef.current.y;
+        resolveTouch(finalX, finalY, true);
+        hasMovedRef.current = false;
       },
       onPanResponderTerminationRequest: () => false,
     })
@@ -402,7 +457,8 @@ const CircularArcSlider: React.FC<CircularArcSliderProps> = ({
         })}
 
         {tickLabels.map((label, index) => {
-          const point = polarPoint(cx, cy, r + trackWidth * 0.7, tToAngle(valueToT(label.value)));
+          const labelRadius = r + (tickLabelRadiusOffset ?? trackWidth * 0.7);
+          const point = polarPoint(cx, cy, labelRadius, tToAngle(valueToT(label.value)));
           return (
             <SvgText
               key={`tick-label-${index}`}
@@ -417,6 +473,27 @@ const CircularArcSlider: React.FC<CircularArcSliderProps> = ({
           );
         })}
 
+        {outerCoordinateLabels.map((label, index) => {
+          const pointAngle = tToAngle(valueToT(label.value));
+          const point = polarPoint(cx, cy, r + (label.radiusOffset ?? trackWidth + 16), pointAngle);
+          const tangentAngle = pointAngle + (clockwise ? 90 : -90);
+          return (
+            <SvgText
+              key={`outer-coordinate-${index}`}
+              x={point.x}
+              y={point.y}
+              textAnchor="middle"
+              fontSize={label.fontSize ?? 11}
+              fill={label.color ?? 'rgba(0,0,0,0.34)'}
+              rotation={label.tangentAligned === false ? 0 : tangentAngle}
+              originX={point.x}
+              originY={point.y}
+            >
+              {label.text}
+            </SvgText>
+          );
+        })}
+
         {mode === 'single' ? renderHandle(singleHandle.x, singleHandle.y) : null}
         {mode === 'range' ? renderHandle(leftHandle.x, leftHandle.y) : null}
         {mode === 'range' ? renderHandle(rightHandle.x, rightHandle.y) : null}
@@ -425,7 +502,7 @@ const CircularArcSlider: React.FC<CircularArcSliderProps> = ({
       {titleText ? <Text style={styles.title}>{titleText}</Text> : null}
       {subtitleText ? <Text style={styles.subtitle}>{subtitleText}</Text> : null}
 
-      <View style={styles.centerValueRow}>
+      <View style={[styles.centerValueRow, { top: resolvedCenterValueAnchorY - 24 }]}>
         <Text style={styles.centerValueText}>{centerText}</Text>
         {centerValueUnitText ? <Text style={styles.centerValueUnit}>{centerValueUnitText}</Text> : null}
       </View>
@@ -458,7 +535,6 @@ const styles = StyleSheet.create({
   },
   centerValueRow: {
     position: 'absolute',
-    bottom: 74,
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'center',

@@ -15,3 +15,4 @@ export { default as DualHandleSlider } from './DualHandleSlider';
 export type { DualHandleSliderProps } from './DualHandleSlider';
 export { default as CircularArcSlider } from './CircularArcSlider';
 export type { CircularArcSliderProps } from './CircularArcSlider';
+export { default as BaseArcSlider } from './BaseArcSlider';

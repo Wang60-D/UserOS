@@ -9,6 +9,8 @@ import {
   type ImageSourcePropType,
 } from 'react-native';
 import { TOKENS } from '../../tokens';
+import { traceStateFlow } from '../../utils/stateflow/traceStateFlow';
+import { useControllableState } from '../../utils/stateflow/useControllableState';
 
 type IconTone = 'neutral' | 'accent';
 type RightMode = 'icon' | 'switch';
@@ -33,6 +35,8 @@ export interface SwitchRowProps {
   containerBgColor?: string;
   onPress?: () => void;
   disabled?: boolean;
+  debugEnabled?: boolean;
+  debugId?: string;
 }
 
 // 参数集中定义，便于按设计稿统一调整
@@ -70,22 +74,27 @@ const SwitchRow: React.FC<SwitchRowProps> = ({
   containerBgColor = TOKENS.colors.cardBg,
   onPress,
   disabled = false,
+  debugEnabled = false,
+  debugId = 'switch-row',
 }) => {
-  const isRightButtonControlled = typeof rightButtonOn === 'boolean';
-  const [internalRightButtonOn, setInternalRightButtonOn] = useState(defaultRightButtonOn);
-  const isRightButtonActive = isRightButtonControlled
-    ? (rightButtonOn as boolean)
-    : internalRightButtonOn;
+  const { value: isRightButtonActive, setValue: setRightButtonActive } =
+    useControllableState<boolean>({
+      value: rightButtonOn,
+      defaultValue: defaultRightButtonOn,
+      onChange: onRightButtonChange,
+    });
 
-  const isControlled = typeof switchValue === 'boolean';
-  const [internalValue, setInternalValue] = useState(defaultSwitchValue);
-  const isOn = isControlled ? (switchValue as boolean) : internalValue;
+  const { value: isOn, setValue: setSwitchValue } = useControllableState<boolean>({
+    value: switchValue,
+    defaultValue: defaultSwitchValue,
+    onChange: onSwitchChange,
+  });
   const animatedValue = useRef(new Animated.Value(isOn ? 1 : 0)).current;
 
   useEffect(() => {
     Animated.timing(animatedValue, {
       toValue: isOn ? 1 : 0,
-      duration: 180,
+      duration: TOKENS.motion.normal,
       useNativeDriver: false,
     }).start();
   }, [animatedValue, isOn]);
@@ -106,18 +115,16 @@ const SwitchRow: React.FC<SwitchRowProps> = ({
 
   const handlePress = () => {
     if (disabled) return;
+    traceStateFlow({ enabled: debugEnabled, id: debugId }, 'press', {
+      rightMode,
+      isOn,
+      isRightButtonActive,
+    });
     if (rightMode === 'switch') {
-      const nextValue = !isOn;
-      if (!isControlled) {
-        setInternalValue(nextValue);
-      }
-      onSwitchChange?.(nextValue);
+      setSwitchValue(!isOn);
     } else {
       const nextValue = !isRightButtonActive;
-      if (!isRightButtonControlled) {
-        setInternalRightButtonOn(nextValue);
-      }
-      onRightButtonChange?.(nextValue);
+      setRightButtonActive(nextValue);
       onPress?.();
       return;
     }

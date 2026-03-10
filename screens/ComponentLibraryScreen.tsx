@@ -8,6 +8,7 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 
 type ComponentLibraryRouteName =
   | 'AirConditioner'
+  | 'BaseArc'
   | 'ButtonGroup'
   | 'CircularArcSlider'
   | 'CircularTimePicker'
@@ -48,6 +49,11 @@ const COMPONENT_ITEMS: ComponentItem[] = [
     title: '圆弧滑条组件',
     description: '圆形弧线滑条 6 种样式与交互示例',
     routeName: 'CircularArcSlider',
+  },
+  {
+    title: 'BASE圆弧',
+    description: '基于 CircularArcSlider 的 Figma 样式还原',
+    routeName: 'BaseArc',
   },
   {
     title: '圆形时间选择组件',
