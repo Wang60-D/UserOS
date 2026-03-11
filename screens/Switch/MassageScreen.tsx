@@ -18,7 +18,7 @@ const ENABLE_TAB_STATE_SYNC = true;
 const POWER_MODES: Array<SwitchRowProps['rightMode']> = ['icon', 'icon', 'switch', 'switch'];
 const FEATURE_MODES: Array<SwitchRowProps['rightMode']> = ['switch', 'icon', 'switch', 'icon'];
 const FEATURE_LEFT_ICON_ENABLED = [true, false, true, false] as const;
-const FEATURE_TITLES = ['热敷', '除菌', '除菌', '除菌'] as const;
+const FEATURE_TITLES = ['热敷', '热敷', '热敷', '热敷'] as const;
 
 const INITIAL_POWER_VALUES = [true, true, true, true] as const;
 const INITIAL_FEATURE_VALUES = [false, true, true, true] as const;

@@ -2,9 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
-import { CircleButtonGroup, SquareButtonGroup } from '../../components/ButtonGroup';
-import type { CircleButtonGroupItem } from '../../components/ButtonGroup/CircleButtonGroup';
-import type { SquareButtonGroupItem } from '../../components/ButtonGroup/SquareButtonGroup';
+import { CircleButtonGroup, SquareButtonGroup } from '../../components2.0/ButtonGroup';
+import type { CircleButtonGroupItem, SquareButtonGroupItem } from '../../components2.0/ButtonGroup';
 import { DotSlider } from '../../components/Slider';
 import { PageTabSwitch } from '../../components/PageSwitch';
 import { TOKENS } from '../../tokens';
@@ -35,10 +34,7 @@ const AirConditionerDirectionScreen: React.FC = () => {
     () =>
       ANGLE_OPTIONS.map((item, index) => ({
         label: item.label,
-        iconSelected: item.icon,
-        iconUnselected: item.icon,
-        iconSelectedTintColor: '#FFFFFF',
-        iconUnselectedTintColor: TOKENS.colors.rightText,
+        icon: item.icon,
         selected: index === selectedIndex,
       })),
     [selectedIndex]
@@ -64,7 +60,14 @@ const AirConditionerDirectionScreen: React.FC = () => {
 
   const renderCurrentControl = () => {
     if (activeTab === 0) {
-      return <SquareButtonGroup items={squareItems} onItemPress={handleSelect} />;
+      return (
+        <SquareButtonGroup
+          items={squareItems}
+          isCompact={true}
+          selectedColor={TOKENS.colors.mainColor}
+          onItemPress={handleSelect}
+        />
+      );
     }
     if (activeTab === 1) {
       return (
@@ -90,12 +93,7 @@ const AirConditionerDirectionScreen: React.FC = () => {
     return (
       <CircleButtonGroup
         items={circleItems}
-        itemCount={7}
-        columns={4}
         showLabel={true}
-        labelNumberOfLines={1}
-        labelAdjustsFontSizeToFit={true}
-        labelMinimumFontScale={0.45}
         onItemPress={handleSelect}
       />
     );

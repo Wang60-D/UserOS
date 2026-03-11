@@ -42,7 +42,7 @@ export interface SwitchRowProps {
 // 参数集中定义，便于按设计稿统一调整
 const UI_PARAMS = {
   containerRadius: 16,
-  containerPaddingHorizontal: 12,
+  containerPaddingHorizontal: 22.5,
   titleFontSize: TOKENS.fontSize.large,
   leftIconSize: TOKENS.sizes.circleButtonIconSize,
   iconSize: TOKENS.sizes.circleButtonIconSize,

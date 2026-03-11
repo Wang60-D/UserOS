@@ -2,8 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
-import { CircleButtonGroup } from '../../components/ButtonGroup';
-import type { CircleButtonGroupItem } from '../../components/ButtonGroup/CircleButtonGroup';
+import { CircleButtonGroup } from '../../components2.0/ButtonGroup';
+import type { CircleButtonGroupItem } from '../../components2.0/ButtonGroup';
 import { DotSlider, NumberCapsuleSlider } from '../../components/Slider';
 import { RemoteControlStepper } from '../../components/RemoteControlStepper';
 import { PageTabSwitch } from '../../components/PageSwitch';
@@ -39,8 +39,7 @@ const WindSpeedGearScreen: React.FC = () => {
     () =>
       WIND_SPEED_ITEMS.map((item) => ({
         label: item.label,
-        iconSelected: FAN_ICONS.selected,
-        iconUnselected: FAN_ICONS.unselected,
+        icon: FAN_ICONS.unselected,
         selected: speedValue === item.value,
       })),
     [speedValue]
@@ -51,8 +50,6 @@ const WindSpeedGearScreen: React.FC = () => {
       return (
         <CircleButtonGroup
           items={circleItems}
-          itemCount={6}
-          columns={6}
           showLabel={true}
           onItemPress={(index) => {
             const item = WIND_SPEED_ITEMS[index];

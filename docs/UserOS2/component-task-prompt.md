@@ -15,6 +15,10 @@
 - 新代码必须优先使用 `CORE_TOKENS` / `COMPONENT_TOKENS`（定义在 `tokens.ts`）。
 - `TOKENS` 仅作为 1.0 兼容层，不能作为 2.0 新代码基线。
 - 禁止新增硬编码样式值（颜色、圆角、间距、字号、动效参数）。
+- Token 优先级：新代码优先使用 `CORE_TOKENS`，避免新增不必要硬编码。
+- Token 组织方式：`COMPONENT_TOKENS.circleButton` 必须完整列出组件实际使用的所有 token 字段。
+- CORE 复用原则：`COMPONENT_TOKENS.circleButton` 的字段应尽量引用已有 `CORE_TOKENS` 语义值。
+- Icon 规则：所有按钮内 icon 尺寸固定 `20x20`，传入 icon 时自动缩放适配。
 
 ### 结构规则
 

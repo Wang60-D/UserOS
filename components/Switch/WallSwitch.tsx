@@ -84,8 +84,8 @@ const styles = StyleSheet.create({
     backgroundColor: TOKENS.colors.cardBg,
   },
   iconWrap: {
-    width: 41,
-    height: 41,
+    width: 37,
+    height: 37,
     borderRadius: TOKENS.radius.circle,
     alignItems: 'center',
     justifyContent: 'center',
@@ -101,10 +101,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#B2BDC733',
   },
   powerRing: {
-    width: 22,
-    height: 22,
+    width: 18,
+    height: 18,
     borderRadius: TOKENS.radius.circle,
-    borderWidth: 4,
+    borderWidth: 3,
   },
   powerRingOn: {
     borderColor: '#FD723F',
@@ -113,8 +113,8 @@ const styles = StyleSheet.create({
     borderColor: TOKENS.colors.textPrimary,
   },
   powerPill: {
-    width: 6,
-    height: 20,
+    width: 4,
+    height: 14,
     borderRadius: 3,
   },
   powerPillOn: {

@@ -2,10 +2,9 @@ import React, { useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
-import { CircleButtonGroup, SquareButtonGroup } from '../../components/ButtonGroup';
+import { CircleButtonGroup, SquareButtonGroup } from '../../components2.0/ButtonGroup';
 import { PageTabSwitch } from '../../components/PageSwitch';
-import type { CircleButtonGroupItem } from '../../components/ButtonGroup/CircleButtonGroup';
-import type { SquareButtonGroupItem } from '../../components/ButtonGroup/SquareButtonGroup';
+import type { CircleButtonGroupItem, SquareButtonGroupItem } from '../../components2.0/ButtonGroup';
 import { TOKENS } from '../../tokens';
 
 type SoundMode = 'balance' | 'outdoor' | 'indoor' | 'romantic' | 'concert' | 'movie' | 'party';
@@ -62,10 +61,7 @@ const SoundModeScreen: React.FC = () => {
     () =>
       CIRCLE_SOUND_MODES.map((item) => ({
         label: item.label,
-        iconSelected: item.icon,
-        iconUnselected: item.icon,
-        iconSelectedTintColor: ICON_TINT_COLORS.selected,
-        iconUnselectedTintColor: ICON_TINT_COLORS.unselected,
+        icon: item.icon,
         selected: item.key === selectedMode,
       })),
     [selectedMode]
@@ -118,9 +114,14 @@ const SoundModeScreen: React.FC = () => {
 
           <View style={isCircleView ? styles.circlePanel : styles.squarePanel}>
             {isCircleView ? (
-              <CircleButtonGroup items={circleItems} itemCount={7} onItemPress={handleModeChange} />
+              <CircleButtonGroup items={circleItems} onItemPress={handleModeChange} />
             ) : (
-              <SquareButtonGroup items={squareItems} onItemPress={handleModeChange} />
+              <SquareButtonGroup
+                items={squareItems}
+                isCompact={true}
+                selectedColor={TOKENS.colors.mainColor}
+                onItemPress={handleModeChange}
+              />
             )}
           </View>
         </View>

@@ -67,6 +67,10 @@ import FishtankLightScreen from '../screens/Switch/FishtankLightScreen';
 import MassageScreen from '../screens/Switch/MassageScreen';
 import DehumidifierScreen from '../screens/Switch/DehumidifierScreen';
 import ClothrackSwitchScreen from '../screens/Switch/ClothrackSwitchScreen';
+import Components2Screen from '../screens/Components2Screen/Components2Screen';
+import Components2CircleButtonScreen from '../screens/Components2Screen/Components2CircleButtonScreen';
+import Components2SquareButtonScreen from '../screens/Components2Screen/Components2SquareButtonScreen';
+import Components2SwitchScreen from '../screens/Components2Screen/Components2SwitchScreen';
 
 // 尝试禁用 react-native-screens（如果存在）
 try {
@@ -103,6 +107,10 @@ export type RootStackParamList = {
   Massage: undefined;
   Dehumidifier: undefined;
   ComponentLibrary: undefined;
+  Components2: undefined;
+  Components2CircleButton: undefined;
+  Components2SquareButton: undefined;
+  Components2Switch: undefined;
   AirConditioner: undefined;
   AirPurifier: undefined;
   LightMode: undefined;
@@ -275,6 +283,22 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen 
           name="ComponentLibrary" 
           component={ComponentLibraryScreen}
+        />
+        <Stack.Screen
+          name="Components2"
+          component={Components2Screen}
+        />
+        <Stack.Screen
+          name="Components2CircleButton"
+          component={Components2CircleButtonScreen}
+        />
+        <Stack.Screen
+          name="Components2SquareButton"
+          component={Components2SquareButtonScreen}
+        />
+        <Stack.Screen
+          name="Components2Switch"
+          component={Components2SwitchScreen}
         />
         <Stack.Screen 
           name="AirConditioner" 

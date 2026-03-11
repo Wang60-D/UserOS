@@ -2,8 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
-import { CircleButtonGroup } from '../../components/ButtonGroup';
-import type { CircleButtonGroupItem } from '../../components/ButtonGroup/CircleButtonGroup';
+import { CircleButtonGroup } from '../../components2.0/ButtonGroup';
+import type { CircleButtonGroupItem } from '../../components2.0/ButtonGroup';
 import { SegmentedSquareSlider } from '../../components/Slider';
 import { PageTabSwitch } from '../../components/PageSwitch';
 import type { SegmentedSquareSliderItem } from '../../components/Slider';
@@ -53,10 +53,7 @@ const ClothrackDirectionScreen: React.FC = () => {
     () =>
       DIRECTION_OPTIONS.map((item) => ({
         label: item.label,
-        iconSelected: item.icon,
-        iconUnselected: item.icon,
-        iconSelectedTintColor: '#FFFFFF',
-        iconUnselectedTintColor: TOKENS.colors.rightText,
+        icon: item.icon,
         selected: directionValue === item.value,
       })),
     [directionValue]
@@ -80,7 +77,6 @@ const ClothrackDirectionScreen: React.FC = () => {
       return (
         <CircleButtonGroup
           items={circleItems}
-          itemCount={3}
           showLabel={true}
           onItemPress={(index) => {
             const item = DIRECTION_OPTIONS[index];

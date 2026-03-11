@@ -2,10 +2,10 @@ import React, { useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
-import { CircleButtonGroup } from '../../components/ButtonGroup';
+import { CircleButtonGroup } from '../../components2.0/ButtonGroup';
 import CapsuleModeSlider, { type CapsuleModeValue } from '../../components/Slider/CapsuleModeSlider';
 import { PageTabSwitch } from '../../components/PageSwitch';
-import type { CircleButtonGroupItem } from '../../components/ButtonGroup/CircleButtonGroup';
+import type { CircleButtonGroupItem } from '../../components2.0/ButtonGroup';
 import { TOKENS } from '../../tokens';
 
 type FridgeControlType = 0 | 1 | 2;
@@ -60,10 +60,7 @@ const FridgeModeScreen: React.FC = () => {
     () =>
       CIRCLE_MODE_ITEMS.map((item) => ({
         label: item.label,
-        iconSelected: item.icon,
-        iconUnselected: item.icon,
-        iconSelectedTintColor: ICON_TINT_COLORS.selected,
-        iconUnselectedTintColor: ICON_TINT_COLORS.unselected,
+        icon: item.icon,
         selected: item.value === selectedValue,
       })),
     [selectedValue]
@@ -74,7 +71,6 @@ const FridgeModeScreen: React.FC = () => {
       return (
         <CircleButtonGroup
           items={circleItems}
-          itemCount={3}
           onItemPress={(index) => {
             const target = CIRCLE_MODE_ITEMS[index];
             if (!target) return;

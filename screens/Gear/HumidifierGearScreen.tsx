@@ -2,11 +2,11 @@ import React, { useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
-import { CircleButtonGroup } from '../../components/ButtonGroup';
+import { CircleButtonGroup } from '../../components2.0/ButtonGroup';
 import { DotSlider, NumberCapsuleSlider } from '../../components/Slider';
 import { RemoteControlStepper } from '../../components/RemoteControlStepper';
 import { PageTabSwitch } from '../../components/PageSwitch';
-import type { CircleButtonGroupItem } from '../../components/ButtonGroup/CircleButtonGroup';
+import type { CircleButtonGroupItem } from '../../components2.0/ButtonGroup';
 import { TOKENS } from '../../tokens';
 
 type HumidifierGearControlType = 0 | 1 | 2 | 3;
@@ -44,11 +44,7 @@ const HumidifierGearScreen: React.FC = () => {
     () =>
       GEAR_CIRCLE_ITEMS.map((item) => ({
         label: item.label,
-        iconSize: HUMIDIFIER_GEAR_ICON_SIZE,
-        iconSelected: item.icon,
-        iconUnselected: item.icon,
-        iconSelectedTintColor: ICON_TINT_COLORS.selected,
-        iconUnselectedTintColor: ICON_TINT_COLORS.unselected,
+        icon: item.icon,
         selected: gearValue === item.value,
       })),
     [gearValue]
@@ -59,7 +55,6 @@ const HumidifierGearScreen: React.FC = () => {
       return (
         <CircleButtonGroup
           items={circleItems}
-          itemCount={4}
           showLabel={true}
           onItemPress={(index) => {
             const item = GEAR_CIRCLE_ITEMS[index];

@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { CircleButtonGroup, SquareButtonGroup, ToggleButtonGroup } from '../components/ButtonGroup';
+import { CircleButtonGroup, ToggleButtonGroup } from '../components/ButtonGroup';
+import { SquareButtonGroup } from '../components2.0/ButtonGroup';
 import { SegmentedSquareSlider } from '../components/Slider';
 import type { CircleButtonGroupItem } from '../components/ButtonGroup/CircleButtonGroup';
-import type { SquareButtonGroupItem } from '../components/ButtonGroup/SquareButtonGroup';
+import type { SquareButtonGroupItem } from '../components2.0/ButtonGroup';
 import type { SegmentedSquareSliderItem } from '../components/Slider';
 import type { ToggleButtonItem } from '../components/ButtonGroup/ToggleButtonGroup';
 import { TOKENS } from '../tokens';
@@ -811,6 +812,8 @@ const ButtonGroupScreen: React.FC = () => {
           <View key={group.id} style={[styles.card, styles.cardSpacing]}>
             <SquareButtonGroup
               items={squareGroupItems[group.id] || []}
+              isCompact={true}
+              selectedColor={TOKENS.colors.mainColor}
               onItemPress={(index) => handleSquareItemPress(group.id, index)}
             />
           </View>

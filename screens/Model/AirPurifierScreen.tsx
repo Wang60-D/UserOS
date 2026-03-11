@@ -2,10 +2,10 @@ import React, { useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
-import { CircleButtonGroup } from '../../components/ButtonGroup';
+import { CircleButtonGroup } from '../../components2.0/ButtonGroup';
 import { SegmentedSquareSlider } from '../../components/Slider';
 import { PageTabSwitch } from '../../components/PageSwitch';
-import type { CircleButtonGroupItem } from '../../components/ButtonGroup/CircleButtonGroup';
+import type { CircleButtonGroupItem } from '../../components2.0/ButtonGroup';
 import type { SegmentedSquareSliderItem } from '../../components/Slider';
 import { TOKENS } from '../../tokens';
 
@@ -107,10 +107,7 @@ const AirPurifierScreen: React.FC = () => {
     () =>
       CIRCLE_MODE_CONFIG.map((item) => ({
         label: item.label,
-        iconSelected: item.icon,
-        iconUnselected: item.icon,
-        iconSelectedTintColor: item.iconSelectedTintColor,
-        iconUnselectedTintColor: item.iconUnselectedTintColor,
+        icon: item.icon,
         selected: item.key === selectedMode,
       })),
     [selectedMode]
@@ -163,7 +160,7 @@ const AirPurifierScreen: React.FC = () => {
 
           <View style={isCircleView ? styles.circlePanel : styles.sliderPanel}>
             {isCircleView ? (
-              <CircleButtonGroup items={circleItems} itemCount={4} onItemPress={handleModeChange} />
+              <CircleButtonGroup items={circleItems} onItemPress={handleModeChange} />
             ) : (
               <SegmentedSquareSlider items={segmentedItems} onItemPress={handleModeChange} />
             )}

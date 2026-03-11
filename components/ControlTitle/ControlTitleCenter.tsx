@@ -35,21 +35,22 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     height: undefined,
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'center',
+    paddingLeft: 22.5,
   },
   titleText: {
     fontSize: TOKENS.fontSize.large,
     color: TOKENS.colors.textPrimary,
     fontWeight: '500',
-    textAlign: 'center',
+    textAlign: 'left',
   },
   subTitleText: {
     marginTop: TOKENS.spacing.centerSubtitleMarginTop,
     fontSize: TOKENS.fontSize.large,
     color: TOKENS.colors.subtitleText,
     fontWeight: '400',
-    textAlign: 'center',
+    textAlign: 'left',
   },
 });
 

@@ -15,13 +15,17 @@ import { TOKENS } from '../tokens';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
 type HomeNavigationProp = StackNavigationProp<RootStackParamList>;
-type QuickActionRouteName = keyof Pick<RootStackParamList, 'Part1' | 'Part2' | 'ComponentLibrary'>;
+type QuickActionRouteName = keyof Pick<
+  RootStackParamList,
+  'Part1' | 'Part2' | 'ComponentLibrary' | 'Components2'
+>;
 
 // 五个功能按钮的占位数据，支持 emoji 和可编辑文本
 const QUICK_ACTIONS = [
   { emoji: '1️⃣', label: 'Part01', routeName: 'Part1' as QuickActionRouteName },
   { emoji: '2️⃣', label: 'Part02', routeName: 'Part2' as QuickActionRouteName },
   { emoji: '📚', label: '控件库', routeName: 'ComponentLibrary' as QuickActionRouteName },
+  { emoji: '🧩', label: 'Components2.0', routeName: 'Components2' as QuickActionRouteName },
   //{ emoji: '✨', label: '随机生成一个页面' },
 ];
 

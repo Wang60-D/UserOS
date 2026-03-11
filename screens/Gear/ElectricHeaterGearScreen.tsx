@@ -2,8 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
-import { CircleButtonGroup } from '../../components/ButtonGroup';
-import type { CircleButtonGroupItem } from '../../components/ButtonGroup/CircleButtonGroup';
+import { CircleButtonGroup } from '../../components2.0/ButtonGroup';
+import type { CircleButtonGroupItem } from '../../components2.0/ButtonGroup';
 import { SegmentedSquareSlider } from '../../components/Slider';
 import { PageTabSwitch } from '../../components/PageSwitch';
 import type { SegmentedSquareSliderItem } from '../../components/Slider';
@@ -38,10 +38,7 @@ const ElectricHeaterGearScreen: React.FC = () => {
     () =>
       ELECTRIC_HEATER_ITEMS.map((item) => ({
         label: item.label,
-        iconSelected: item.icon,
-        iconUnselected: item.icon,
-        iconSelectedTintColor: '#FFFFFF',
-        iconUnselectedTintColor: TOKENS.colors.rightText,
+        icon: item.icon,
         selected: gearValue === item.value,
       })),
     [gearValue]
@@ -65,7 +62,6 @@ const ElectricHeaterGearScreen: React.FC = () => {
       return (
         <CircleButtonGroup
           items={circleItems}
-          itemCount={2}
           showLabel={true}
           onItemPress={(index) => {
             const item = ELECTRIC_HEATER_ITEMS[index];
