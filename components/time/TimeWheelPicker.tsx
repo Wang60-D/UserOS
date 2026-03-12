@@ -16,10 +16,12 @@ export interface TimeWheelPickerProps {
   hour: number;
   minute: number;
   onChange: (next: { hour: number; minute: number }) => void;
+  onChangeWithSource?: (next: { hour: number; minute: number }, source: ColumnKey) => void;
   hourRange?: NumberRange;
   minuteRange?: NumberRange;
   hourStep?: number;
   minuteStep?: number;
+  maxTotalMinutes?: number;
 }
 
 const STEP_HEIGHT = 52;
@@ -84,6 +86,7 @@ const SwipeColumn: React.FC<SwipeColumnProps> = ({
     setActiveFloatIndex(nearestIndex);
     if (!listRef.current) return;
     isProgrammaticScrollRef.current = true;
+    const isFirstSync = !initializedRef.current;
     listRef.current.scrollToOffset({
       offset: nearestIndex * STEP_HEIGHT,
       animated: initializedRef.current,
@@ -91,10 +94,10 @@ const SwipeColumn: React.FC<SwipeColumnProps> = ({
     if (!initializedRef.current) {
       initializedRef.current = true;
     }
-    const timer = setTimeout(() => {
+    if (isFirstSync) {
+      // Initial sync uses non-animated scroll and won't trigger momentum end.
       isProgrammaticScrollRef.current = false;
-    }, 180);
-    return () => clearTimeout(timer);
+    }
   }, [nearestIndex]);
 
   const clampIndex = (index: number) => clamp(index, 0, values.length - 1);
@@ -114,6 +117,13 @@ const SwipeColumn: React.FC<SwipeColumnProps> = ({
   const handleMomentumEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const y = event.nativeEvent.contentOffset.y;
     const index = Math.round(y / STEP_HEIGHT);
+    // Ignore commit caused by programmatic scroll-to-offset, otherwise
+    // boundary correction from parent can be overwritten by stale momentum value.
+    if (isProgrammaticScrollRef.current) {
+      isProgrammaticScrollRef.current = false;
+      setActiveFloatIndex(index);
+      return;
+    }
     commitByIndex(index);
     setActiveFloatIndex(index);
   };
@@ -128,9 +138,6 @@ const SwipeColumn: React.FC<SwipeColumnProps> = ({
     });
     setActiveFloatIndex(safeIndex);
     commitByIndex(safeIndex);
-    setTimeout(() => {
-      isProgrammaticScrollRef.current = false;
-    }, 180);
   };
 
   const sidePadding = STEP_HEIGHT * SIDE_COUNT;
@@ -186,10 +193,12 @@ const TimeWheelPicker: React.FC<TimeWheelPickerProps> = ({
   hour,
   minute,
   onChange,
+  onChangeWithSource,
   hourRange = [0, 23],
   minuteRange = [0, 59],
   hourStep = 1,
   minuteStep = 5,
+  maxTotalMinutes,
 }) => {
   const safeHourStep = Math.max(1, Math.floor(Math.abs(hourStep)));
   const safeMinuteStep = Math.max(1, Math.floor(Math.abs(minuteStep)));
@@ -203,12 +212,48 @@ const TimeWheelPicker: React.FC<TimeWheelPickerProps> = ({
     [minute, minuteMax, minuteMin]
   );
 
+  const normalizedMaxTotalMinutes = useMemo(() => {
+    if (typeof maxTotalMinutes !== 'number') return null;
+    if (!Number.isFinite(maxTotalMinutes)) return null;
+    return Math.max(0, Math.round(maxTotalMinutes));
+  }, [maxTotalMinutes]);
+
   const handleColumnChange = (column: ColumnKey, nextValue: number) => {
+    let nextHour = safeHour;
+    let nextMinute = safeMinute;
+
     if (column === 'hour') {
-      onChange({ hour: nextValue, minute: safeMinute });
-      return;
+      nextHour = nextValue;
+    } else {
+      nextMinute = nextValue;
     }
-    onChange({ hour: safeHour, minute: nextValue });
+
+    if (normalizedMaxTotalMinutes != null) {
+      const maxHourByTotal = Math.floor(normalizedMaxTotalMinutes / 60);
+      const maxMinuteAtMaxHour = normalizedMaxTotalMinutes - maxHourByTotal * 60;
+
+      if (column === 'hour') {
+        if (nextHour > maxHourByTotal) {
+          nextHour = maxHourByTotal;
+        }
+        if (nextHour === maxHourByTotal && nextMinute > maxMinuteAtMaxHour) {
+          nextMinute = maxMinuteAtMaxHour;
+        }
+      } else if (
+        safeHour === maxHourByTotal
+        && nextMinute !== safeMinute
+        && nextMinute > maxMinuteAtMaxHour
+      ) {
+        // At max hour, minute scrolling should drop one hour down.
+        nextHour = Math.max(hourMin, maxHourByTotal - safeHourStep);
+      }
+    }
+
+    nextHour = clamp(Math.round(nextHour), hourMin, hourMax);
+    nextMinute = clamp(Math.round(nextMinute), minuteMin, minuteMax);
+    const nextState = { hour: nextHour, minute: nextMinute };
+    onChange(nextState);
+    onChangeWithSource?.(nextState, column);
   };
 
   return (

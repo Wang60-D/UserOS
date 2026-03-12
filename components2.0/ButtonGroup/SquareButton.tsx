@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   largeUnselectedBackground: {
-    backgroundColor: COMPONENT_TOKENS.squareButton.largeItemUnselectedBackgroundColor,
+    backgroundColor: 'transparent',
   },
   icon: {
     width: COMPONENT_TOKENS.squareButton.iconSize,

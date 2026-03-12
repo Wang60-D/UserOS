@@ -12,6 +12,7 @@ import {
 import { TOKENS } from '../../tokens';
 
 type SliderNumber = number;
+type TemperatureIconMode = 'none' | 'snow' | 'warm';
 
 export interface NumberValueSliderProps {
   min: number;
@@ -20,6 +21,7 @@ export interface NumberValueSliderProps {
   value?: number;
   onChange?: (nextValue: number) => void;
   onChangeEnd?: (nextValue: number) => void;
+  temperatureIconMode?: TemperatureIconMode;
   iconSource?: ImageSourcePropType;
   edgeBleed?: number;
   showDegreeSymbol?: boolean;
@@ -34,6 +36,10 @@ const BASE_FONT_SIZE = FAR_FONT_SIZE;
 const BASE_LINE_HEIGHT = 30;
 const SELECTED_SCALE = SELECTED_FONT_SIZE / BASE_FONT_SIZE;
 const NEAR_SCALE = NEAR_FONT_SIZE / BASE_FONT_SIZE;
+const TEMPERATURE_ICON_SOURCES: Record<Exclude<TemperatureIconMode, 'none'>, ImageSourcePropType> = {
+  snow: require('../../assets/icons/airconditioner/degreesnow.png'),
+  warm: require('../../assets/icons/airconditioner/degreewarm.png'),
+};
 
 const clamp = (value: number, minValue: number, maxValue: number) =>
   Math.max(minValue, Math.min(maxValue, value));
@@ -57,6 +63,7 @@ const NumberValueSlider: React.FC<NumberValueSliderProps> = ({
   value,
   onChange,
   onChangeEnd,
+  temperatureIconMode,
   iconSource = require('../../assets/icons/airconditioner/snow.png'),
   edgeBleed = TOKENS.spacing.cardInnerPaddingH,
   showDegreeSymbol = false,
@@ -85,6 +92,14 @@ const NumberValueSlider: React.FC<NumberValueSliderProps> = ({
     }
     return items;
   }, [normalizedMin, normalizedMax, normalizedStep, precision]);
+  const resolvedTemperatureIconMode: TemperatureIconMode = useMemo(() => {
+    if (temperatureIconMode) return temperatureIconMode;
+    return showDegreeSymbol ? 'snow' : 'none';
+  }, [temperatureIconMode, showDegreeSymbol]);
+  const resolvedDecorationIconSource = useMemo(() => {
+    if (resolvedTemperatureIconMode === 'none') return iconSource;
+    return TEMPERATURE_ICON_SOURCES[resolvedTemperatureIconMode];
+  }, [iconSource, resolvedTemperatureIconMode]);
 
   const resolveNearestIndex = (targetValue: number) => {
     let nearestIndex = 0;
@@ -187,9 +202,20 @@ const NumberValueSlider: React.FC<NumberValueSliderProps> = ({
             </Text>
           </View>
           {isSelected ? (
-            <View style={styles.decorationCol}>
-              {showDegreeSymbol ? <Text style={styles.degreeText}>°</Text> : null}
-              <Image source={iconSource} style={styles.selectedIcon} resizeMode="contain" />
+            <View
+              style={[
+                styles.decorationCol,
+                resolvedTemperatureIconMode !== 'none' ? styles.combinedDecorationCol : null,
+              ]}
+            >
+              {resolvedTemperatureIconMode === 'none' ? (
+                showDegreeSymbol ? <Text style={styles.degreeText}>°</Text> : null
+              ) : (
+                <Image source={resolvedDecorationIconSource} style={styles.combinedTempIcon} resizeMode="contain" />
+              )}
+              {resolvedTemperatureIconMode === 'none' ? (
+                <Image source={resolvedDecorationIconSource} style={styles.selectedIcon} resizeMode="contain" />
+              ) : null}
             </View>
           ) : null}
         </View>
@@ -281,6 +307,9 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     minHeight: BASE_LINE_HEIGHT,
   },
+  combinedDecorationCol: {
+    marginLeft: 4,
+  },
   degreeText: {
     fontSize: 16,
     lineHeight: 16,
@@ -289,11 +318,20 @@ const styles = StyleSheet.create({
     marginBottom: 0,
     includeFontPadding: false,
   },
+  degreeIcon: {
+    width: 10,
+    height: 10,
+    marginBottom: 0,
+  },
+  combinedTempIcon: {
+    width: 10,
+    height: 20,
+    marginBottom: 3,
+  },
   selectedIcon: {
     width: 10,
     height: 10,
     marginBottom: 2,
-    tintColor: '#809DE4',
   },
 });
 

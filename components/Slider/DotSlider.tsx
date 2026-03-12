@@ -88,6 +88,10 @@ const LABEL_ROW_HEIGHT = 13;
 const MIN_STOPS = 2;
 const MAX_STOPS = 8;
 const DRAG_START_HIT_SLOP = 14;
+const DRAG_MOVE_THRESHOLD = 2;
+const HORIZONTAL_INTENT_RATIO = 1.15;
+const EDGE_TEXT_COLOR_COVERED = 'rgba(255,255,255,0.3)';
+const EDGE_TEXT_COLOR_DEFAULT = '#C5C5C5';
 
 const clamp = (value: number, minValue: number, maxValue: number) =>
   Math.max(minValue, Math.min(maxValue, value));
@@ -179,6 +183,7 @@ const DotSlider: React.FC<DotSliderProps> = ({
   const currentLeftRatioRef = useRef(0);
   const currentRightRatioRef = useRef(1);
   const startLocationXRef = useRef(0);
+  const startPageXRef = useRef(0);
   const didMoveDuringDragRef = useRef(false);
 
   const logDebug = (phase: string, payload: Record<string, unknown>) =>
@@ -255,6 +260,29 @@ const DotSlider: React.FC<DotSliderProps> = ({
     if (currentMaxThumbX <= 0) return 0;
     const thumbX = locationX - TRACK_PADDING - THUMB_SIZE / 2;
     return clamp01(thumbX / currentMaxThumbX);
+  };
+  const resolveLocalX = (gestureDx: number, moveX?: number, pageX?: number) => {
+    // Prefer dx as stable baseline. moveX/pageX may be reset to 0 on release/terminate.
+    const localByDx = startLocationXRef.current + gestureDx;
+    const minReasonableX = -THUMB_SIZE;
+    const maxReasonableX = trackWidthRef.current + THUMB_SIZE;
+
+    const resolveFromPageX = (sourceX: number) => {
+      const localBySourceX = startLocationXRef.current + (sourceX - startPageXRef.current);
+      const inRange = localBySourceX >= minReasonableX && localBySourceX <= maxReasonableX;
+      const nearDx = Math.abs(localBySourceX - localByDx) <= 48;
+      return inRange && nearDx ? localBySourceX : null;
+    };
+
+    if (typeof moveX === 'number' && Number.isFinite(moveX) && moveX > 0) {
+      const resolved = resolveFromPageX(moveX);
+      if (resolved !== null) return resolved;
+    }
+    if (typeof pageX === 'number' && Number.isFinite(pageX) && pageX > 0) {
+      const resolved = resolveFromPageX(pageX);
+      if (resolved !== null) return resolved;
+    }
+    return localByDx;
   };
 
   const getNearestStop = (ratio: number) =>
@@ -438,15 +466,22 @@ const DotSlider: React.FC<DotSliderProps> = ({
       onStartShouldSetPanResponder: () => canTap || canDrag,
       onStartShouldSetPanResponderCapture: () => canTap || canDrag,
       onMoveShouldSetPanResponder: (_evt, gestureState) =>
-        canDrag && trackWidthRef.current > 0 && Math.hypot(gestureState.dx, gestureState.dy) > 2,
+        canDrag &&
+        trackWidthRef.current > 0 &&
+        Math.hypot(gestureState.dx, gestureState.dy) > DRAG_MOVE_THRESHOLD &&
+        Math.abs(gestureState.dx) >= Math.abs(gestureState.dy) * HORIZONTAL_INTENT_RATIO,
       onMoveShouldSetPanResponderCapture: (_evt, gestureState) =>
-        canDrag && trackWidthRef.current > 0 && Math.hypot(gestureState.dx, gestureState.dy) > 2,
+        canDrag &&
+        trackWidthRef.current > 0 &&
+        Math.hypot(gestureState.dx, gestureState.dy) > DRAG_MOVE_THRESHOLD &&
+        Math.abs(gestureState.dx) >= Math.abs(gestureState.dy) * HORIZONTAL_INTENT_RATIO,
       onPanResponderGrant: (evt) => {
         if (isRange) {
           isDraggingRef.current = false;
           isThumbDragRef.current = false;
           activeThumbRef.current = null;
           const startX = evt.nativeEvent.locationX;
+          startPageXRef.current = evt.nativeEvent.pageX;
           startLocationXRef.current = startX;
           leftTranslateX.stopAnimation((leftXValue) => {
             rightTranslateX.stopAnimation((rightXValue) => {
@@ -498,6 +533,7 @@ const DotSlider: React.FC<DotSliderProps> = ({
         didMoveDuringDragRef.current = false;
 
         const startX = evt.nativeEvent.locationX;
+        startPageXRef.current = evt.nativeEvent.pageX;
         startLocationXRef.current = startX;
         const thumbCenterX =
           TRACK_PADDING +
@@ -532,6 +568,32 @@ const DotSlider: React.FC<DotSliderProps> = ({
       },
       onPanResponderMove: (evt, gestureState) => {
         if (isRange) {
+          const movedDistance = Math.hypot(gestureState.dx, gestureState.dy);
+          const hasHorizontalIntent =
+            Math.abs(gestureState.dx) >= Math.abs(gestureState.dy) * HORIZONTAL_INTENT_RATIO;
+          if (
+            !isDraggingRef.current &&
+            canDragRef.current &&
+            movedDistance > DRAG_MOVE_THRESHOLD &&
+            hasHorizontalIntent
+          ) {
+            // MUI-like pointer capture: allow entering drag even when touch didn't start on thumb.
+            const localX = resolveLocalX(gestureState.dx, gestureState.moveX, evt.nativeEvent.pageX);
+            const leftCenterX =
+              TRACK_PADDING +
+              ratioToThumbXByMax(currentLeftRatioRef.current, maxThumbXRef.current) +
+              THUMB_SIZE / 2;
+            const rightCenterX =
+              TRACK_PADDING +
+              ratioToThumbXByMax(currentRightRatioRef.current, maxThumbXRef.current) +
+              THUMB_SIZE / 2;
+            activeThumbRef.current =
+              Math.abs(localX - leftCenterX) <= Math.abs(localX - rightCenterX) ? 'left' : 'right';
+            isDraggingRef.current = true;
+            isThumbDragRef.current = true;
+            // Follow finger directly once captured from track.
+            dragTouchOffsetRef.current = 0;
+          }
           if (
             !isDraggingRef.current ||
             !isThumbDragRef.current ||
@@ -539,8 +601,8 @@ const DotSlider: React.FC<DotSliderProps> = ({
             !activeThumbRef.current
           )
             return;
-          if (Math.hypot(gestureState.dx, gestureState.dy) <= 2) return;
-          const localX = startLocationXRef.current + gestureState.dx;
+          if (movedDistance <= DRAG_MOVE_THRESHOLD) return;
+          const localX = resolveLocalX(gestureState.dx, gestureState.moveX, evt.nativeEvent.pageX);
           const thumbCenterX = localX - dragTouchOffsetRef.current;
           const thumbX = thumbCenterX - TRACK_PADDING - THUMB_SIZE / 2;
           const runtimeMaxThumbX = maxThumbXRef.current;
@@ -580,10 +642,30 @@ const DotSlider: React.FC<DotSliderProps> = ({
           !isDraggingRef.current ||
           !isThumbDragRef.current ||
           !canDragRef.current
-        )
+        ) {
+          const movedDistance = Math.hypot(gestureState.dx, gestureState.dy);
+          const hasHorizontalIntent =
+            Math.abs(gestureState.dx) >= Math.abs(gestureState.dy) * HORIZONTAL_INTENT_RATIO;
+          if (
+            canDragRef.current &&
+            movedDistance > DRAG_MOVE_THRESHOLD &&
+            hasHorizontalIntent
+          ) {
+            // MUI-like pointer capture: start dragging from rail as soon as intent is horizontal.
+            isDraggingRef.current = true;
+            isThumbDragRef.current = true;
+            didMoveDuringDragRef.current = true;
+            dragTouchOffsetRef.current = 0;
+            setDragRatio(currentRatioRef.current);
+            translateX.stopAnimation();
+          } else {
+            return;
+          }
+        }
+        const movedDistance = Math.hypot(gestureState.dx, gestureState.dy);
+        if (movedDistance <= DRAG_MOVE_THRESHOLD)
           return;
-        if (Math.hypot(gestureState.dx, gestureState.dy) <= 2) return;
-        const localX = startLocationXRef.current + gestureState.dx;
+        const localX = resolveLocalX(gestureState.dx, gestureState.moveX, evt.nativeEvent.pageX);
         const thumbCenterX = localX - dragTouchOffsetRef.current;
         const thumbX = thumbCenterX - TRACK_PADDING - THUMB_SIZE / 2;
         const runtimeMaxThumbX = maxThumbXRef.current;
@@ -688,8 +770,13 @@ const DotSlider: React.FC<DotSliderProps> = ({
 
         if (isDraggingRef.current && isThumbDragRef.current) {
           const runtimeMaxThumbX = maxThumbXRef.current;
-          const movedEnoughForReleaseCalc = Math.hypot(gestureState.dx, gestureState.dy) > 2;
-          const localXFromGesture = startLocationXRef.current + gestureState.dx;
+          const movedEnoughForReleaseCalc =
+            Math.hypot(gestureState.dx, gestureState.dy) > DRAG_MOVE_THRESHOLD;
+          const localXFromGesture = resolveLocalX(
+            gestureState.dx,
+            gestureState.moveX,
+            evt.nativeEvent.pageX
+          );
           const thumbCenterXFromGesture = localXFromGesture - dragTouchOffsetRef.current;
           const thumbXFromGesture = thumbCenterXFromGesture - TRACK_PADDING - THUMB_SIZE / 2;
           const finalRatioFromGesture =
@@ -717,6 +804,36 @@ const DotSlider: React.FC<DotSliderProps> = ({
           return;
         }
 
+        if (canDragRef.current && movedDistance > DRAG_MOVE_THRESHOLD) {
+          // Fallback commit: even if drag flags are missed, settle by end touch position.
+          // This prevents a hard snap-back to origin after a valid horizontal slide.
+          const runtimeMaxThumbX = maxThumbXRef.current;
+          const localXFromGesture = resolveLocalX(
+            gestureState.dx,
+            gestureState.moveX,
+            evt.nativeEvent.pageX
+          );
+          const maxLocalX = trackWidthRef.current;
+          let finalRatio = currentRatioRef.current;
+          if (runtimeMaxThumbX > 0) {
+            if (localXFromGesture >= maxLocalX - 1) {
+              finalRatio = 1;
+            } else if (localXFromGesture <= 1) {
+              finalRatio = 0;
+            } else {
+              const thumbCenterX = localXFromGesture;
+              const thumbX = thumbCenterX - TRACK_PADDING - THUMB_SIZE / 2;
+              finalRatio = clamp01(thumbX / runtimeMaxThumbX);
+            }
+          }
+          setDragRatio(null);
+          isDraggingRef.current = false;
+          isThumbDragRef.current = false;
+          didMoveDuringDragRef.current = false;
+          commitRatio(finalRatio, true);
+          return;
+        }
+
         if (canTapRef.current && isTapGesture) {
           const tapRatio = locationXToRatio(tapLocationX);
           setDragRatio(null);
@@ -737,11 +854,11 @@ const DotSlider: React.FC<DotSliderProps> = ({
         });
         animateToRatio(committedRatioRef.current, false);
       },
-      onPanResponderTerminate: () => {
+      onPanResponderTerminate: (evt, gestureState) => {
         if (isRange) {
           if (isDraggingRef.current && isThumbDragRef.current && activeThumbRef.current) {
-            const finalLeftRatio = currentLeftRatioRef.current;
-            const finalRightRatio = currentRightRatioRef.current;
+            let finalLeftRatio = currentLeftRatioRef.current;
+            let finalRightRatio = currentRightRatioRef.current;
             setRangeDragRatios(null);
             isDraggingRef.current = false;
             isThumbDragRef.current = false;
@@ -795,6 +912,10 @@ const DotSlider: React.FC<DotSliderProps> = ({
       ? displayRatio
       : 0;
   const fillEndRatio = isRange ? displayRightRatio : fillMode === 'all' ? 1 : displayRatio;
+  const fillMinRatio = Math.min(fillStartRatio, fillEndRatio);
+  const fillMaxRatio = Math.max(fillStartRatio, fillEndRatio);
+  const leftEdgeCovered = fillVisible && fillMinRatio <= 0.001;
+  const rightEdgeCovered = fillVisible && fillMaxRatio >= 0.999;
   const fillLeft = ratioToThumbX(Math.min(fillStartRatio, fillEndRatio));
   const fillRight = ratioToThumbX(Math.max(fillStartRatio, fillEndRatio)) + THUMB_SIZE;
   const fillWidth = fillMode === 'none' ? 0 : Math.max(0, fillRight - fillLeft);
@@ -931,8 +1052,26 @@ const DotSlider: React.FC<DotSliderProps> = ({
 
         {showEdgeValues && (
           <>
-            <Text pointerEvents="none" style={[styles.edgeValue, styles.leftEdgeValue]}>{String(edgeLabelValues[0])}</Text>
-            <Text pointerEvents="none" style={[styles.edgeValue, styles.rightEdgeValue]}>{String(edgeLabelValues[1])}</Text>
+            <Text
+              pointerEvents="none"
+              style={[
+                styles.edgeValue,
+                styles.leftEdgeValue,
+                { color: leftEdgeCovered ? EDGE_TEXT_COLOR_COVERED : EDGE_TEXT_COLOR_DEFAULT },
+              ]}
+            >
+              {String(edgeLabelValues[0])}
+            </Text>
+            <Text
+              pointerEvents="none"
+              style={[
+                styles.edgeValue,
+                styles.rightEdgeValue,
+                { color: rightEdgeCovered ? EDGE_TEXT_COLOR_COVERED : EDGE_TEXT_COLOR_DEFAULT },
+              ]}
+            >
+              {String(edgeLabelValues[1])}
+            </Text>
           </>
         )}
 
@@ -1115,7 +1254,7 @@ const styles = StyleSheet.create({
     top: 10,
     fontSize: 10,
     fontWeight: '500',
-    color: '#C5C5C5',
+    color: EDGE_TEXT_COLOR_DEFAULT,
   },
   leftEdgeValue: {
     left: 8,

@@ -21,6 +21,9 @@ export interface SettingAdjustConfig {
   trackBaseGradientStops?: Array<{ color: string; offset: number }>;
   sliderShowFill?: boolean;
   sliderFillMode?: DotSliderProps['fillMode'];
+  pickerTitleToContentPadding?: number;
+  sliderTitleToValuePadding?: number;
+  sliderValueToSliderPadding?: number;
 }
 
 const PAGE_TABS = ['1', '2'] as const;
@@ -42,6 +45,9 @@ const SettingAdjustScreenBase: React.FC<{ config: SettingAdjustConfig }> = ({ co
   const [value, setValue] = useState<number>(config.defaultValue);
 
   const safeStep = Math.max(1, Math.floor(Math.abs(config.step ?? 1)));
+  const pickerTitleToContentPadding = config.pickerTitleToContentPadding ?? 14;
+  const sliderTitleToValuePadding = config.sliderTitleToValuePadding ?? 37;
+  const sliderValueToSliderPadding = config.sliderValueToSliderPadding ?? 31;
   const safeValue = useMemo(
     () => clamp(quantize(value, config.min, safeStep), config.min, config.max),
     [config.max, config.min, safeStep, value]
@@ -60,7 +66,7 @@ const SettingAdjustScreenBase: React.FC<{ config: SettingAdjustConfig }> = ({ co
         {activeTab === 0 ? (
           <View style={styles.pickerCard}>
             <Text style={styles.adjustTitle}>{config.adjustTitle}</Text>
-            <View style={styles.pickerContent}>
+            <View style={[styles.pickerContent, { marginTop: pickerTitleToContentPadding }]}>
               <VerticalNumberSlider
                 value={safeValue}
                 min={config.min}
@@ -74,11 +80,11 @@ const SettingAdjustScreenBase: React.FC<{ config: SettingAdjustConfig }> = ({ co
         ) : (
           <View style={styles.sliderCard}>
             <Text style={styles.adjustTitle}>{config.adjustTitle}</Text>
-            <View style={styles.selectedValueRow}>
+            <View style={[styles.selectedValueRow, { marginTop: sliderTitleToValuePadding }]}>
               <Text style={styles.selectedValueText}>{centerText}</Text>
               <Text style={styles.selectedValueUnit}>{config.unit}</Text>
             </View>
-            <View style={styles.sliderPanel}>
+            <View style={[styles.sliderPanel, { marginTop: sliderValueToSliderPadding }]}>
               <DotSlider
                 value={safeValue}
                 onChange={(next) => {

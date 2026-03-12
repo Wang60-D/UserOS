@@ -11,10 +11,12 @@ const TimeAdjustPickerCard: React.FC<TimeAdjustPickerCardProps> = ({
   hour,
   minute,
   onChange,
+  onChangeWithSource,
   hourRange,
   minuteRange,
   hourStep,
   minuteStep,
+  maxTotalMinutes,
 }) => {
   return (
     <View style={styles.card}>
@@ -24,10 +26,12 @@ const TimeAdjustPickerCard: React.FC<TimeAdjustPickerCardProps> = ({
           hour={hour}
           minute={minute}
           onChange={onChange}
+          onChangeWithSource={onChangeWithSource}
           hourRange={hourRange}
           minuteRange={minuteRange}
           hourStep={hourStep}
           minuteStep={minuteStep}
+          maxTotalMinutes={maxTotalMinutes}
         />
       </View>
     </View>

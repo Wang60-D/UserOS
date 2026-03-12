@@ -12,19 +12,24 @@ import { TOKENS } from '../../tokens';
 type WindSpeedControlType = 0 | 1 | 2 | 3;
 
 const VIEW_TABS = ['1', '2', '3', '4'] as const;
+const WIND_SPEED_COMPONENT3_ICON_SIZE = 18;
 
 const WIND_SPEED_ITEMS = [
-  { value: 1, label: '1档' },
-  { value: 2, label: '2档' },
-  { value: 3, label: '3档' },
-  { value: 4, label: '4档' },
-  { value: 5, label: '5档' },
-  { value: 6, label: '6档' },
+  { value: 1, label: '1挡' },
+  { value: 2, label: '2挡' },
+  { value: 3, label: '3挡' },
+  { value: 4, label: '4挡' },
+  { value: 5, label: '5挡' },
+  { value: 6, label: '6挡' },
 ] as const;
 
-const FAN_ICONS = {
-  selected: require('../../assets/icons/fan_white.png'),
-  unselected: require('../../assets/icons/fan_black.png'),
+const WIND_SPEED_LEVEL_ICONS = {
+  level1: require('../../assets/icons/humidifier/01.png'),
+  level2: require('../../assets/icons/humidifier/02.png'),
+  level3: require('../../assets/icons/humidifier/03.png'),
+  level4: require('../../assets/icons/humidifier/04.png'),
+  level5: require('../../assets/icons/humidifier/05.png'),
+  level6: require('../../assets/icons/humidifier/06.png'),
 } as const;
 const WIND_SPEED_EQUIPMENT_IMAGE = require('../../assets/equipment/fan.png');
 
@@ -39,7 +44,7 @@ const WindSpeedGearScreen: React.FC = () => {
     () =>
       WIND_SPEED_ITEMS.map((item) => ({
         label: item.label,
-        icon: FAN_ICONS.unselected,
+        icon: WIND_SPEED_LEVEL_ICONS[`level${item.value}` as keyof typeof WIND_SPEED_LEVEL_ICONS],
         selected: speedValue === item.value,
       })),
     [speedValue]
@@ -85,7 +90,15 @@ const WindSpeedGearScreen: React.FC = () => {
           steps={6}
           value={Math.max(0, Math.min(5, speedValue - 1))}
           onChange={(nextIndex) => setSpeedValue(Math.max(1, Math.min(6, nextIndex + 1)))}
-          labels={['1', '2', '3', '4', '5', '6']}
+          iconLabels={[
+            WIND_SPEED_LEVEL_ICONS.level1,
+            WIND_SPEED_LEVEL_ICONS.level2,
+            WIND_SPEED_LEVEL_ICONS.level3,
+            WIND_SPEED_LEVEL_ICONS.level4,
+            WIND_SPEED_LEVEL_ICONS.level5,
+            WIND_SPEED_LEVEL_ICONS.level6,
+          ]}
+          labelIconSize={WIND_SPEED_COMPONENT3_ICON_SIZE}
         />
       );
     }

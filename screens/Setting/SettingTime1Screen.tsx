@@ -14,6 +14,9 @@ const SettingTime1Screen: React.FC = () => {
         defaultValue: 16,
         sliderLeftLabel: '0',
         sliderRightLabel: '24',
+        pickerTitleToContentPadding: 37,
+        sliderTitleToValuePadding: 37,
+        sliderValueToSliderPadding: 31,
       }}
     />
   );

@@ -53,6 +53,10 @@ const TimePickerCard: React.FC<TimePickerCardProps> = ({
   const resolvedStart = startValue ?? internalStart;
   const resolvedEnd = endValue ?? internalEnd;
   const resolvedValue = enableRangeMode ? (mode === 'start' ? resolvedStart : resolvedEnd) : resolvedSingleValue;
+  const startTotalMinutes = resolvedStart.hour * 60 + resolvedStart.minute;
+  const endTotalMinutes = resolvedEnd.hour * 60 + resolvedEnd.minute;
+  const isEndNextDay = endTotalMinutes < startTotalMinutes;
+  const resolvedEndLabel = isEndNextDay ? '明天结束' : endLabel;
   const formatTime = (time: TimeValue) =>
     `${String(time.hour).padStart(2, '0')}:${String(time.minute).padStart(2, '0')}`;
 
@@ -108,15 +112,11 @@ const TimePickerCard: React.FC<TimePickerCardProps> = ({
           <View style={styles.currentTimeRow}>
             <View style={styles.currentTimeItem}>
               <Text style={styles.currentTimeText}>{startLabel}</Text>
-              <Text style={[styles.currentTimeValue, mode === 'start' && styles.currentTimeValueActive]}>
-                {formatTime(resolvedStart)}
-              </Text>
+              <Text style={styles.currentTimeValue}>{formatTime(resolvedStart)}</Text>
             </View>
             <View style={styles.currentTimeItem}>
-              <Text style={styles.currentTimeText}>{endLabel}</Text>
-              <Text style={[styles.currentTimeValue, mode === 'end' && styles.currentTimeValueActive]}>
-                {formatTime(resolvedEnd)}
-              </Text>
+              <Text style={styles.currentTimeText}>{resolvedEndLabel}</Text>
+              <Text style={styles.currentTimeValue}>{formatTime(resolvedEnd)}</Text>
             </View>
           </View>
         </View>
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-end',
     marginBottom: 12,
-    paddingHorizontal: 6,
+    paddingHorizontal: 26,
   },
   currentTimeItem: {
     alignItems: 'flex-start',
@@ -198,13 +198,10 @@ const styles = StyleSheet.create({
   },
   currentTimeValue: {
     marginTop: 2,
-    fontSize: 24,
-    color: 'rgba(0,0,0,0.6)',
+    fontSize: 34,
+    lineHeight: 40,
+    color: '#000000',
     fontWeight: '500',
-  },
-  currentTimeValueActive: {
-    color: '#809DE4',
-    fontWeight: '600',
   },
   wheelWrap: {
     minHeight: 220,

@@ -9,7 +9,8 @@ import { RootStackParamList } from '../../navigation/AppNavigator';
 type Components2RouteName =
   | 'Components2CircleButton'
   | 'Components2SquareButton'
-  | 'Components2Switch';
+  | 'Components2Switch'
+  | 'Components2Slider';
 
 interface ComponentItem {
   title: string;
@@ -32,6 +33,11 @@ const COMPONENT_ITEMS: ComponentItem[] = [
     title: 'Switch',
     description: '展示按钮态、开关态、左 icon、副标题与标题右箭头',
     routeName: 'Components2Switch',
+  },
+  {
+    title: 'Slider',
+    description: '基础滑条（受控/非受控、onChange/onChangeEnd）',
+    routeName: 'Components2Slider',
   },
 ];
 

@@ -1,10 +1,13 @@
 import React, { useMemo, useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
-import { CircleButtonGroup, SquareButtonGroup } from '../../components2.0/ButtonGroup';
+import { CircleButtonGroup } from '../../components2.0/ButtonGroup';
+import SquareButtonGroup, {
+  type SquareButtonGroupItem,
+} from '../../components/ButtonGroup/SquareButtonGroup';
 import { PageTabSwitch } from '../../components/PageSwitch';
-import type { CircleButtonGroupItem, SquareButtonGroupItem } from '../../components2.0/ButtonGroup';
+import type { CircleButtonGroupItem } from '../../components2.0/ButtonGroup';
 import { TOKENS } from '../../tokens';
 
 type SoundMode = 'balance' | 'outdoor' | 'indoor' | 'romantic' | 'concert' | 'movie' | 'party';
@@ -15,13 +18,13 @@ const INITIAL_MODE_VALUES: SoundMode[] = ['balance', 'balance'];
 const SOUND_EQUIPMENT_IMAGE = require('../../assets/equipment/sound.png');
 
 const SOUND_ICON_SOURCES = {
-  balance: require('../../assets/icons/mode.png'),
-  outdoor: require('../../assets/icons/fan_black.png'),
+  balance: require('../../assets/icons/Sound/Union.png'),
+  outdoor: require('../../assets/icons/Sound/outdoor.png'),
   indoor: require('../../assets/icons/Sound/indoor.png'),
-  romantic: require('../../assets/icons/favorite.png'),
-  concert: require('../../assets/icons/light.png'),
-  movie: require('../../assets/icons/humidity.png'),
-  party: require('../../assets/icons/dehumidify_black.png'),
+  romantic: require('../../assets/icons/Sound/romantic.png'),
+  concert: require('../../assets/icons/Sound/microphone.png'),
+  movie: require('../../assets/icons/Sound/movie.png'),
+  party: require('../../assets/icons/Sound/party.png'),
 } as const;
 
 const ICON_TINT_COLORS = {
@@ -116,12 +119,7 @@ const SoundModeScreen: React.FC = () => {
             {isCircleView ? (
               <CircleButtonGroup items={circleItems} onItemPress={handleModeChange} />
             ) : (
-              <SquareButtonGroup
-                items={squareItems}
-                isCompact={true}
-                selectedColor={TOKENS.colors.mainColor}
-                onItemPress={handleModeChange}
-              />
+              <SquareButtonGroup items={squareItems} onItemPress={handleModeChange} />
             )}
           </View>
         </View>

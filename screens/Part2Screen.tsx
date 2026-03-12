@@ -29,6 +29,18 @@ const Part2Screen: React.FC = () => {
       navigation.navigate('Part2TickMarks3DelayShort');
       return;
     }
+    if (catalogKey === 'Label') {
+      if (title === 'Label-2') {
+        navigation.navigate('Part2Label2AirConditioner');
+        return;
+      }
+      if (title === 'Label-3') {
+        navigation.navigate('Part2Label3DelayShort' as never);
+        return;
+      }
+      navigation.navigate('Part2LabelLevel4');
+      return;
+    }
     navigation.navigate('Part2Catalog', { catalogKey, title });
   };
 
@@ -43,7 +55,7 @@ const Part2Screen: React.FC = () => {
       >
         {PART2_TICKMARKS_SHAPE_ENTRIES.map((entry) => (
           <TouchableOpacity
-            key={entry.catalogKey}
+            key={`${entry.catalogKey}-${entry.title}`}
             style={styles.card}
             onPress={() => handlePressCatalog(entry.title, entry.catalogKey)}
             activeOpacity={0.75}

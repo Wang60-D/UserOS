@@ -24,6 +24,33 @@ const minutesToTime = (minutes: number): TimeValue => {
 };
 
 const timeToMinutes = (time: TimeValue) => clamp(time.hour * 60 + time.minute, 0, MAX_DELAY_MINUTES);
+const applyCountdownWheelRule = (
+  prevMinutes: number,
+  next: TimeValue,
+  source: 'hour' | 'minute'
+) => {
+  const maxHour = Math.floor(MAX_DELAY_MINUTES / 60);
+  const prevHour = Math.floor(prevMinutes / 60);
+  let hour = clamp(Math.round(next.hour), 0, maxHour);
+  let minute = clamp(Math.round(next.minute), 0, 59);
+
+  if (source === 'hour') {
+    if (hour === maxHour) {
+      minute = 0;
+    }
+    return timeToMinutes({ hour, minute });
+  }
+
+  if (prevHour === maxHour && minute > 0) {
+    hour = Math.max(0, maxHour - 1);
+  }
+
+  if (hour === maxHour) {
+    minute = 0;
+  }
+
+  return timeToMinutes({ hour, minute });
+};
 
 const formatDuration = (minutes: number) => {
   const safeMinutes = clamp(Math.round(minutes), 0, MAX_DELAY_MINUTES);
@@ -41,6 +68,9 @@ const CountdownScreen: React.FC = () => {
 
   const delayTime = useMemo(() => minutesToTime(delayMinutes), [delayMinutes]);
   const subtitleText = useMemo(() => formatDuration(delayMinutes), [delayMinutes]);
+  const handleWheelChange = (next: TimeValue, source: 'hour' | 'minute') => {
+    setDelayMinutes((prev) => applyCountdownWheelRule(prev, next, source));
+  };
 
   return (
     <View style={styles.container}>
@@ -52,17 +82,6 @@ const CountdownScreen: React.FC = () => {
 
       <View style={styles.bottomSection}>
         {activeTab === 0 ? (
-          <TimeAdjustPickerCard
-            title="时间调至"
-            hour={delayTime.hour}
-            minute={delayTime.minute}
-            onChange={(next) => setDelayMinutes(timeToMinutes(next))}
-            hourRange={[0, 2]}
-            minuteRange={[0, 59]}
-            hourStep={1}
-            minuteStep={1}
-          />
-        ) : (
           <View style={styles.sliderCard}>
             <View style={styles.titleRow}>
               <ControlTitleLeft
@@ -89,6 +108,18 @@ const CountdownScreen: React.FC = () => {
               />
             </View>
           </View>
+        ) : (
+          <TimeAdjustPickerCard
+            title="时间调至"
+            hour={delayTime.hour}
+            minute={delayTime.minute}
+            onChange={() => {}}
+            onChangeWithSource={(next, source) => handleWheelChange(next, source)}
+            hourRange={[0, 2]}
+            minuteRange={[0, 59]}
+            hourStep={1}
+            minuteStep={1}
+          />
         )}
 
         <PageTabSwitch

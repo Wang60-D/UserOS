@@ -12,6 +12,7 @@ import { COMPONENT_TOKENS } from '../../tokens';
 export interface CircleButtonProps {
   label: string;
   icon: ImageSourcePropType;
+  iconSize?: number;
   selected?: boolean;
   disabled?: boolean;
   showLabel?: boolean;
@@ -21,6 +22,7 @@ export interface CircleButtonProps {
 const CircleButton: React.FC<CircleButtonProps> = ({
   label,
   icon,
+  iconSize,
   selected = false,
   disabled = false,
   showLabel = true,
@@ -37,7 +39,11 @@ const CircleButton: React.FC<CircleButtonProps> = ({
       <View style={[styles.button, selected ? styles.buttonSelected : styles.buttonUnselected]}>
         <Image
           source={icon}
-          style={[styles.icon, selected ? styles.iconSelected : styles.iconUnselected]}
+          style={[
+            styles.icon,
+            iconSize ? { width: iconSize, height: iconSize } : null,
+            selected ? styles.iconSelected : styles.iconUnselected,
+          ]}
           resizeMode="contain"
         />
       </View>

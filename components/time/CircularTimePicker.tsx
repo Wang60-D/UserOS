@@ -1,5 +1,5 @@
 import React, { useMemo, useRef } from 'react';
-import { PanResponder, StyleSheet, Text, View } from 'react-native';
+import { Image, PanResponder, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 
 export interface CircularTimeValue {
@@ -28,6 +28,13 @@ const MINUTES_PER_DAY = 24 * 60;
 const DEFAULT_SINGLE_VALUE: CircularTimeValue = { hour: 8, minute: 5 };
 const DEFAULT_START_VALUE: CircularTimeValue = { hour: 8, minute: 5 };
 const DEFAULT_END_VALUE: CircularTimeValue = { hour: 14, minute: 0 };
+const DESIGN_BASE_SIZE = 340;
+const OUTER_RING_WIDTH_BASE = 50;
+const ACTIVE_TRACK_AND_HANDLE_WIDTH_BASE = 38;
+const MOON_ICON_SOURCE = require('../../assets/icons/time/moon.png');
+const SUN_ICON_SOURCE = require('../../assets/icons/time/sun.png');
+const HOUR_LABEL_WIDTH = 22;
+const HOUR_LABEL_HEIGHT = 18;
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 const normalizeMinutesInDay = (minutes: number) => {
@@ -165,13 +172,18 @@ const CircularTimePicker: React.FC<CircularTimePickerProps> = ({
   maxRangeHours = 20,
   size = 300,
 }) => {
+  const scale = size / DESIGN_BASE_SIZE;
   const center = size / 2;
   const outerTrackRadius = size * 0.37;
   const activeTrackRadius = outerTrackRadius;
-  const outerTrackWidth = size * 0.12;
-  const innerDiskRadius = size * 0.31;
-  const handleRadius = size * 0.055;
-  const handleHitRadius = handleRadius;
+  const outerTrackWidth = OUTER_RING_WIDTH_BASE * scale;
+  const activeTrackWidth = ACTIVE_TRACK_AND_HANDLE_WIDTH_BASE * scale;
+  const outerRingInnerRadius = outerTrackRadius - outerTrackWidth / 2;
+  const innerDiskRadius = outerRingInnerRadius;
+  const handleRadius = (ACTIVE_TRACK_AND_HANDLE_WIDTH_BASE * scale) / 2;
+  const handleHitRadius = handleRadius * 1.1;
+  const hourLabelInset = 2 * scale;
+  const innerMarkerIconSize = 14 * scale;
 
   const safeSingle = value ?? DEFAULT_SINGLE_VALUE;
   const safeStart = startValue ?? DEFAULT_START_VALUE;
@@ -405,11 +417,18 @@ const CircularTimePicker: React.FC<CircularTimePickerProps> = ({
       Array.from({ length: 12 }, (_, index) => {
         const hour = (index * 2) % 24;
         const minutes = hour * 60;
-        const point = polarPoint(center, center, innerDiskRadius * 0.86, minutesToAngle(minutes));
+        const point = polarPoint(
+          center,
+          center,
+          innerDiskRadius * 0.86 - hourLabelInset,
+          minutesToAngle(minutes)
+        );
         return { hour, point };
       }),
-    [center, innerDiskRadius]
+    [center, hourLabelInset, innerDiskRadius]
   );
+  const topHourLabel = useMemo(() => hourLabels.find((item) => item.hour === 0), [hourLabels]);
+  const bottomHourLabel = useMemo(() => hourLabels.find((item) => item.hour === 12), [hourLabels]);
 
   const labelSingle = minutesToValue(singleMinutes);
   const labelStart = minutesToValue(startMinutesRef.current);
@@ -442,18 +461,18 @@ const CircularTimePicker: React.FC<CircularTimePickerProps> = ({
 
       <View style={styles.dialWrap}>
         <Svg width={size} height={size}>
-          <Circle cx={center} cy={center} r={outerTrackRadius} fill="none" stroke="#ECECEC" strokeWidth={outerTrackWidth} />
-          <Circle cx={center} cy={center} r={innerDiskRadius} fill="#E3E3E3" />
+          <Circle cx={center} cy={center} r={outerTrackRadius} fill="none" stroke="#F7F7F7" strokeWidth={outerTrackWidth} />
+          <Circle cx={center} cy={center} r={innerDiskRadius} fill="#EBEBEB" />
 
           {mode === 'range' ? (
-            <Path d={rangeArcPath} stroke="#809DE4" strokeWidth={outerTrackWidth} strokeLinecap="round" fill="none" />
+            <Path d={rangeArcPath} stroke="#809DE4" strokeWidth={activeTrackWidth} strokeLinecap="round" fill="none" />
           ) : null}
 
           {hourLabels.map((item) => (
             <Circle
               key={`tick-${item.hour}`}
-              cx={polarPoint(center, center, outerTrackRadius + outerTrackWidth * 0.16, minutesToAngle(item.hour * 60)).x}
-              cy={polarPoint(center, center, outerTrackRadius + outerTrackWidth * 0.16, minutesToAngle(item.hour * 60)).y}
+              cx={polarPoint(center, center, outerTrackRadius, minutesToAngle(item.hour * 60)).x}
+              cy={polarPoint(center, center, outerTrackRadius, minutesToAngle(item.hour * 60)).y}
               r={2.2}
               fill="rgba(0,0,0,0.2)"
             />
@@ -471,14 +490,44 @@ const CircularTimePicker: React.FC<CircularTimePickerProps> = ({
               style={[
                 styles.hourLabel,
                 {
-                  left: item.point.x - 11,
-                  top: item.point.y - 12,
+                  left: item.point.x - HOUR_LABEL_WIDTH / 2,
+                  top: item.point.y - HOUR_LABEL_HEIGHT / 2,
                 },
               ]}
             >
               {item.hour}
             </Text>
           ))}
+          {topHourLabel ? (
+            <Image
+              source={MOON_ICON_SOURCE}
+              resizeMode="contain"
+              style={[
+                styles.innerMarkerIcon,
+                {
+                  width: innerMarkerIconSize,
+                  height: innerMarkerIconSize,
+                  left: topHourLabel.point.x - innerMarkerIconSize / 2,
+                  top: topHourLabel.point.y + 20 * scale - innerMarkerIconSize / 2,
+                },
+              ]}
+            />
+          ) : null}
+          {bottomHourLabel ? (
+            <Image
+              source={SUN_ICON_SOURCE}
+              resizeMode="contain"
+              style={[
+                styles.innerMarkerIcon,
+                {
+                  width: innerMarkerIconSize,
+                  height: innerMarkerIconSize,
+                  left: bottomHourLabel.point.x - innerMarkerIconSize / 2,
+                  top: bottomHourLabel.point.y - 20 * scale - innerMarkerIconSize / 2,
+                },
+              ]}
+            />
+          ) : null}
         </View>
       </View>
     </View>
@@ -543,12 +592,18 @@ const styles = StyleSheet.create({
   },
   hourLabel: {
     position: 'absolute',
-    width: 22,
+    width: HOUR_LABEL_WIDTH,
+    height: HOUR_LABEL_HEIGHT,
     textAlign: 'center',
     fontSize: 32 / 2,
-    lineHeight: 18,
+    lineHeight: HOUR_LABEL_HEIGHT,
     color: '#363636',
     fontWeight: '500',
+    includeFontPadding: false,
+    textAlignVertical: 'center',
+  },
+  innerMarkerIcon: {
+    position: 'absolute',
   },
 });
 

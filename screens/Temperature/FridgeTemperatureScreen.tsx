@@ -97,7 +97,7 @@ const FridgeTemperatureScreen: React.FC = () => {
         value={value}
         onChange={onChange}
         onChangeEnd={onChange}
-        showDegreeSymbol={true}
+        temperatureIconMode="snow"
       />
     );
   };

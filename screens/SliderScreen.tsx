@@ -140,7 +140,7 @@ const SliderScreen: React.FC = () => {
           value={temperatureValue}
           onChange={setTemperatureValue}
           onChangeEnd={setTemperatureValue}
-          showDegreeSymbol={true}
+          temperatureIconMode="snow"
         />
       </View>
       <View style={[styles.card, styles.cardSpacing]}>

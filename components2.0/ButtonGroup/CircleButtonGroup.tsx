@@ -13,6 +13,7 @@ export interface CircleButtonGroupItem {
 export interface CircleButtonGroupProps {
   items: CircleButtonGroupItem[];
   showLabel?: boolean;
+  iconSize?: number;
   onItemPress?: (index: number) => void;
 }
 
@@ -21,6 +22,7 @@ const clamp = (value: number, min: number, max: number) => Math.min(max, Math.ma
 const CircleButtonGroup: React.FC<CircleButtonGroupProps> = ({
   items,
   showLabel = true,
+  iconSize,
   onItemPress,
 }) => {
   const token = COMPONENT_TOKENS.circleButton;
@@ -45,6 +47,7 @@ const CircleButtonGroup: React.FC<CircleButtonGroupProps> = ({
             <CircleButton
               label={item.label}
               icon={item.icon}
+              iconSize={iconSize}
               selected={item.selected}
               disabled={item.disabled}
               showLabel={showLabel}
@@ -62,6 +65,7 @@ const CircleButtonGroup: React.FC<CircleButtonGroupProps> = ({
                 <CircleButton
                   label={item.label}
                   icon={item.icon}
+                  iconSize={iconSize}
                   selected={item.selected}
                   disabled={item.disabled}
                   showLabel={showLabel}

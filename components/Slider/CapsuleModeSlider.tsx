@@ -18,6 +18,7 @@ export interface CapsuleModeSliderProps {
   value?: CapsuleModeValue;
   onChange?: (nextValue: CapsuleModeValue) => void;
   splitTracks?: boolean;
+  iconSize?: number;
   offLabel?: string;
   modeALabel?: string;
   modeBLabel?: string;
@@ -37,6 +38,7 @@ const CapsuleModeSlider: React.FC<CapsuleModeSliderProps> = ({
   value,
   onChange,
   splitTracks = false,
+  iconSize = 20,
   offLabel = '关闭',
   modeALabel = '降噪',
   modeBLabel = '通透',
@@ -325,7 +327,11 @@ const CapsuleModeSlider: React.FC<CapsuleModeSliderProps> = ({
     return (
       <Image
         source={icon}
-        style={[styles.icon, selected ? styles.iconSelected : styles.iconUnselected]}
+        style={[
+          styles.icon,
+          { width: iconSize, height: iconSize },
+          selected ? styles.iconSelected : styles.iconUnselected,
+        ]}
         resizeMode="contain"
       />
     );

@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CircularTimePicker, TimePickerCard, type CircularTimeValue, type TimeValue } from '../../components/time';
 import { PageTabSwitch } from '../../components/PageSwitch';
@@ -9,19 +9,11 @@ type TimerTwoControlType = 0 | 1;
 
 const VIEW_TABS = ['1', '2'] as const;
 
-const formatTime = (value: TimeValue) =>
-  `${String(value.hour).padStart(2, '0')}:${String(value.minute).padStart(2, '0')}`;
-
 const TimerTwoScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<TimerTwoControlType>(0);
   const [startTime, setStartTime] = useState<TimeValue>({ hour: 8, minute: 5 });
   const [endTime, setEndTime] = useState<TimeValue>({ hour: 14, minute: 0 });
-
-  const subtitleText = useMemo(
-    () => `${formatTime(startTime)} - ${formatTime(endTime)}`,
-    [endTime, startTime]
-  );
 
   return (
     <View style={styles.container}>
@@ -66,8 +58,6 @@ const TimerTwoScreen: React.FC = () => {
           </View>
         )}
 
-        <Text style={styles.timePreview}>{subtitleText}</Text>
-
         <PageTabSwitch
           activeIndex={activeTab}
           onChange={(index) => setActiveTab(index as TimerTwoControlType)}
@@ -107,12 +97,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     overflow: 'hidden',
     alignItems: 'center',
-  },
-  timePreview: {
-    fontSize: 16,
-    color: TOKENS.colors.rightText,
-    marginTop: 16,
-    marginBottom: 20,
   },
   pageSwitchContainer: {
     flexDirection: 'row',

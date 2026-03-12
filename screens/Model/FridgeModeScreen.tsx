@@ -13,6 +13,7 @@ type FridgeControlType = 0 | 1 | 2;
 const VIEW_TABS = ['1', '2', '3'] as const;
 const ENABLE_TAB_STATE_SYNC = true;
 const INITIAL_VALUES: CapsuleModeValue[] = ['modeA', 'modeA', 'modeA'];
+const FRIDGE_ICON_SIZE = 12;
 const FRIDGE_EQUIPMENT_IMAGE = require('../../assets/equipment/fridge.png');
 
 const FRIDGE_ICONS = {
@@ -71,6 +72,7 @@ const FridgeModeScreen: React.FC = () => {
       return (
         <CircleButtonGroup
           items={circleItems}
+          iconSize={FRIDGE_ICON_SIZE}
           onItemPress={(index) => {
             const target = CIRCLE_MODE_ITEMS[index];
             if (!target) return;
@@ -84,6 +86,7 @@ const FridgeModeScreen: React.FC = () => {
       return (
         <CapsuleModeSlider
           splitTracks={true}
+          iconSize={FRIDGE_ICON_SIZE}
           value={selectedValue}
           onChange={updateValue}
           offLabel="关闭"
@@ -99,6 +102,7 @@ const FridgeModeScreen: React.FC = () => {
     return (
       <CapsuleModeSlider
         splitTracks={false}
+        iconSize={FRIDGE_ICON_SIZE}
         value={selectedValue}
         onChange={updateValue}
         offLabel="关闭"

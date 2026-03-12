@@ -15,6 +15,11 @@ import { useControllableState } from '../../utils/stateflow/useControllableState
 type RightMode = 'button' | 'switch';
 type TitleRightIconType = 'switch' | 'arrow';
 
+const TITLE_RIGHT_ICONS = {
+  arrow: require('../../assets/icons/airconditioner/arrow.png'),
+  switch: require('../../assets/Basic_icon/titlerightswitch.png'),
+} as const;
+
 export interface SwitchRow2Props {
   titleText: string;
   subtitleText?: string;
@@ -126,6 +131,10 @@ const SwitchRow: React.FC<SwitchRow2Props> = ({
   };
 
   const shouldShowTitleRightIcon = titleRightArrowEnabled;
+  const isRowActive = rightMode === 'button' ? isRightButtonOn : isSwitchOn;
+  const titleRightArrowTintColor = isRowActive
+    ? CORE_TOKENS.color.brandPrimary
+    : token.subtitleColor;
 
   return (
     <Pressable
@@ -152,19 +161,18 @@ const SwitchRow: React.FC<SwitchRow2Props> = ({
             </Text>
             {shouldShowTitleRightIcon ? (
               <View style={styles.titleRightIconContainer}>
-                {titleRightIconType === 'switch' ? (
-                  <View style={styles.switchIconContainer}>
-                    <View style={[styles.switchIconLine, styles.switchTopLeft]} />
-                    <View style={[styles.switchIconLine, styles.switchTopRight]} />
-                    <View style={[styles.switchIconLine, styles.switchBottomLeft]} />
-                    <View style={[styles.switchIconLine, styles.switchBottomRight]} />
-                  </View>
-                ) : (
-                  <View style={styles.arrowIconContainer}>
-                    <View style={[styles.arrowIconLine, styles.arrowTopLine]} />
-                    <View style={[styles.arrowIconLine, styles.arrowBottomLine]} />
-                  </View>
-                )}
+                <Image
+                  source={
+                    titleRightIconType === 'switch'
+                      ? TITLE_RIGHT_ICONS.switch
+                      : TITLE_RIGHT_ICONS.arrow
+                  }
+                  style={[
+                    styles.titleRightIconImage,
+                    titleRightIconType === 'arrow' ? { tintColor: titleRightArrowTintColor } : null,
+                  ]}
+                  resizeMode="contain"
+                />
               </View>
             ) : null}
           </View>
@@ -262,49 +270,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  arrowIconContainer: {
+  titleRightIconImage: {
     width: token.titleRightIconSize,
     height: token.titleRightIconSize,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  arrowIconLine: {
-    position: 'absolute',
-    width: 7,
-    height: token.titleRightIconStrokeWidth,
-    borderRadius: token.titleRightIconStrokeWidth / 2,
-    backgroundColor: token.titleRightIconColor,
-  },
-  arrowTopLine: {
-    transform: [{ rotate: '45deg' }, { translateX: 1 }, { translateY: -2 }],
-  },
-  arrowBottomLine: {
-    transform: [{ rotate: '-45deg' }, { translateX: 1 }, { translateY: 2 }],
-  },
-  switchIconContainer: {
-    width: token.titleRightIconSize,
-    height: token.titleRightIconSize,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  switchIconLine: {
-    position: 'absolute',
-    width: 5,
-    height: token.titleRightIconStrokeWidth,
-    borderRadius: token.titleRightIconStrokeWidth / 2,
-    backgroundColor: token.titleRightIconColor,
-  },
-  switchTopLeft: {
-    transform: [{ rotate: '35deg' }, { translateX: -2.6 }, { translateY: -3.6 }],
-  },
-  switchTopRight: {
-    transform: [{ rotate: '-35deg' }, { translateX: 2.6 }, { translateY: -3.6 }],
-  },
-  switchBottomLeft: {
-    transform: [{ rotate: '-35deg' }, { translateX: -2.6 }, { translateY: 3.6 }],
-  },
-  switchBottomRight: {
-    transform: [{ rotate: '35deg' }, { translateX: 2.6 }, { translateY: 3.6 }],
   },
   subtitleText: {
     fontSize: token.subtitleFontSize,

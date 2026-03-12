@@ -51,8 +51,9 @@ const FeatureEntryStyle1Screen: React.FC = () => {
   const [activeTab, setActiveTab] = useState<EntryTabType>(0);
   const [drawerType, setDrawerType] = useState<DrawerType>('none');
   const [windSenseValue, setWindSenseValue] = useState<(typeof WIND_SENSE_OPTIONS)[number]>('天幕风');
-  const [upDownEnabled, setUpDownEnabled] = useState(true);
-  const [leftRightEnabled, setLeftRightEnabled] = useState(true);
+  const [windSenseEnabled, setWindSenseEnabled] = useState(true);
+  const [upDownEnabled, setUpDownEnabled] = useState(false);
+  const [leftRightEnabled, setLeftRightEnabled] = useState(false);
   const [upDownActive, setUpDownActive] = useState<string[]>(['右上风区', '右下风区']);
   const [leftRightActive, setLeftRightActive] = useState<string[]>(['右风区']);
 
@@ -64,14 +65,37 @@ const FeatureEntryStyle1Screen: React.FC = () => {
     }
   }, [route.name]);
 
-  const style2Items = useMemo(
+  const styleItems = useMemo(
     () =>
       ENTRY_ITEMS.map((item) => ({
         ...item,
-        enabled: item.id === 'wind-sense',
+        subtitle:
+          item.id === 'wind-sense'
+            ? windSenseValue
+            : item.id === 'up-down'
+              ? (upDownEnabled ? '开启' : '关闭')
+              : (leftRightEnabled ? '开启' : '关闭'),
+        enabled:
+          item.id === 'wind-sense'
+            ? windSenseEnabled
+            : item.id === 'up-down'
+              ? upDownEnabled
+              : leftRightEnabled,
       })),
-    []
+    [leftRightEnabled, upDownEnabled, windSenseEnabled, windSenseValue]
   );
+
+  const toggleItemEnabled = (id: string) => {
+    if (id === 'wind-sense') {
+      setWindSenseEnabled((prev) => !prev);
+      return;
+    }
+    if (id === 'up-down') {
+      setUpDownEnabled((prev) => !prev);
+      return;
+    }
+    setLeftRightEnabled((prev) => !prev);
+  };
 
   const toggleTag = (label: string, selected: string[], onChange: (next: string[]) => void) => {
     const exists = selected.includes(label);
@@ -86,7 +110,7 @@ const FeatureEntryStyle1Screen: React.FC = () => {
     <View style={styles.card}>
       <Text style={styles.cardTitle}>风调节</Text>
       <View style={styles.itemRow}>
-        {ENTRY_ITEMS.map((item) => (
+        {styleItems.map((item) => (
           <Pressable
             key={item.id}
             style={[styles.itemCard, item.enabled ? styles.itemCardEnabled : styles.itemCardDisabled]}
@@ -118,21 +142,29 @@ const FeatureEntryStyle1Screen: React.FC = () => {
     <View style={styles.card}>
       <Text style={styles.cardTitle}>风调节</Text>
       <View style={styles.style2Row}>
-        {style2Items.map((item) => (
-          <Pressable key={item.id} style={styles.style2Item} onPress={() => setDrawerType(item.drawerType)}>
-            <View style={[styles.style2IconCircle, item.enabled && styles.style2IconCircleSelected]}>
+        {styleItems.map((item) => (
+          <View key={item.id} style={styles.style2Item}>
+            <Pressable
+              style={[styles.style2IconCircle, item.enabled && styles.style2IconCircleSelected]}
+              onPress={() => toggleItemEnabled(item.id)}
+            >
               <Image
                 source={item.icon}
-                style={[styles.style2Icon, item.enabled ? styles.iconEnabled : styles.iconDisabled]}
+                style={[
+                  styles.style2Icon,
+                  item.enabled ? styles.style2IconEnabled : styles.style2IconDisabled,
+                ]}
                 resizeMode="contain"
               />
-            </View>
-            <View style={styles.titleRow}>
-              <Text style={styles.textDisabled}>{item.title}</Text>
-              <Text style={styles.textDisabled}>▾</Text>
-            </View>
-            <Text style={styles.subtitleDisabled}>{item.subtitle}</Text>
-          </Pressable>
+            </Pressable>
+            <Pressable style={styles.style2MetaPressable} onPress={() => setDrawerType(item.drawerType)}>
+              <View style={styles.titleRow}>
+                <Text style={styles.textDisabled}>{item.title}</Text>
+                <Text style={styles.textDisabled}>▾</Text>
+              </View>
+              <Text style={styles.subtitleDisabled}>{item.subtitle}</Text>
+            </Pressable>
+          </View>
         ))}
       </View>
     </View>
@@ -305,6 +337,10 @@ const styles = StyleSheet.create({
     width: '31%',
     alignItems: 'center',
   },
+  style2MetaPressable: {
+    marginTop: 6,
+    alignItems: 'center',
+  },
   style2IconCircle: {
     width: 52,
     height: 52,
@@ -319,6 +355,12 @@ const styles = StyleSheet.create({
   style2Icon: {
     width: 24,
     height: 24,
+  },
+  style2IconEnabled: {
+    tintColor: '#FFFFFF',
+  },
+  style2IconDisabled: {
+    tintColor: '#000000CC',
   },
   itemCard: {
     flex: 1,

@@ -1,12 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
+  Image,
   PanResponder,
   Pressable,
   StyleSheet,
   Text,
   View,
   type GestureResponderEvent,
+  type ImageSourcePropType,
   type LayoutChangeEvent,
   type PanResponderGestureState,
 } from 'react-native';
@@ -22,6 +24,8 @@ export interface NumberCapsuleSliderProps {
   value?: number;
   onChange?: (nextIndex: number) => void;
   labels?: Array<string | number>;
+  iconLabels?: ImageSourcePropType[];
+  labelIconSize?: number;
 }
 
 const NumberCapsuleSlider: React.FC<NumberCapsuleSliderProps> = ({
@@ -29,6 +33,8 @@ const NumberCapsuleSlider: React.FC<NumberCapsuleSliderProps> = ({
   value,
   onChange,
   labels,
+  iconLabels,
+  labelIconSize = 12,
 }) => {
   const resolvedSteps = Math.max(MIN_STEPS, Math.min(MAX_STEPS, Math.floor(steps)));
   const isControlled = typeof value === 'number';
@@ -47,6 +53,7 @@ const NumberCapsuleSlider: React.FC<NumberCapsuleSliderProps> = ({
     [resolvedSteps]
   );
   const displayLabels = labels && labels.length === resolvedSteps ? labels : fallbackLabels;
+  const displayIconLabels = iconLabels && iconLabels.length === resolvedSteps ? iconLabels : undefined;
   const selectedIndex = Math.max(
     0,
     Math.min(resolvedSteps - 1, isControlled ? (value as number) : internalIndex)
@@ -166,9 +173,21 @@ const NumberCapsuleSlider: React.FC<NumberCapsuleSliderProps> = ({
               accessibilityRole="button"
               accessibilityState={{ selected: isSelected }}
             >
-              <Text style={[styles.label, isSelected ? styles.labelSelected : styles.labelUnselected]}>
-                {String(item)}
-              </Text>
+              {displayIconLabels?.[index] ? (
+                <Image
+                  source={displayIconLabels[index]}
+                  resizeMode="contain"
+                  style={[
+                    styles.labelIcon,
+                    { width: labelIconSize, height: labelIconSize },
+                    isSelected ? styles.labelIconSelected : styles.labelIconUnselected,
+                  ]}
+                />
+              ) : (
+                <Text style={[styles.label, isSelected ? styles.labelSelected : styles.labelUnselected]}>
+                  {String(item)}
+                </Text>
+              )}
             </Pressable>
           );
         })}
@@ -215,6 +234,16 @@ const styles = StyleSheet.create({
   },
   labelUnselected: {
     color: TOKENS.colors.rightText,
+  },
+  labelIcon: {
+    width: 12,
+    height: 12,
+  },
+  labelIconSelected: {
+    tintColor: '#FFFFFF',
+  },
+  labelIconUnselected: {
+    tintColor: TOKENS.colors.rightText,
   },
 });
 

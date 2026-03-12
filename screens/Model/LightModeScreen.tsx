@@ -1,10 +1,13 @@
 import React, { useMemo, useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlTitleLeft from '../../components/ControlTitle/ControlTitleLeft';
-import { CircleButtonGroup, SquareButtonGroup } from '../../components2.0/ButtonGroup';
+import { CircleButtonGroup } from '../../components2.0/ButtonGroup';
+import SquareButtonGroup, {
+  type SquareButtonGroupItem,
+} from '../../components/ButtonGroup/SquareButtonGroup';
 import { PageTabSwitch } from '../../components/PageSwitch';
-import type { CircleButtonGroupItem, SquareButtonGroupItem } from '../../components2.0/ButtonGroup';
+import type { CircleButtonGroupItem } from '../../components2.0/ButtonGroup';
 import { TOKENS } from '../../tokens';
 
 type LightSceneMode =
@@ -113,12 +116,7 @@ const LightModeScreen: React.FC = () => {
             {isCircleView ? (
               <CircleButtonGroup items={circleItems} onItemPress={handleModeChange} />
             ) : (
-              <SquareButtonGroup
-                items={squareItems}
-                isCompact={true}
-                selectedColor={TOKENS.colors.mainColor}
-                onItemPress={handleModeChange}
-              />
+              <SquareButtonGroup items={squareItems} onItemPress={handleModeChange} />
             )}
           </View>
         </View>

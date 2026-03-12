@@ -27,6 +27,15 @@ const TICKMARKS3_ROUTE_MAP: Record<string, keyof RootStackParamList> = {
   湿度: 'Part2TickMarks3Humidity',
   '温度-冰箱': 'Part2TickMarks3FridgeTemp',
 };
+const LABEL_ROUTE_MAP: Record<string, keyof RootStackParamList> = {
+  '1-4档': 'Part2LabelLevel4',
+  '1-6档': 'Part2LabelLevel6',
+  风速: 'Part2LabelWindSpeed',
+  左右扫风角度: 'Part2LabelSweepAngle',
+  定格: 'Part2LabelSweepFixed',
+  亮度: 'Part2LabelBrightness',
+  窗帘开合: 'Part2LabelCurtain',
+};
 
 const Part2CatalogScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
@@ -47,6 +56,11 @@ const Part2CatalogScreen: React.FC = () => {
     }
     if (catalogKey === 'TickMarks3') {
       const route = TICKMARKS3_ROUTE_MAP[label];
+      if (route) navigation.navigate(route);
+      return;
+    }
+    if (catalogKey === 'Label') {
+      const route = LABEL_ROUTE_MAP[label];
       if (route) navigation.navigate(route);
       return;
     }

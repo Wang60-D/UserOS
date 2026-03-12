@@ -65,8 +65,7 @@ const AirConditionerTemperatureScreen: React.FC = () => {
           onChange={commitTemperature}
           unitLabel="℃"
           enableContinuousPress={true}
-          showDegreeSymbol={true}
-          showCornerIcon={true}
+          temperatureIconMode="snow"
         />
       );
     }
@@ -79,8 +78,7 @@ const AirConditionerTemperatureScreen: React.FC = () => {
         value={temperatureValue}
         onChange={commitTemperature}
         onChangeEnd={commitTemperature}
-        iconSource={require('../../assets/icons/airconditioner/snow.png')}
-        showDegreeSymbol={true}
+        temperatureIconMode="snow"
       />
     );
   };

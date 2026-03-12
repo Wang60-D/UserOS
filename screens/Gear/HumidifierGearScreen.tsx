@@ -12,25 +12,26 @@ import { TOKENS } from '../../tokens';
 type HumidifierGearControlType = 0 | 1 | 2 | 3;
 
 const VIEW_TABS = ['1', '2', '3', '4'] as const;
-const HUMIDIFIER_GEAR_ICON_SIZE = 16;
+const HUMIDIFIER_GEAR_ICON_SIZE = 12;
+const HUMIDIFIER_GEAR_COMPONENT3_ICON_SIZE = HUMIDIFIER_GEAR_ICON_SIZE * 1.5;
 const ICON_TINT_COLORS = {
   selected: '#FFFFFF',
   unselected: '#000000CC',
 } as const;
 
 const HUMIDIFIER_GEAR_ICONS = {
-  level1: require('../../assets/icons/humidifier/1.png'),
-  level2: require('../../assets/icons/humidifier/2.png'),
-  level3: require('../../assets/icons/humidifier/3.png'),
-  level4: require('../../assets/icons/humidifier/4.png'),
+  level1: require('../../assets/icons/humidifier/01.png'),
+  level2: require('../../assets/icons/humidifier/02.png'),
+  level3: require('../../assets/icons/humidifier/03.png'),
+  level4: require('../../assets/icons/humidifier/04.png'),
 } as const;
 const HUMIDIFIER_EQUIPMENT_IMAGE = require('../../assets/equipment/humidifier.png');
 
 const GEAR_CIRCLE_ITEMS = [
-  { value: 1, label: '1档', icon: HUMIDIFIER_GEAR_ICONS.level1 },
-  { value: 2, label: '2档', icon: HUMIDIFIER_GEAR_ICONS.level2 },
-  { value: 3, label: '3档', icon: HUMIDIFIER_GEAR_ICONS.level3 },
-  { value: 4, label: '4档', icon: HUMIDIFIER_GEAR_ICONS.level4 },
+  { value: 1, label: '1挡', icon: HUMIDIFIER_GEAR_ICONS.level1 },
+  { value: 2, label: '2挡', icon: HUMIDIFIER_GEAR_ICONS.level2 },
+  { value: 3, label: '3挡', icon: HUMIDIFIER_GEAR_ICONS.level3 },
+  { value: 4, label: '4挡', icon: HUMIDIFIER_GEAR_ICONS.level4 },
 ];
 
 const HumidifierGearScreen: React.FC = () => {
@@ -91,7 +92,13 @@ const HumidifierGearScreen: React.FC = () => {
           steps={4}
           value={Math.max(0, Math.min(3, gearValue - 1))}
           onChange={(nextIndex) => setGearValue(Math.max(1, Math.min(4, nextIndex + 1)))}
-          labels={['1', '2', '3', '4']}
+          iconLabels={[
+            HUMIDIFIER_GEAR_ICONS.level1,
+            HUMIDIFIER_GEAR_ICONS.level2,
+            HUMIDIFIER_GEAR_ICONS.level3,
+            HUMIDIFIER_GEAR_ICONS.level4,
+          ]}
+          labelIconSize={HUMIDIFIER_GEAR_COMPONENT3_ICON_SIZE}
         />
       );
     }

@@ -60,6 +60,24 @@ import Part2TickMarks2CurtainScreen from '../screens/Part2/TickMarks2/Part2TickM
 import Part2TickMarks2BrightnessScreen from '../screens/Part2/TickMarks2/Part2TickMarks2BrightnessScreen';
 import Part2TickMarks2VolumeScreen from '../screens/Part2/TickMarks2/Part2TickMarks2VolumeScreen';
 import Part2TickMarks2ColorTempScreen from '../screens/Part2/TickMarks2/Part2TickMarks2ColorTempScreen';
+import Part2LabelLevel4Screen from '../screens/Part2/Label/Part2LabelLevel4Screen';
+import Part2LabelLevel6Screen from '../screens/Part2/Label/Part2LabelLevel6Screen';
+import Part2LabelWindSpeedScreen from '../screens/Part2/Label/Part2LabelWindSpeedScreen';
+import Part2LabelSweepAngleScreen from '../screens/Part2/Label/Part2LabelSweepAngleScreen';
+import Part2LabelSweepFixedScreen from '../screens/Part2/Label/Part2LabelSweepFixedScreen';
+import Part2LabelBrightnessScreen from '../screens/Part2/Label/Part2LabelBrightnessScreen';
+import Part2LabelCurtainScreen from '../screens/Part2/Label/Part2LabelCurtainScreen';
+import Part2Label2AirConditionerScreen from '../screens/Part2/Label2/Part2Label2AirConditionerScreen';
+import Part2Label2WaterHeaterScreen from '../screens/Part2/Label2/Part2Label2WaterHeaterScreen';
+import Part2Label2FridgeScreen from '../screens/Part2/Label2/Part2Label2FridgeScreen';
+import Part2Label2KettleScreen from '../screens/Part2/Label2/Part2Label2KettleScreen';
+import Part2Label2HumidityScreen from '../screens/Part2/Label2/Part2Label2HumidityScreen';
+import Part2Label2AreaScreen from '../screens/Part2/Label2/Part2Label2AreaScreen';
+import Part2Label3DelayShortScreen from '../screens/Part2/Label3/Part2Label3DelayShortScreen';
+import Part2Label3DelayLongScreen from '../screens/Part2/Label3/Part2Label3DelayLongScreen';
+import Part2Label3BrightnessScreen from '../screens/Part2/Label3/Part2Label3BrightnessScreen';
+import Part2Label3VolumeScreen from '../screens/Part2/Label3/Part2Label3VolumeScreen';
+import Part2Label3ColorTempScreen from '../screens/Part2/Label3/Part2Label3ColorTempScreen';
 import FanSwitchScreen from '../screens/Switch/FanSwitchScreen';
 import WallSwitchScreen from '../screens/Switch/WallSwitchScreen';
 import BathLightScreen from '../screens/Switch/BathLightScreen';
@@ -71,6 +89,8 @@ import Components2Screen from '../screens/Components2Screen/Components2Screen';
 import Components2CircleButtonScreen from '../screens/Components2Screen/Components2CircleButtonScreen';
 import Components2SquareButtonScreen from '../screens/Components2Screen/Components2SquareButtonScreen';
 import Components2SwitchScreen from '../screens/Components2Screen/Components2SwitchScreen';
+import Components2SliderScreen from '../screens/Components2Screen/Components2SliderScreen';
+import DotSliderTestScreen from '../screens/DotSliderTestScreen';
 
 // 尝试禁用 react-native-screens（如果存在）
 try {
@@ -99,6 +119,24 @@ export type RootStackParamList = {
   Part2TickMarks3KettleTemp: undefined;
   Part2TickMarks3Humidity: undefined;
   Part2TickMarks3FridgeTemp: undefined;
+  Part2LabelLevel4: undefined;
+  Part2LabelLevel6: undefined;
+  Part2LabelWindSpeed: undefined;
+  Part2LabelSweepAngle: undefined;
+  Part2LabelSweepFixed: undefined;
+  Part2LabelBrightness: undefined;
+  Part2LabelCurtain: undefined;
+  Part2Label2AirConditioner: undefined;
+  Part2Label2WaterHeater: undefined;
+  Part2Label2Fridge: undefined;
+  Part2Label2Kettle: undefined;
+  Part2Label2Humidity: undefined;
+  Part2Label2Area: undefined;
+  Part2Label3DelayShort: undefined;
+  Part2Label3DelayLong: undefined;
+  Part2Label3Brightness: undefined;
+  Part2Label3Volume: undefined;
+  Part2Label3ColorTemp: undefined;
   FanSwitch: undefined;
   WallSwitch: undefined;
   BathLight: undefined;
@@ -111,6 +149,7 @@ export type RootStackParamList = {
   Components2CircleButton: undefined;
   Components2SquareButton: undefined;
   Components2Switch: undefined;
+  Components2Slider: undefined;
   AirConditioner: undefined;
   AirPurifier: undefined;
   LightMode: undefined;
@@ -152,6 +191,7 @@ export type RootStackParamList = {
   WindSenseDrawer: undefined;
   SweepDrawer: undefined;
   Switch: undefined;
+  DotSliderTest: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -252,6 +292,96 @@ const AppNavigator: React.FC = () => {
           component={Part2TickMarks3FridgeTempScreen}
           options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
         />
+        <Stack.Screen
+          name="Part2LabelLevel4"
+          component={Part2LabelLevel4Screen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2LabelLevel6"
+          component={Part2LabelLevel6Screen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2LabelWindSpeed"
+          component={Part2LabelWindSpeedScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2LabelSweepAngle"
+          component={Part2LabelSweepAngleScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2LabelSweepFixed"
+          component={Part2LabelSweepFixedScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2LabelBrightness"
+          component={Part2LabelBrightnessScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2LabelCurtain"
+          component={Part2LabelCurtainScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2Label2AirConditioner"
+          component={Part2Label2AirConditionerScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2Label2WaterHeater"
+          component={Part2Label2WaterHeaterScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2Label2Fridge"
+          component={Part2Label2FridgeScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2Label2Kettle"
+          component={Part2Label2KettleScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2Label2Humidity"
+          component={Part2Label2HumidityScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2Label2Area"
+          component={Part2Label2AreaScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2Label3DelayShort"
+          component={Part2Label3DelayShortScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2Label3DelayLong"
+          component={Part2Label3DelayLongScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2Label3Brightness"
+          component={Part2Label3BrightnessScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2Label3Volume"
+          component={Part2Label3VolumeScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
+        <Stack.Screen
+          name="Part2Label3ColorTemp"
+          component={Part2Label3ColorTempScreen}
+          options={{ cardStyleInterpolator: CardStyleInterpolators.forNoAnimation }}
+        />
         <Stack.Screen 
           name="FanSwitch" 
           component={FanSwitchScreen}
@@ -299,6 +429,10 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen
           name="Components2Switch"
           component={Components2SwitchScreen}
+        />
+        <Stack.Screen
+          name="Components2Slider"
+          component={Components2SliderScreen}
         />
         <Stack.Screen 
           name="AirConditioner" 
@@ -419,10 +553,12 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen
           name="Countdown"
           component={CountdownScreen}
+          options={{ gestureEnabled: false }}
         />
         <Stack.Screen
           name="Delay"
           component={DelayScreen}
+          options={{ gestureEnabled: false }}
         />
         <Stack.Screen
           name="SettingTime1"
@@ -463,6 +599,10 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen 
           name="Switch" 
           component={SwitchScreen}
+        />
+        <Stack.Screen
+          name="DotSliderTest"
+          component={DotSliderTestScreen}
         />
       </Stack.Navigator>
     </NavigationContainer>

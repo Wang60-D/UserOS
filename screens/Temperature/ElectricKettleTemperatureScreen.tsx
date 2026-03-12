@@ -63,8 +63,7 @@ const ElectricKettleTemperatureScreen: React.FC = () => {
           onChange={commitTemperature}
           unitLabel="℃"
           enableContinuousPress={true}
-          showDegreeSymbol={true}
-          showCornerIcon={true}
+          temperatureIconMode="warm"
         />
       );
     }
@@ -77,7 +76,7 @@ const ElectricKettleTemperatureScreen: React.FC = () => {
         value={temperatureValue}
         onChange={commitTemperature}
         onChangeEnd={commitTemperature}
-        showDegreeSymbol={true}
+        temperatureIconMode="warm"
       />
     );
   };

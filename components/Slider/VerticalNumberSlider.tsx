@@ -107,18 +107,18 @@ const VerticalNumberSlider: React.FC<VerticalNumberSliderProps> = ({
         renderItem={({ item, index }) => {
           const distance = Math.abs(activeFloatIndex - index);
           const isCenter = distance < 0.5;
+          const valueTextStyle = [
+            isCenter ? styles.wheelCenterText : styles.wheelSideText,
+            distance >= 1.5 && styles.wheelFarText,
+          ];
           return (
             <View style={styles.wheelItem}>
               <View style={styles.centerRow}>
-                <View style={styles.valueAnchor}>
-                  <Text
-                    style={[
-                      isCenter ? styles.wheelCenterText : styles.wheelSideText,
-                      distance >= 1.5 && styles.wheelFarText,
-                    ]}
-                  >
-                    {formatInt(item)}
-                  </Text>
+                <View style={styles.sideSlot} />
+                <View style={styles.valueSlot}>
+                  <Text style={valueTextStyle}>{formatInt(item)}</Text>
+                </View>
+                <View style={styles.sideSlot}>
                   {isCenter && unitLabel ? <Text style={styles.unitText}>{unitLabel}</Text> : null}
                 </View>
               </View>
@@ -143,12 +143,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   centerRow: {
-    position: 'relative',
-    alignItems: 'center',
+    width: 128,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
     justifyContent: 'center',
   },
-  valueAnchor: {
-    position: 'relative',
+  sideSlot: {
+    width: 40,
+    alignItems: 'flex-start',
+    justifyContent: 'flex-end',
+  },
+  valueSlot: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -168,9 +174,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   unitText: {
-    position: 'absolute',
-    right: -16,
-    bottom: 5,
+    marginBottom: 7,
     fontSize: 11,
     lineHeight: 12,
     color: 'rgba(0,0,0,0.4)',

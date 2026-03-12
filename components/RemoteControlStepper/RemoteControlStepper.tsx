@@ -3,6 +3,7 @@ import { Image, Pressable, StyleSheet, Text, View, type ImageSourcePropType } fr
 import { TOKENS } from '../../tokens';
 
 type NumericRange = [number, number];
+type TemperatureIconMode = 'none' | 'snow' | 'warm';
 
 export interface RemoteControlStepperProps {
   range: NumericRange;
@@ -12,6 +13,7 @@ export interface RemoteControlStepperProps {
   onChange?: (nextValue: number) => void;
   unitLabel?: string;
   enableContinuousPress?: boolean;
+  temperatureIconMode?: TemperatureIconMode;
   showDegreeSymbol?: boolean;
   showCornerIcon?: boolean;
   cornerIconSource?: ImageSourcePropType;
@@ -22,6 +24,10 @@ const BUTTON_WIDTH = 103;
 const BUTTON_GAP = 12;
 const OUTER_RADIUS = 60;
 const CONTINUOUS_STEP_INTERVAL_MS = 120;
+const TEMPERATURE_ICON_SOURCES: Record<Exclude<TemperatureIconMode, 'none'>, ImageSourcePropType> = {
+  snow: require('../../assets/icons/airconditioner/degreesnow.png'),
+  warm: require('../../assets/icons/airconditioner/degreewarm.png'),
+};
 
 const clamp = (value: number, minValue: number, maxValue: number) =>
   Math.max(minValue, Math.min(maxValue, value));
@@ -40,6 +46,7 @@ const RemoteControlStepper: React.FC<RemoteControlStepperProps> = ({
   onChange,
   unitLabel = '挡',
   enableContinuousPress = false,
+  temperatureIconMode,
   showDegreeSymbol = false,
   showCornerIcon = false,
   cornerIconSource = require('../../assets/icons/airconditioner/snow.png'),
@@ -75,6 +82,14 @@ const RemoteControlStepper: React.FC<RemoteControlStepperProps> = ({
     if (Number.isInteger(currentValue)) return String(currentValue);
     return String(Number(currentValue.toFixed(2)));
   }, [currentValue]);
+  const resolvedTemperatureIconMode: TemperatureIconMode = useMemo(() => {
+    if (temperatureIconMode) return temperatureIconMode;
+    return showDegreeSymbol || showCornerIcon ? 'snow' : 'none';
+  }, [temperatureIconMode, showDegreeSymbol, showCornerIcon]);
+  const temperatureIconSource = useMemo(() => {
+    if (resolvedTemperatureIconMode === 'none') return null;
+    return TEMPERATURE_ICON_SOURCES[resolvedTemperatureIconMode];
+  }, [resolvedTemperatureIconMode]);
 
   const commitValue = (nextValue: number) => {
     const snapped = clamp(snapToStep(nextValue, rangeStart, resolvedStep), rangeStart, rangeEnd);
@@ -174,11 +189,13 @@ const RemoteControlStepper: React.FC<RemoteControlStepperProps> = ({
       <View style={styles.centerInfo}>
         <View style={styles.valueDecorRow}>
           <Text style={styles.valueText}>{valueText}</Text>
-          {showDegreeSymbol || showCornerIcon ? (
+          {temperatureIconSource ? (
+            <Image source={temperatureIconSource} style={styles.temperatureIcon} resizeMode="contain" />
+          ) : showDegreeSymbol || showCornerIcon ? (
             <View style={styles.valueDecorCol}>
               {showDegreeSymbol ? <Text style={styles.degreeText}>°</Text> : null}
               {showCornerIcon ? (
-                <Image source={cornerIconSource} style={styles.cornerIcon} resizeMode="contain" />
+                <Image source={cornerIconSource} style={styles.cornerIconLegacy} resizeMode="contain" />
               ) : null}
             </View>
           ) : (
@@ -262,7 +279,23 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     fontWeight: '500',
   },
+  degreeIcon: {
+    width: 10,
+    height: 10,
+    marginBottom: 1,
+  },
+  temperatureIcon: {
+    width: 10,
+    height: 20,
+    marginLeft: 2,
+    marginBottom: 5,
+  },
   cornerIcon: {
+    width: 10,
+    height: 10,
+    marginTop: 1,
+  },
+  cornerIconLegacy: {
     width: 10,
     height: 10,
     tintColor: '#809DE4',

@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CircularTimePicker, TimeAdjustPickerCard, type CircularTimeValue } from '../../components/time';
 import { PageTabSwitch } from '../../components/PageSwitch';
@@ -9,15 +9,10 @@ type TimerOneControlType = 0 | 1;
 
 const VIEW_TABS = ['1', '2'] as const;
 
-const formatTime = (value: CircularTimeValue) =>
-  `${String(value.hour).padStart(2, '0')}:${String(value.minute).padStart(2, '0')}`;
-
 const TimerOneScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<TimerOneControlType>(0);
   const [timeValue, setTimeValue] = useState<CircularTimeValue>({ hour: 8, minute: 5 });
-
-  const subtitleText = useMemo(() => formatTime(timeValue), [timeValue]);
 
   return (
     <View style={styles.container}>
@@ -51,8 +46,6 @@ const TimerOneScreen: React.FC = () => {
             />
           </View>
         )}
-
-        <Text style={styles.timePreview}>{subtitleText}</Text>
 
         <PageTabSwitch
           activeIndex={activeTab}
@@ -104,11 +97,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: TOKENS.colors.textPrimary,
     marginBottom: 8,
-  },
-  timePreview: {
-    fontSize: 16,
-    color: TOKENS.colors.rightText,
-    marginBottom: 20,
   },
   pageSwitchContainer: {
     flexDirection: 'row',

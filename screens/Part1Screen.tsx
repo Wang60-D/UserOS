@@ -82,7 +82,7 @@ const CATALOG_SECTIONS: CatalogSection[] = [
   {
     title: '功能入口',
     items: [
-      { label: '样式', routeName: 'FeatureEntryStyle1' },
+      { label: '空调风', routeName: 'FeatureEntryStyle1' },
     ],
   },
   {
@@ -94,6 +94,10 @@ const CATALOG_SECTIONS: CatalogSection[] = [
       { label: '空气质量', routeName: 'SettingAirQuality' },
       { label: '灯光色温', routeName: 'SettingLightColorTemp' },
     ],
+  },
+  {
+    title: '调试',
+    items: [{ label: '滑条测试页', routeName: 'DotSliderTest' }],
   },
 ];
 
